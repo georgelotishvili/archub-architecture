@@ -29,13 +29,14 @@ body {
 
 /* ===== ადმინ ჰედერი ===== */
 .admin-header {
-  background: linear-gradient(135deg, #663399 0%, #4c2666 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: #242424;
   padding: 20px 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
+  border-bottom: 2px solid #663399;
 }
 
 .admin-header-container {
@@ -64,22 +65,22 @@ body {
 }
 
 .admin-title h1 {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #ffffff;
+  color: #242424;
 }
 
 .back-to-site {
-  color: rgba(255, 255, 255, 0.8);
+  color: #663399;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
 }
 
 .back-to-site:hover {
-  color: #ffffff;
+  color: #4c2666;
   text-decoration: underline;
 }
 
@@ -106,7 +107,7 @@ body {
 }
 
 .admin-section h2 {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 24px;
   font-weight: 700;
   color: #242424;
@@ -126,7 +127,7 @@ body {
 
 .form-group label {
   display: block;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 14px;
   font-weight: 600;
   color: #242424;
@@ -159,7 +160,7 @@ body {
   background: linear-gradient(135deg, #663399 0%, #4c2666 100%);
   border: none;
   color: #ffffff;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -218,16 +219,16 @@ body {
 }
 
 .card-details {
-  background: rgba(128, 128, 128, 0.9);
-  color: #ffffff;
+  background: transparent;
+  color: #242424;
   padding: 10px;
   border-radius: 4px;
 }
 
 .card-area {
   font-weight: 600;
-  color: #ffffff;
-  font-size: 16px;
+  color: #242424;
+  font-size: 12px;
 }
 
 .card-actions {
@@ -303,7 +304,7 @@ body {
 }
 
 .edit-modal-header h3 {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 20px;
   font-weight: 700;
   margin: 0;
@@ -339,7 +340,7 @@ body {
 
 .edit-modal-body .form-group label {
   display: block;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 14px;
   font-weight: 600;
   color: #242424;
@@ -373,7 +374,7 @@ body {
 }
 
 .current-image label {
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 14px;
   font-weight: 600;
   color: #242424;
@@ -393,7 +394,7 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-size: 14px;
   font-weight: 600;
   transition: all 0.3s ease;
