@@ -99,12 +99,6 @@ function loadCardDetails() {
 
 // ქარდის დეტალების ჩვენება
 function displayCardDetails(card) {
-    const cardTitleEl = document.getElementById('cardTitle');
-    const cardAreaEl = document.getElementById('cardArea');
-    
-    if (cardTitleEl) cardTitleEl.textContent = card.title || `ქარდი #${card.id}`;
-    if (cardAreaEl) cardAreaEl.textContent = card.area;
-    
     const photoCarousel = document.getElementById('photoCarousel');
     const carouselDots = document.getElementById('carouselDots');
     const noPhotos = document.getElementById('noPhotos');
@@ -127,19 +121,11 @@ function displayCardDetails(card) {
 
 // ქარდი არ მოიძებნა
 function showNoCard() {
-    const cardTitleEl = document.getElementById('cardTitle');
-    const cardAreaEl = document.getElementById('cardArea');
     const noPhotosEl = document.getElementById('noPhotos');
     
-    if (cardTitleEl) cardTitleEl.textContent = 'ქარდი არ მოიძებნა';
-    if (cardAreaEl) cardAreaEl.textContent = '';
     if (noPhotosEl) noPhotosEl.style.display = 'block';
 }
 
-// უკან დაბრუნება
-function goBack() {
-    window.history.back();
-}
 
 // კარუსელის ცვლადები
 let currentSlide = 0;
