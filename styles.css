@@ -161,6 +161,7 @@ body {
   background-color: #f0f0f0;
   position: relative;
   overflow: hidden;
+  padding-bottom: 5px;
 }
 
 /* კარუსელის კონტეინერი */
@@ -469,7 +470,6 @@ body {
   height: auto;
   aspect-ratio: 4/3;
   background: #ffffff;
-  border-radius: 5px;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -522,6 +522,7 @@ body {
   flex-direction: column;
   text-align: center;
   color: #ffffff;
+  /* background-color: #663399; */
   max-width: 900px;
   width: 100%;
 }
