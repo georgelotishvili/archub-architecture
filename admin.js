@@ -308,44 +308,6 @@ function clearOldCards() {
     }
 }
 
-// localStorage-ის სრული გასუფთავება
-function clearStorage() {
-    if (confirm('ნამდვილად გსურთ localStorage-ის გასუფთავება? ყველა ქარდი წაიშლება!')) {
-        try {
-            console.log('Clearing all localStorage...');
-            
-            // ყველა admin/card related key-ის წაშლა
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && (key.includes('admin') || key.includes('card'))) {
-                    keysToRemove.push(key);
-                }
-            }
-            
-            keysToRemove.forEach(key => {
-                localStorage.removeItem(key);
-                console.log('Removed key:', key);
-            });
-            
-            // sessionStorage-ის გასუფთავება
-            sessionStorage.removeItem('adminCards');
-            
-            // ქარდების array-ის გასუფთავება
-            projectsCards = [];
-            
-            // ქარდების სიის განახლება
-            loadCardsList();
-            
-            alert('localStorage გასუფთავდა! ყველა ქარდი წაიშალა.');
-            console.log('Storage cleared successfully');
-        } catch (error) {
-            console.error('Error clearing storage:', error);
-            alert('შეცდომა გასუფთავებისას: ' + error.message);
-        }
-    }
-}
-window.clearStorage = clearStorage;
 
 // ტესტის ფუნქცია (commented out - debugging only)
 /*

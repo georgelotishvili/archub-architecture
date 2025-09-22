@@ -224,6 +224,36 @@ function initProjectsCarousel() {
     loadCardsFromStorage();
     renderProjectsCards();
     
+    // Check if returning from gallery and set carousel position
+    const returnToCardIndex = sessionStorage.getItem('returnToCardIndex');
+    const scrollToSection2 = sessionStorage.getItem('scrollToSection2');
+    
+    if (returnToCardIndex !== null) {
+        console.log('Returning from gallery, setting card index to:', returnToCardIndex);
+        currentCardIndex = parseInt(returnToCardIndex);
+        sessionStorage.removeItem('returnToCardIndex');
+        
+        // Scroll to section 2 if needed (only when returning from gallery)
+        if (scrollToSection2 === 'true') {
+            sessionStorage.removeItem('scrollToSection2');
+            setTimeout(() => {
+                const section2 = document.querySelector('.section-2');
+                if (section2) {
+                    section2.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    console.log('Scrolled to section 2 after returning from gallery');
+                }
+            }, 300); // Increased delay to ensure carousel is ready
+        }
+        
+        setTimeout(() => {
+            updateCarouselPosition();
+            updateCarouselButtons();
+        }, 100);
+    }
+    
     // localStorage-ში ცვლილებების მონიტორინგი
     window.addEventListener('storage', function(e) {
         console.log('Storage event received:', e);
@@ -364,8 +394,19 @@ function renderProjectsCards() {
                 </div>
             `;
             
-            cardElement.addEventListener('click', () => {
+            cardElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 console.log('Card clicked:', card);
+                console.log('Current scroll position before click:', window.pageYOffset || document.documentElement.scrollTop);
+                
+                // Store the original index of the card
+                card.originalIndex = index;
+                
+                // Store current scroll position to prevent unwanted scrolling
+                const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                sessionStorage.setItem('currentScrollPosition', currentScrollPosition.toString());
+                
                 // Navigate to gallery page with card data
                 openGalleryForCard(card);
             });

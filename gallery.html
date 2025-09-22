@@ -239,14 +239,16 @@
     <div class="gallery" id="gallery">
         <!-- სლაიდების კონტეინერი -->
         <div class="gallery-container">
-            <div class="slide active">
-                <img src="photos/car (1).jpg" alt="Image 1">
-            </div>
-            <div class="slide">
-                <img src="photos/car (2).jpg" alt="Image 2">
-            </div>
-            <div class="slide">
-                <img src="photos/car (3).jpg" alt="Image 3">
+            <div class="carousel-container">
+                <div class="slide active">
+                    <img src="photos/car (1).jpg" alt="Image 1">
+                </div>
+                <div class="slide">
+                    <img src="photos/car (2).jpg" alt="Image 2">
+                </div>
+                <div class="slide">
+                    <img src="photos/car (3).jpg" alt="Image 3">
+                </div>
             </div>
         </div>
         
@@ -261,7 +263,7 @@
         <span class="nav-icon next" onclick="changeSlide(1)">›</span>
         
         <!-- ღილაკები (dots) -->
-        <div class="dots">
+        <div class="dots" id="carouselDots">
             <button class="dot active" onclick="currentSlide(0)"></button>
             <button class="dot" onclick="currentSlide(1)"></button>
             <button class="dot" onclick="currentSlide(2)"></button>
@@ -340,8 +342,16 @@
 
         // გალერიის დახურვის ფუნქცია
         function closeGallery() {
-            // Clear session storage
+            // Store the card index that was clicked to open gallery
+            if (selectedCard) {
+                sessionStorage.setItem('returnToCardIndex', selectedCard.originalIndex || 0);
+                // Mark that we need to scroll to section 2 when returning
+                sessionStorage.setItem('scrollToSection2', 'true');
+            }
+            
+            // Clear selected card data
             sessionStorage.removeItem('selectedCard');
+            
             // Navigate back to main page
             window.location.href = 'index.html';
         }
@@ -389,10 +399,18 @@
                 return;
             }
             
+            console.log('Loading photos for card:', selectedCard);
+            
             // Check if card has photos array
             if (selectedCard.photos && selectedCard.photos.length > 0) {
-                displayCardPhotos(selectedCard.photos);
+                console.log('Card has photos array:', selectedCard.photos);
+                // Extract URLs from photo objects
+                const photoUrls = selectedCard.photos.map(photo => 
+                    typeof photo === 'string' ? photo : photo.url
+                );
+                displayCardPhotos(photoUrls);
             } else {
+                console.log('Card has no photos array, using main image');
                 // Use main image as single photo
                 displayCardPhotos([selectedCard.image]);
             }
@@ -413,7 +431,10 @@
             photos.forEach((photo, index) => {
                 const slide = document.createElement('div');
                 slide.className = `slide ${index === 0 ? 'active' : ''}`;
-                slide.innerHTML = `<img src="${photo}" alt="Photo ${index + 1}">`;
+                
+                // Handle both string URLs and photo objects
+                const photoUrl = typeof photo === 'string' ? photo : photo.url;
+                slide.innerHTML = `<img src="${photoUrl}" alt="Photo ${index + 1}">`;
                 carouselContainer.appendChild(slide);
                 
                 // Create dot
@@ -439,17 +460,23 @@
         
         // Show default photos if no card data
         function showDefaultPhotos() {
+            console.log('Showing default photos');
             gallery.style.display = 'block';
             noPhotos.style.display = 'none';
+            
+            // Use existing HTML slides
+            slides = document.querySelectorAll('.slide');
+            dots = document.querySelectorAll('.dot');
+            totalSlides = slides.length;
+            currentSlideIndex = 0;
+            
             showSlide(0);
         }
         
         // Update counter display
         function updateCounter() {
-            const counter = document.getElementById('carouselCounter');
-            if (counter) {
-                counter.textContent = `${currentSlideIndex + 1} / ${totalSlides}`;
-            }
+            // Counter is not needed as per user request
+            console.log(`Current slide: ${currentSlideIndex + 1} / ${totalSlides}`);
         }
         
         // Initialize gallery when page loads
