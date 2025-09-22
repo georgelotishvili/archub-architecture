@@ -366,13 +366,8 @@ function renderProjectsCards() {
             
             cardElement.addEventListener('click', () => {
                 console.log('Card clicked:', card);
-                console.log('Card link:', card.link);
-                if (card.link) {
-                    console.log('Navigating to:', card.link);
-                    window.location.href = card.link;
-                } else {
-                    console.log('No link found for card');
-                }
+                // Navigate to gallery page with card data
+                openGalleryForCard(card);
             });
             
             cardsContainer.appendChild(cardElement);
@@ -477,6 +472,17 @@ function updateCarouselButtons() {
         prevBtn.disabled = false;
         nextBtn.disabled = false;
     }
+}
+
+// Gallery functionality for card details
+function openGalleryForCard(card) {
+    console.log('Opening gallery for card:', card);
+    
+    // Store card data in sessionStorage for gallery to access
+    sessionStorage.setItem('selectedCard', JSON.stringify(card));
+    
+    // Navigate to gallery page
+    window.location.href = 'gallery.html';
 }
 
 

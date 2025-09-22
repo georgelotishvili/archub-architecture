@@ -281,24 +281,35 @@
     <script>
         // ცვლადები
         let currentSlideIndex = 0;
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.dot');
-        const totalSlides = slides.length;
+        let slides = document.querySelectorAll('.slide');
+        let dots = document.querySelectorAll('.dot');
+        let totalSlides = slides.length;
         const gallery = document.getElementById('gallery');
         const noPhotos = document.getElementById('noPhotos');
+        let selectedCard = null;
 
         // სლაიდის ჩვენების ფუნქცია
         function showSlide(index) {
+            if (!slides || slides.length === 0) return;
+            
             slides.forEach((slide, i) => {
                 slide.classList.toggle('active', i === index);
             });
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
+            
+            if (dots && dots.length > 0) {
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+            
+            currentSlideIndex = index;
+            updateCounter();
         }
 
         // სლაიდის შეცვლის ფუნქცია (წინა/შემდეგი)
         function changeSlide(direction) {
+            if (totalSlides === 0) return;
+            
             currentSlideIndex += direction;
             if (currentSlideIndex >= totalSlides) {
                 currentSlideIndex = 0;
@@ -307,11 +318,17 @@
             }
             showSlide(currentSlideIndex);
         }
+        
+        // Go to specific slide
+        function goToSlide(index) {
+            if (index >= 0 && index < totalSlides) {
+                showSlide(index);
+            }
+        }
 
-        // კონკრეტული სლაიდის არჩევის ფუნქცია (dots-ით)
+        // კონკრეტული სლაიდის არჩევის ფუნქცია (dots-ით) - deprecated, use goToSlide
         function currentSlide(index) {
-            currentSlideIndex = index;
-            showSlide(currentSlideIndex);
+            goToSlide(index);
         }
 
         // გალერიის შენახვის ფუნქცია (მომავალში განვითარდება)
@@ -323,8 +340,10 @@
 
         // გალერიის დახურვის ფუნქცია
         function closeGallery() {
-            gallery.classList.add('closed');
-            noPhotos.style.display = 'block';
+            // Clear session storage
+            sessionStorage.removeItem('selectedCard');
+            // Navigate back to main page
+            window.location.href = 'index.html';
         }
 
         // ===========================================
@@ -349,7 +368,94 @@
         // ===========================================
         // გალერიის ინიციალიზაცია
         // ===========================================
-        showSlide(0);
+        
+        // Load card data from sessionStorage
+        function loadCardData() {
+            const cardData = sessionStorage.getItem('selectedCard');
+            if (cardData) {
+                selectedCard = JSON.parse(cardData);
+                console.log('Loaded card data:', selectedCard);
+                loadCardPhotos();
+            } else {
+                console.log('No card data found, showing default photos');
+                showDefaultPhotos();
+            }
+        }
+        
+        // Load photos for selected card
+        function loadCardPhotos() {
+            if (!selectedCard) {
+                showDefaultPhotos();
+                return;
+            }
+            
+            // Check if card has photos array
+            if (selectedCard.photos && selectedCard.photos.length > 0) {
+                displayCardPhotos(selectedCard.photos);
+            } else {
+                // Use main image as single photo
+                displayCardPhotos([selectedCard.image]);
+            }
+        }
+        
+        // Display photos in carousel
+        function displayCardPhotos(photos) {
+            const carouselContainer = document.querySelector('.carousel-container');
+            const dotsContainer = document.getElementById('carouselDots');
+            
+            if (!carouselContainer || !dotsContainer) return;
+            
+            // Clear existing content
+            carouselContainer.innerHTML = '';
+            dotsContainer.innerHTML = '';
+            
+            // Create slides
+            photos.forEach((photo, index) => {
+                const slide = document.createElement('div');
+                slide.className = `slide ${index === 0 ? 'active' : ''}`;
+                slide.innerHTML = `<img src="${photo}" alt="Photo ${index + 1}">`;
+                carouselContainer.appendChild(slide);
+                
+                // Create dot
+                const dot = document.createElement('button');
+                dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToSlide(index));
+                dotsContainer.appendChild(dot);
+            });
+            
+            // Update variables
+            slides = document.querySelectorAll('.slide');
+            dots = document.querySelectorAll('.dot');
+            totalSlides = photos.length;
+            currentSlideIndex = 0;
+            
+            // Show gallery
+            gallery.style.display = 'block';
+            noPhotos.style.display = 'none';
+            
+            // Update counter
+            updateCounter();
+        }
+        
+        // Show default photos if no card data
+        function showDefaultPhotos() {
+            gallery.style.display = 'block';
+            noPhotos.style.display = 'none';
+            showSlide(0);
+        }
+        
+        // Update counter display
+        function updateCounter() {
+            const counter = document.getElementById('carouselCounter');
+            if (counter) {
+                counter.textContent = `${currentSlideIndex + 1} / ${totalSlides}`;
+            }
+        }
+        
+        // Initialize gallery when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCardData();
+        });
     </script>
 </body>
 </html>
