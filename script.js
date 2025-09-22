@@ -497,5 +497,45 @@ function clearForm(inputs) {
     inputs.forEach(input => input.value = '');
 }
 
+// localStorage და sessionStorage polyfill ძველი ბრაუზერებისთვის
+if (!window.localStorage) {
+    console.log('localStorage not supported, using memory storage');
+    window.localStorage = {
+        data: {},
+        setItem: function(key, value) {
+            this.data[key] = value;
+        },
+        getItem: function(key) {
+            return this.data[key] || null;
+        },
+        removeItem: function(key) {
+            delete this.data[key];
+        },
+        clear: function() {
+            this.data = {};
+        }
+    };
+}
+
+// sessionStorage polyfill ძველი ბრაუზერებისთვის
+if (!window.sessionStorage) {
+    console.log('sessionStorage not supported, using memory storage');
+    window.sessionStorage = {
+        data: {},
+        setItem: function(key, value) {
+            this.data[key] = value;
+        },
+        getItem: function(key) {
+            return this.data[key] || null;
+        },
+        removeItem: function(key) {
+            delete this.data[key];
+        },
+        clear: function() {
+            this.data = {};
+        }
+    };
+}
+
 // გვერდის load/refresh
 window.addEventListener('load', () => window.scrollTo(0, 0));
