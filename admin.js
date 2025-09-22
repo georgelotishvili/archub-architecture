@@ -507,7 +507,6 @@ function loadCardsList() {
                 <div class="card-area">${card.area}</div>
             </div>
             <div class="card-actions">
-                <button class="upload-photos-btn" onclick="uploadPhotosForCard(${index})">ფოტოების ატვირთვა</button>
                 <button class="edit-btn" onclick="editCard(${index})">რედაქტირება</button>
                 <button class="delete-btn" onclick="deleteCard(${index})">წაშლა</button>
             </div>
@@ -531,26 +530,37 @@ function editCard(index) {
             </div>
             <div class="edit-modal-body">
                 <div class="form-group">
-                    <label for="editArea">ფართობი:</label>
-                    <input type="text" id="editArea" value="${card.area}">
+                    <label for="editText">ტექსტი:</label>
+                    <input type="text" id="editText" value="${card.area}" placeholder="ფართობი ან სხვა ტექსტი">
                 </div>
+                
                 <div class="form-group">
-                    <label for="editImage">ახალი ფოტო (ოფციონალური):</label>
-                    <input type="file" id="editImage" accept="image/*">
+                    <label for="editMainImage">მთავარი ფოტო:</label>
+                    <input type="file" id="editMainImage" accept="image/*">
+                    <div class="current-main-image">
+                        <img src="${card.image}" alt="მიმდინარე მთავარი ფოტო" style="width: 150px; height: 100px; object-fit: cover; border-radius: 4px; margin-top: 10px;">
+                    </div>
                 </div>
-                <div class="current-image">
-                    <label>მიმდინარე ფოტო:</label>
-                    <img src="${card.image}" alt="მიმდინარე ფოტო" style="width: 100px; height: 75px; object-fit: cover; border-radius: 4px; margin-top: 5px;">
+                
+                <div class="form-group">
+                    <label>გალერიის ფოტოები:</label>
+                    <div class="gallery-photos-container" id="galleryPhotosContainer">
+                        <!-- Gallery photos will be loaded here -->
+                    </div>
+                    <button type="button" class="add-gallery-photo-btn" onclick="addGalleryPhotoField()">+ ფოტოს დამატება</button>
                 </div>
+                
                 <div class="edit-actions">
                     <button class="save-edit-btn" onclick="saveCardEdit(${index})">შენახვა</button>
-                    <button class="cancel-edit-btn" onclick="closeEditModal()">გაუქმება</button>
                 </div>
             </div>
         </div>
     `;
     
     document.body.appendChild(modal);
+    
+    // Load existing gallery photos
+    loadGalleryPhotosForEdit(index);
 }
 
 // რედაქტირების მოდალის დახურვა
@@ -561,62 +571,261 @@ function closeEditModal() {
     }
 }
 
-// ქარდის რედაქტირების შენახვა
-function saveCardEdit(index) {
-    const areaInput = document.getElementById('editArea');
-    const imageInput = document.getElementById('editImage');
+// გალერიის ფოტოების ჩატვირთვა რედაქტირებისთვის
+function loadGalleryPhotosForEdit(cardIndex) {
+    const container = document.getElementById('galleryPhotosContainer');
+    const card = projectsCards[cardIndex];
     
-    const newArea = areaInput.value.trim();
-    
-    if (!newArea) {
-        alert('შეავსეთ ფართობის ველი!');
+    if (!container) {
+        console.error('Gallery photos container not found');
         return;
     }
     
-    if (imageInput.files && imageInput.files[0]) {
-        // ახალი ფოტო ატვირთულია
-        const file = imageInput.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            const oldImage = projectsCards[index].image;
-            
-            projectsCards[index] = {
-                ...projectsCards[index],
-                area: newArea,
-                image: e.target.result
-            };
-            
-            // გალერიის ფოტოების განახლება
-            const galleryPhotoIndex = galleryPhotos.findIndex(photo => photo.url === oldImage);
-            if (galleryPhotoIndex !== -1) {
-                galleryPhotos[galleryPhotoIndex] = {
-                    ...galleryPhotos[galleryPhotoIndex],
-                    url: e.target.result,
-                    title: 'მთავარი ფოტო'
-                };
-                saveGalleryPhotosToStorage();
-                loadGalleryPhotosList();
-            }
-            
-            saveCardsToStorage(); // შენახვა localStorage-ში
-            loadCardsList();
-            closeEditModal();
-            alert('ქარდი და გალერიის ფოტოები განახლდა!');
-        };
-        
-        reader.readAsDataURL(file);
+    container.innerHTML = '';
+    
+    // Load existing gallery photos (first 5)
+    const existingPhotos = galleryPhotos.slice(0, 5);
+    
+    if (existingPhotos.length === 0) {
+        // No existing photos, create empty fields
+        for (let i = 0; i < 3; i++) {
+            const photoField = document.createElement('div');
+            photoField.className = 'gallery-photo-field';
+            photoField.innerHTML = `
+                <div class="gallery-photo-preview">
+                    <div class="no-photo-placeholder">ფოტო არ არის</div>
+                    <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${i})">×</button>
+                </div>
+                <input type="file" class="gallery-photo-input" accept="image/*" onchange="handleGalleryPhotoChange(${i}, this)">
+            `;
+            container.appendChild(photoField);
+        }
     } else {
-        // ფოტო არ შეცვლილა
-        projectsCards[index] = {
-            ...projectsCards[index],
-            area: newArea
+        existingPhotos.forEach((photo, index) => {
+            const photoField = document.createElement('div');
+            photoField.className = 'gallery-photo-field';
+            photoField.innerHTML = `
+                <div class="gallery-photo-preview">
+                    <img src="${photo.url}" alt="Gallery Photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                    <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${index})">×</button>
+                </div>
+                <input type="file" class="gallery-photo-input" accept="image/*" onchange="handleGalleryPhotoChange(${index}, this)">
+            `;
+            container.appendChild(photoField);
+        });
+    }
+}
+
+// გალერიის ფოტოს ველის დამატება
+function addGalleryPhotoField() {
+    const container = document.getElementById('galleryPhotosContainer');
+    if (!container) {
+        console.error('Gallery photos container not found');
+        return;
+    }
+    
+    const currentCount = container.children.length;
+    
+    if (currentCount >= 10) {
+        alert('მაქსიმუმ 10 ფოტო შეიძლება დაემატოს!');
+        return;
+    }
+    
+    const photoField = document.createElement('div');
+    photoField.className = 'gallery-photo-field';
+    photoField.innerHTML = `
+        <div class="gallery-photo-preview">
+            <div class="no-photo-placeholder">ფოტო არ არის</div>
+            <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${currentCount})">×</button>
+        </div>
+        <input type="file" class="gallery-photo-input" accept="image/*" onchange="handleGalleryPhotoChange(${currentCount}, this)">
+    `;
+    container.appendChild(photoField);
+}
+
+// გალერიის ფოტოს ველის წაშლა
+function removeGalleryPhotoField(index) {
+    const container = document.getElementById('galleryPhotosContainer');
+    if (!container) return;
+    
+    const field = container.children[index];
+    if (field) {
+        field.remove();
+        // Update indices for remaining fields
+        updateGalleryPhotoIndices();
+    }
+}
+
+// გალერიის ფოტოს ცვლილების დამუშავება
+function handleGalleryPhotoChange(index, input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = input.previousElementSibling;
+            const img = preview.querySelector('img');
+            if (img) {
+                img.src = e.target.result;
+            } else {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Gallery Photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                    <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${index})">×</button>
+                `;
+            }
         };
-        saveCardsToStorage(); // შენახვა localStorage-ში
+        reader.readAsDataURL(file);
+    }
+}
+
+// გალერიის ფოტოების ინდექსების განახლება
+function updateGalleryPhotoIndices() {
+    const container = document.getElementById('galleryPhotosContainer');
+    if (!container) return;
+    
+    const fields = container.children;
+    
+    Array.from(fields).forEach((field, index) => {
+        const input = field.querySelector('.gallery-photo-input');
+        const removeBtn = field.querySelector('.remove-gallery-photo-btn');
+        
+        if (input) {
+            input.setAttribute('onchange', `handleGalleryPhotoChange(${index}, this)`);
+        }
+        if (removeBtn) {
+            removeBtn.setAttribute('onclick', `removeGalleryPhotoField(${index})`);
+        }
+    });
+}
+
+// ქარდის რედაქტირების შენახვა
+function saveCardEdit(index) {
+    const textInput = document.getElementById('editText');
+    const mainImageInput = document.getElementById('editMainImage');
+    const galleryContainer = document.getElementById('galleryPhotosContainer');
+    
+    if (!textInput) {
+        alert('ტექსტის ველი ვერ მოიძებნა!');
+        return;
+    }
+    
+    const newText = textInput.value.trim();
+    
+    if (!newText) {
+        alert('შეავსეთ ტექსტის ველი!');
+        return;
+    }
+    
+    // Update card text
+    projectsCards[index].area = newText;
+    
+    // Handle main image update
+    if (mainImageInput && mainImageInput.files && mainImageInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            projectsCards[index].image = e.target.result;
+            saveCardAndGallery(index, galleryContainer);
+        };
+        reader.readAsDataURL(mainImageInput.files[0]);
+    } else {
+        saveCardAndGallery(index, galleryContainer);
+    }
+}
+
+// ქარდისა და გალერიის შენახვა
+function saveCardAndGallery(cardIndex, galleryContainer) {
+    const card = projectsCards[cardIndex];
+    
+    if (!galleryContainer) {
+        // No gallery container, just save card
+        saveCardsToStorage();
+        saveGalleryPhotosToStorage();
         loadCardsList();
         closeEditModal();
         alert('ქარდი განახლდა!');
+        return;
     }
+    
+    // Update gallery photos
+    const galleryFields = galleryContainer.children;
+    const newGalleryPhotos = [];
+    let processedCount = 0;
+    let totalFields = galleryFields.length;
+    
+    if (totalFields === 0) {
+        // No gallery fields, just save card
+        saveCardsToStorage();
+        saveGalleryPhotosToStorage();
+        loadCardsList();
+        closeEditModal();
+        alert('ქარდი განახლდა!');
+        return;
+    }
+    
+    Array.from(galleryFields).forEach((field, index) => {
+        const input = field.querySelector('.gallery-photo-input');
+        const img = field.querySelector('img');
+        
+        if (input && input.files && input.files[0]) {
+            // New photo uploaded
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                newGalleryPhotos.push({
+                    id: `gallery-${Date.now()}-${Math.random()}`,
+                    url: e.target.result,
+                    title: `ფოტო ${index + 1}`
+                });
+                
+                processedCount++;
+                if (processedCount === totalFields) {
+                    // All photos processed
+                    galleryPhotos.splice(0, 5, ...newGalleryPhotos);
+                    saveCardsToStorage();
+                    saveGalleryPhotosToStorage();
+                    loadCardsList();
+                    closeEditModal();
+                    alert('ქარდი და გალერიის ფოტოები განახლდა!');
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else if (img && img.src && !img.src.includes('placeholder')) {
+            // Existing photo
+            newGalleryPhotos.push({
+                id: `gallery-${Date.now()}-${Math.random()}`,
+                url: img.src,
+                title: `ფოტო ${index + 1}`
+            });
+            processedCount++;
+            
+            if (processedCount === totalFields) {
+                // All photos processed
+                galleryPhotos.splice(0, 5, ...newGalleryPhotos);
+                saveCardsToStorage();
+                saveGalleryPhotosToStorage();
+                loadCardsList();
+                closeEditModal();
+                alert('ქარდი და გალერიის ფოტოები განახლდა!');
+            }
+        } else {
+            // Empty field
+            processedCount++;
+            if (processedCount === totalFields) {
+                // All photos processed
+                galleryPhotos.splice(0, 5, ...newGalleryPhotos);
+                saveCardsToStorage();
+                saveGalleryPhotosToStorage();
+                loadCardsList();
+                closeEditModal();
+                alert('ქარდი და გალერიის ფოტოები განახლდა!');
+            }
+        }
+    });
+}
+
+// გალერიის ფოტოების ჩატვირთვა (placeholder)
+function loadGalleryPhotosList() {
+    console.log('loadGalleryPhotosList called - placeholder function');
+    // This function is kept for compatibility but doesn't do anything
+    // Gallery photos are managed through the card edit modal
 }
 
 // ქარდის წაშლა
@@ -717,449 +926,12 @@ document.addEventListener('keydown', function(e) {
 });
 
 
-// ცალკე ქარდისთვის ფოტოების ატვირთვა
-function uploadPhotosForCard(cardIndex) {
-    const card = projectsCards[cardIndex];
-    
-    // შევქმნათ ფოტოების ატვირთვის მოდალი
-    const modal = document.createElement('div');
-    modal.className = 'upload-photos-modal';
-    modal.innerHTML = `
-        <div class="upload-photos-modal-content">
-            <div class="upload-photos-modal-header">
-                <h3>ფოტოების ატვირთვა - ${card.area}</h3>
-                <button class="upload-photos-close" onclick="closeUploadPhotosModal()">დახურვა</button>
-            </div>
-            <div class="upload-photos-modal-body">
-                <div class="upload-sections">
-                    <div class="upload-section main-photo-section">
-                        <h4>მთავარი ფოტო:</h4>
-                        <div class="file-upload-area" onclick="document.getElementById('mainPhotoInput').click()">
-                            <div class="upload-icon">📷</div>
-                            <div class="upload-text">მთავარი ფოტოს არჩევა</div>
-                            <div class="upload-subtext">JPEG ფაილი</div>
-                        </div>
-                        <input type="file" id="mainPhotoInput" accept="image/jpeg,image/jpg" style="display: none;" onchange="handleMainPhotoSelection(${cardIndex})">
-                        <button class="add-main-photo-btn" onclick="addMainPhoto(${cardIndex})" style="display: none;">მთავარი ფოტოს დამატება</button>
-                    </div>
-                    
-                    <div class="upload-section other-photos-section">
-                        <h4>სხვა ფოტოები:</h4>
-                        <div class="file-upload-area" onclick="document.getElementById('otherPhotosInput').click()">
-                            <div class="upload-icon">📁</div>
-                            <div class="upload-text">სხვა ფოტოების არჩევა</div>
-                            <div class="upload-subtext">JPEG ფაილები</div>
-                        </div>
-                        <input type="file" id="otherPhotosInput" accept="image/jpeg,image/jpg" multiple style="display: none;" onchange="handleOtherPhotosSelection(${cardIndex})">
-                        <button class="add-other-photos-btn" onclick="addOtherPhotos(${cardIndex})" style="display: none;">სხვა ფოტოების დამატება</button>
-                    </div>
-                </div>
-                
-                <div class="photos-preview-section">
-                    <h4>ფოტოების პრევიუ:</h4>
-                    <div class="photos-preview-container" id="photosPreviewContainer">
-                        <!-- Selected photos will be shown here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Store current card index for global access
-    window.currentEditingCardIndex = cardIndex;
-}
 
-// მიმდინარე ფოტოების ჩვენება
-function displayCurrentPhotos(cardIndex) {
-    const card = projectsCards[cardIndex];
-    const currentPhotosGrid = document.getElementById('currentPhotosGrid');
-    
-    if (!currentPhotosGrid) return;
-    
-    currentPhotosGrid.innerHTML = '';
-    
-    if (card.photos && card.photos.length > 0) {
-        card.photos.forEach((photo, index) => {
-            const photoItem = document.createElement('div');
-            photoItem.className = 'current-photo-item';
-            photoItem.innerHTML = `
-                <img src="${photo.url}" alt="${photo.title}">
-                <div class="photo-actions">
-                    <button class="remove-photo-btn" onclick="removePhotoFromCard(${cardIndex}, ${index})" title="ფოტოს წაშლა">წაშლა</button>
-                </div>
-            `;
-            currentPhotosGrid.appendChild(photoItem);
-        });
-    } else {
-        currentPhotosGrid.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">ფოტოები არ არის</p>';
-    }
-}
 
-// ფოტოს წაშლა ქარდიდან
-function removePhotoFromCard(cardIndex, photoIndex) {
-    if (confirm('ნამდვილად გსურთ ფოტოს წაშლა?')) {
-        const card = projectsCards[cardIndex];
-        const photo = card.photos[photoIndex];
-        
-        // ფოტოს წაშლა ქარდიდან
-        card.photos.splice(photoIndex, 1);
-        
-        // თუ ეს იყო მთავარი ფოტო, შეცვალოს
-        if (photoIndex === 0 && card.photos.length > 0) {
-            card.image = card.photos[0].url;
-        } else if (card.photos.length === 0) {
-            card.image = '';
-        }
-        
-        // გალერიის ფოტოებიდანაც წაშალოს
-        const galleryPhotoIndex = galleryPhotos.findIndex(galleryPhoto => galleryPhoto.url === photo.url);
-        if (galleryPhotoIndex !== -1) {
-            galleryPhotos.splice(galleryPhotoIndex, 1);
-            saveGalleryPhotosToStorage();
-            loadGalleryPhotosList();
-        }
-        
-        saveCardsToStorage();
-        loadCardsList();
-        displayCurrentPhotos(cardIndex);
-        alert('ფოტო წაიშალა!');
-    }
-}
 
-// ახალი ფოტოების შენახვა
-function saveNewPhotos(cardIndex) {
-    const photosInput = document.getElementById('newCardPhotos');
-    
-    if (!photosInput || !photosInput.files || photosInput.files.length === 0) {
-        alert('აირჩიეთ ფოტოები!');
-        return;
-    }
-    
-    const card = projectsCards[cardIndex];
-    const newPhotos = [];
-    let processedFiles = 0;
-    
-    Array.from(photosInput.files).forEach((file, index) => {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            const newPhoto = {
-                url: e.target.result,
-                title: `ფოტო ${card.photos.length + index + 1}`
-            };
-            
-            newPhotos.push(newPhoto);
-            processedFiles++;
-            
-            if (processedFiles === photosInput.files.length) {
-                // ფოტოების დამატება ქარდში
-                card.photos.push(...newPhotos);
-                
-                // თუ ქარდს არ აქვს მთავარი ფოტო, დაუყენოს პირველი
-                if (!card.image && newPhotos.length > 0) {
-                    card.image = newPhotos[0].url;
-                }
-                
-                // გალერიის ფოტოების დამატება
-                const galleryPhotosToAdd = newPhotos.map(photo => ({
-                    id: `gallery-${Date.now()}-${Math.random()}`,
-                    url: photo.url,
-                    title: photo.title
-                }));
-                
-                galleryPhotos.push(...galleryPhotosToAdd);
-                
-                saveCardsToStorage();
-                saveGalleryPhotosToStorage();
-                loadCardsList();
-                loadGalleryPhotosList();
-                displayCurrentPhotos(cardIndex);
-                photosInput.value = '';
-                alert(`${newPhotos.length} ფოტო წარმატებით დაემატა!`);
-            }
-        };
-        
-        reader.readAsDataURL(file);
-    });
-}
 
-// მთავარი ფოტოს არჩევის დამუშავება
-function handleMainPhotoSelection(cardIndex) {
-    const fileInput = document.getElementById('mainPhotoInput');
-    const addBtn = document.querySelector('.add-main-photo-btn');
-    const previewContainer = document.getElementById('photosPreviewContainer');
-    
-    if (fileInput.files && fileInput.files.length > 0) {
-        addBtn.style.display = 'block';
-        
-        // Clear previous main photo preview
-        const existingMainPhoto = document.querySelector('.main-photo-preview');
-        if (existingMainPhoto) {
-            existingMainPhoto.remove();
-        }
-        
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const photoItem = document.createElement('div');
-            photoItem.className = 'photo-preview-item main-photo-preview';
-            photoItem.innerHTML = `
-                <div class="photo-preview-image">
-                    <img src="${e.target.result}" alt="Main Photo Preview">
-                    <div class="photo-actions">
-                        <span class="main-photo-label">მთავარი</span>
-                    </div>
-                </div>
-            `;
-            previewContainer.insertBefore(photoItem, previewContainer.firstChild);
-        };
-        reader.readAsDataURL(file);
-    }
-}
 
-// სხვა ფოტოების არჩევის დამუშავება
-function handleOtherPhotosSelection(cardIndex) {
-    const fileInput = document.getElementById('otherPhotosInput');
-    const addBtn = document.querySelector('.add-other-photos-btn');
-    const previewContainer = document.getElementById('photosPreviewContainer');
-    
-    if (fileInput.files && fileInput.files.length > 0) {
-        addBtn.style.display = 'block';
-        
-        // Clear previous other photos preview
-        const existingOtherPhotos = document.querySelectorAll('.other-photo-preview');
-        existingOtherPhotos.forEach(item => item.remove());
-        
-        Array.from(fileInput.files).forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-preview-item other-photo-preview';
-                photoItem.innerHTML = `
-                    <div class="photo-preview-image">
-                        <img src="${e.target.result}" alt="Other Photo Preview">
-                        <div class="photo-actions">
-                            <button class="move-up-btn" onclick="moveOtherPhotoUp(${index})" title="ზევით">↑</button>
-                            <button class="move-down-btn" onclick="moveOtherPhotoDown(${index})" title="ქვევით">↓</button>
-                        </div>
-                    </div>
-                `;
-                previewContainer.appendChild(photoItem);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-}
 
-// მთავარ ფოტოდ დაყენება
-function setAsMainPhoto(photoIndex) {
-    const previewItems = document.querySelectorAll('.photo-preview-item');
-    previewItems.forEach((item, index) => {
-        const setMainBtn = item.querySelector('.set-main-btn');
-        if (index === photoIndex) {
-            setMainBtn.style.background = '#ffc400';
-            setMainBtn.style.color = '#000';
-            setMainBtn.textContent = '★';
-        } else {
-            setMainBtn.style.background = '#6c757d';
-            setMainBtn.style.color = '#fff';
-            setMainBtn.textContent = '⭐';
-        }
-    });
-}
-
-// ფოტოს ზევით გადატანა
-function movePhotoUp(photoIndex) {
-    const previewContainer = document.getElementById('photosPreviewContainer');
-    const items = Array.from(previewContainer.children);
-    
-    if (photoIndex > 0) {
-        const temp = items[photoIndex];
-        items[photoIndex] = items[photoIndex - 1];
-        items[photoIndex - 1] = temp;
-        
-        previewContainer.innerHTML = '';
-        items.forEach(item => previewContainer.appendChild(item));
-        
-        // Update button indices
-        updateButtonIndices();
-    }
-}
-
-// ფოტოს ქვევით გადატანა
-function movePhotoDown(photoIndex) {
-    const previewContainer = document.getElementById('photosPreviewContainer');
-    const items = Array.from(previewContainer.children);
-    
-    if (photoIndex < items.length - 1) {
-        const temp = items[photoIndex];
-        items[photoIndex] = items[photoIndex + 1];
-        items[photoIndex + 1] = temp;
-        
-        previewContainer.innerHTML = '';
-        items.forEach(item => previewContainer.appendChild(item));
-        
-        // Update button indices
-        updateButtonIndices();
-    }
-}
-
-// ღილაკების ინდექსების განახლება
-function updateButtonIndices() {
-    const previewItems = document.querySelectorAll('.photo-preview-item');
-    previewItems.forEach((item, index) => {
-        const setMainBtn = item.querySelector('.set-main-btn');
-        const moveUpBtn = item.querySelector('.move-up-btn');
-        const moveDownBtn = item.querySelector('.move-down-btn');
-        
-        setMainBtn.setAttribute('onclick', `setAsMainPhoto(${index})`);
-        moveUpBtn.setAttribute('onclick', `movePhotoUp(${index})`);
-        moveDownBtn.setAttribute('onclick', `movePhotoDown(${index})`);
-    });
-}
-
-// მთავარი ფოტოს დამატება
-function addMainPhoto(cardIndex) {
-    const fileInput = document.getElementById('mainPhotoInput');
-    const card = projectsCards[cardIndex];
-    
-    if (!fileInput.files || fileInput.files.length === 0) {
-        alert('აირჩიეთ მთავარი ფოტო!');
-        return;
-    }
-    
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        // Update card main image
-        card.image = e.target.result;
-        
-        // Add to gallery if not already there
-        const existingGalleryPhoto = galleryPhotos.find(photo => photo.url === e.target.result);
-        if (!existingGalleryPhoto) {
-            galleryPhotos.push({
-                id: `gallery-${Date.now()}-${Math.random()}`,
-                url: e.target.result,
-                title: `მთავარი ფოტო - ${card.area}`
-            });
-        }
-        
-        saveCardsToStorage();
-        saveGalleryPhotosToStorage();
-        loadCardsList();
-        loadGalleryPhotosList();
-        closeUploadPhotosModal();
-        alert('მთავარი ფოტო წარმატებით დაემატა!');
-    };
-    reader.readAsDataURL(file);
-}
-
-// სხვა ფოტოების დამატება
-function addOtherPhotos(cardIndex) {
-    const fileInput = document.getElementById('otherPhotosInput');
-    const card = projectsCards[cardIndex];
-    
-    if (!fileInput.files || fileInput.files.length === 0) {
-        alert('აირჩიეთ სხვა ფოტოები!');
-        return;
-    }
-    
-    const files = Array.from(fileInput.files);
-    const newPhotos = [];
-    let processedFiles = 0;
-    
-    files.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            newPhotos.push({
-                url: e.target.result,
-                title: `ფოტო ${card.photos.length + index + 1}`
-            });
-            
-            processedFiles++;
-            
-            if (processedFiles === files.length) {
-                // Add photos to card
-                card.photos.push(...newPhotos);
-                
-                // Add to gallery
-                const galleryPhotosToAdd = newPhotos.map(photo => ({
-                    id: `gallery-${Date.now()}-${Math.random()}`,
-                    url: photo.url,
-                    title: photo.title
-                }));
-                
-                galleryPhotos.push(...galleryPhotosToAdd);
-                
-                saveCardsToStorage();
-                saveGalleryPhotosToStorage();
-                loadCardsList();
-                loadGalleryPhotosList();
-                closeUploadPhotosModal();
-                alert(`${newPhotos.length} ფოტო წარმატებით დაემატა!`);
-            }
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// სხვა ფოტოს ზევით გადატანა
-function moveOtherPhotoUp(photoIndex) {
-    const previewContainer = document.getElementById('photosPreviewContainer');
-    const otherPhotos = Array.from(previewContainer.querySelectorAll('.other-photo-preview'));
-    
-    if (photoIndex > 0) {
-        const temp = otherPhotos[photoIndex];
-        otherPhotos[photoIndex] = otherPhotos[photoIndex - 1];
-        otherPhotos[photoIndex - 1] = temp;
-        
-        // Reorder in DOM
-        otherPhotos.forEach(photo => previewContainer.appendChild(photo));
-        
-        // Update button indices
-        updateOtherPhotoButtonIndices();
-    }
-}
-
-// სხვა ფოტოს ქვევით გადატანა
-function moveOtherPhotoDown(photoIndex) {
-    const previewContainer = document.getElementById('photosPreviewContainer');
-    const otherPhotos = Array.from(previewContainer.querySelectorAll('.other-photo-preview'));
-    
-    if (photoIndex < otherPhotos.length - 1) {
-        const temp = otherPhotos[photoIndex];
-        otherPhotos[photoIndex] = otherPhotos[photoIndex + 1];
-        otherPhotos[photoIndex + 1] = temp;
-        
-        // Reorder in DOM
-        otherPhotos.forEach(photo => previewContainer.appendChild(photo));
-        
-        // Update button indices
-        updateOtherPhotoButtonIndices();
-    }
-}
-
-// სხვა ფოტოების ღილაკების ინდექსების განახლება
-function updateOtherPhotoButtonIndices() {
-    const otherPhotos = document.querySelectorAll('.other-photo-preview');
-    otherPhotos.forEach((item, index) => {
-        const moveUpBtn = item.querySelector('.move-up-btn');
-        const moveDownBtn = item.querySelector('.move-down-btn');
-        
-        moveUpBtn.setAttribute('onclick', `moveOtherPhotoUp(${index})`);
-        moveDownBtn.setAttribute('onclick', `moveOtherPhotoDown(${index})`);
-    });
-}
-
-// ფოტოების ატვირთვის მოდალის დახურვა
-function closeUploadPhotosModal() {
-    const modal = document.querySelector('.upload-photos-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
 
 // ახალი ქარდის დამატების მოდალის ჩვენება
 function showAddCardModal() {
@@ -1286,16 +1058,9 @@ window.saveCardEdit = saveCardEdit;
 window.clearForm = clearForm;
 window.exportCards = exportCards;
 window.importCards = importCards;
-window.uploadPhotosForCard = uploadPhotosForCard;
-window.removePhotoFromCard = removePhotoFromCard;
-window.saveNewPhotos = saveNewPhotos;
-window.closeUploadPhotosModal = closeUploadPhotosModal;
 window.showAddCardModal = showAddCardModal;
 window.saveNewCard = saveNewCard;
 window.closeAddCardModal = closeAddCardModal;
-window.handleMainPhotoSelection = handleMainPhotoSelection;
-window.handleOtherPhotosSelection = handleOtherPhotosSelection;
-window.addMainPhoto = addMainPhoto;
-window.addOtherPhotos = addOtherPhotos;
-window.moveOtherPhotoUp = moveOtherPhotoUp;
-window.moveOtherPhotoDown = moveOtherPhotoDown;
+window.addGalleryPhotoField = addGalleryPhotoField;
+window.removeGalleryPhotoField = removeGalleryPhotoField;
+window.handleGalleryPhotoChange = handleGalleryPhotoChange;
