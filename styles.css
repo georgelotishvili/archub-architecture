@@ -403,45 +403,69 @@ body {
   height: 240px;
 }
 
-/* კარუსელის ისრები */
+/* კარუსელის ისრები - სექცია 2 (პროექტები) */
 .carousel-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: #663399;
-  border: none;
-  color: #ffffff;
   width: 50px;
   height: 50px;
-  border-radius: 5px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
   cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 20;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 /* წინა ისარი */
 .carousel-prev {
-  left: 15px;
+  left: 20px;
 }
 
 /* შემდეგი ისარი */
 .carousel-next {
-  right: 15px;
+  right: 20px;
 }
 
 /* კარუსელის ისრების hover ეფექტი */
 .carousel-arrow:hover {
-  background: rgba(102, 51, 153, 0.8);
+  background-color: rgba(255, 255, 255, 0.4);
+  border-color: rgb(255, 255, 255);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* კარუსელის ისრების active მდგომარეობა */
+.carousel-arrow:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 /* კარუსელის ისრების disabled მდგომარეობა */
 .carousel-arrow:disabled {
-  opacity: 0.5;
+  opacity: 0.3;
   cursor: not-allowed;
-  transform: none;
+  transform: translateY(-50%);
+}
+
+/* კარუსელის ისრების SVG სტილები */
+.carousel-arrow svg {
+  width: 24px;
+  height: 24px;
+  stroke: white;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s ease;
+}
+
+/* კარუსელის ისრების hover SVG სტილები */
+.carousel-arrow:hover svg {
+  stroke: white;
 }
 
 /* ბარათების wrapper */
@@ -1472,6 +1496,25 @@ body {
   }
   
   .team-carousel .carousel-next {
+    right: 10px;
+  }
+  
+  /* სექცია 2 კარუსელის ისრები მობილურზე */
+  .carousel-arrow {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .carousel-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .carousel-prev {
+    left: 10px;
+  }
+  
+  .carousel-next {
     right: 10px;
   }
 }
