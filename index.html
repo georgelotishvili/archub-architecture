@@ -401,6 +401,42 @@
         </div>
     </div>
 
+    <!-- გალერიის მოდალური ფანჯარა -->
+    <div class="gallery-modal" id="galleryModal">
+        <div class="gallery-modal-content">
+            <!-- გალერიის კონტეინერი -->
+            <div class="gallery" id="gallery">
+                <!-- სლაიდების კონტეინერი -->
+                <div class="gallery-container">
+                    <div class="carousel-container" id="galleryCarouselContainer">
+                        <!-- სლაიდები დინამიურად დაემატება აქ -->
+                    </div>
+                </div>
+                
+                <!-- შენახვის ღილაკი - მარცხენა ზედა კუთხე -->
+                <button class="save-btn" id="gallerySaveBtn">Save</button>
+                
+                <!-- დახურვის აიქონი - მარჯვენა ზედა კუთხე -->
+                <span class="close-icon" id="galleryCloseBtn">✕</span>
+                
+                <!-- ნავიგაციის აიქონები -->
+                <span class="nav-icon prev" id="galleryPrevBtn">‹</span>
+                <span class="nav-icon next" id="galleryNextBtn">›</span>
+                
+                <!-- ღილაკები (dots) -->
+                <div class="dots" id="galleryDots">
+                    <!-- dots დინამიურად დაემატება აქ -->
+                </div>
+            </div>
+            
+            <!-- ფოტოების არარსებობის შეტყობინება -->
+            <div class="no-photos" id="galleryNoPhotos" style="display: none;">
+                <h3>ფოტოები არ არის</h3>
+                <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
+            </div>
+        </div>
+    </div>
+
     <!-- მთავარი JavaScript ფაილი -->
     <script src="script.js"></script>
 </body>

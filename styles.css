@@ -11,7 +11,7 @@
 
 /* HTML ელემენტის ზოგადი სტილები */
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; - ამოღებულია ავტომატური smooth scroll */
   scroll-padding-top: 0;
 }
 
@@ -1114,6 +1114,209 @@ body {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+/* ===== გალერიის მოდალი ===== */
+/* გალერიის მოდალური ფანჯარა */
+.gallery-modal {
+  display: none;
+  position: fixed;
+  z-index: 10001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+}
+
+/* აქტიური გალერიის მოდალი */
+.gallery-modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* გალერიის მოდალის შინა კონტენტი */
+.gallery-modal-content {
+  width: 90vw;
+  height: 80vh;
+  max-width: 1000px;
+  max-height: 700px;
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+  animation: slideIn 0.3s ease;
+}
+
+/* გალერიის კონტეინერი */
+.gallery {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+}
+
+/* სლაიდების კონტეინერი */
+.gallery-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ინდივიდუალური სლაიდი */
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+/* აქტიური სლაიდი */
+.slide.active {
+  opacity: 1;
+}
+
+/* სლაიდის ფოტო */
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* შენახვის ღილაკი - მარცხენა ზედა კუთხე */
+.save-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #663399;
+  border: none;
+  width: 80px;
+  height: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  z-index: 20;
+  transition: all 0.3s ease;
+  text-align: center;
+  line-height: 1;
+  padding: 0;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* შენახვის ღილაკის hover ეფექტი */
+.save-btn:hover {
+  background: #72469d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* დახურვის აიქონი - მარჯვენა ზედა კუთხე */
+.close-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  z-index: 20;
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* დახურვის აიქონის hover ეფექტი */
+.close-icon:hover {
+  transform: scale(1.1);
+}
+
+/* ნავიგაციის აიქონები - წინა/შემდეგი */
+.nav-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 80px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* ნავიგაციის აიქონების hover ეფექტი */
+.nav-icon:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* წინა აიქონი - მარცხენა მხარე */
+.prev {
+  left: -10px;
+}
+
+/* შემდეგი აიქონი - მარჯვენა მხარე */
+.next {
+  right: -10px;
+}
+
+/* ღილაკების კონტეინერი - ქვემოთ ცენტრში */
+.dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+/* ინდივიდუალური ღილაკი */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* აქტიური ღილაკი */
+.dot.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* ფოტოების არარსებობის შეტყობინება */
+.no-photos {
+  text-align: center;
+  color: white;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  margin: 20px;
+}
+
+.no-photos h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.no-photos p {
+  font-size: 16px;
+  color: #ccc;
 }
 
 /* ===== ანიმაციები ===== */

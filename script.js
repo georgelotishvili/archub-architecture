@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         projectsBtn: document.querySelector('.projects-btn')
     };
 
-    // გვერდი ზედიდან იწყება
-    window.scrollTo(0, 0);
+    // გვერდი ზედიდან იწყება - ამოღებულია ავტომატური scroll
+    // window.scrollTo(0, 0);
 
     // მობილური მენიუ
     function toggleMobileMenu() {
@@ -36,14 +36,14 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', closeMobileMenu);
     });
 
-    // Smooth scroll
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(link.getAttribute('href'));
-            target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    });
+    // Smooth scroll - DISABLED (only manual scrolling allowed)
+    // document.querySelectorAll('a[href^="#"]').forEach(link => {
+    //     link.addEventListener('click', (e) => {
+    //         e.preventDefault();
+    //         const target = document.querySelector(link.getAttribute('href'));
+    //         target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    //     });
+    // });
 
     // Contact Modal
     function openContactModal() {
@@ -110,6 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', () => {
         if (window.innerWidth > 900) closeMobileMenu();
     });
+
+    // Gallery Modal functionality
+    initGalleryModal();
 
     // კარუსელების ინიციალიზაცია
     initTeamCarousel();
@@ -233,20 +236,20 @@ function initProjectsCarousel() {
         currentCardIndex = parseInt(returnToCardIndex);
         sessionStorage.removeItem('returnToCardIndex');
         
-        // Scroll to section 2 if needed (only when returning from gallery)
-        if (scrollToSection2 === 'true') {
-            sessionStorage.removeItem('scrollToSection2');
-            setTimeout(() => {
-                const section2 = document.querySelector('.section-2');
-                if (section2) {
-                    section2.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    console.log('Scrolled to section 2 after returning from gallery');
-                }
-            }, 300); // Increased delay to ensure carousel is ready
-        }
+        // Scroll to section 2 if needed (only when returning from gallery) - DISABLED
+        // if (scrollToSection2 === 'true') {
+        //     sessionStorage.removeItem('scrollToSection2');
+        //     setTimeout(() => {
+        //         const section2 = document.querySelector('.section-2');
+        //         if (section2) {
+        //             section2.scrollIntoView({ 
+        //                 behavior: 'smooth',
+        //                 block: 'start'
+        //             });
+        //             console.log('Scrolled to section 2 after returning from gallery');
+        //         }
+        //     }, 300); // Increased delay to ensure carousel is ready
+        // }
         
         setTimeout(() => {
             updateCarouselPosition();
@@ -519,11 +522,11 @@ function updateCarouselButtons() {
 function openGalleryForCard(card) {
     console.log('Opening gallery for card:', card);
     
-    // Store card data in sessionStorage for gallery to access
-    sessionStorage.setItem('selectedCard', JSON.stringify(card));
+    // Store card data for gallery modal
+    window.selectedCard = card;
     
-    // Navigate to gallery page
-    window.location.href = 'gallery.html';
+    // Open gallery modal
+    openGalleryModal(card);
 }
 
 
@@ -584,5 +587,168 @@ if (!window.sessionStorage) {
     };
 }
 
-// გვერდის load/refresh
-window.addEventListener('load', () => window.scrollTo(0, 0));
+// გვერდის load/refresh - ამოღებულია ავტომატური scroll
+// window.addEventListener('load', () => window.scrollTo(0, 0));
+
+// ===== გალერიის მოდალი =====
+let galleryCurrentSlide = 0;
+let gallerySlides = [];
+let galleryDots = [];
+let galleryTotalSlides = 0;
+
+// Gallery Modal initialization
+function initGalleryModal() {
+    const galleryModal = document.getElementById('galleryModal');
+    const galleryCloseBtn = document.getElementById('galleryCloseBtn');
+    const gallerySaveBtn = document.getElementById('gallerySaveBtn');
+    const galleryPrevBtn = document.getElementById('galleryPrevBtn');
+    const galleryNextBtn = document.getElementById('galleryNextBtn');
+    
+    if (!galleryModal) return;
+    
+    // Event listeners
+    galleryCloseBtn?.addEventListener('click', closeGalleryModal);
+    gallerySaveBtn?.addEventListener('click', saveGallery);
+    galleryPrevBtn?.addEventListener('click', () => changeGallerySlide(-1));
+    galleryNextBtn?.addEventListener('click', () => changeGallerySlide(1));
+    
+    // Close modal when clicking outside
+    galleryModal.addEventListener('click', (e) => {
+        if (e.target === galleryModal) closeGalleryModal();
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (galleryModal.classList.contains('active')) {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                changeGallerySlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                changeGallerySlide(1);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                closeGalleryModal();
+            } else if (e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                saveGallery();
+            }
+        }
+    });
+}
+
+// Open gallery modal
+function openGalleryModal(card) {
+    const galleryModal = document.getElementById('galleryModal');
+    const gallery = document.getElementById('gallery');
+    const noPhotos = document.getElementById('galleryNoPhotos');
+    
+    if (!galleryModal) return;
+    
+    // Show modal
+    galleryModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Load card photos
+    if (card && card.photos && card.photos.length > 0) {
+        displayGalleryPhotos(card.photos);
+        gallery.style.display = 'block';
+        noPhotos.style.display = 'none';
+    } else if (card && card.image) {
+        displayGalleryPhotos([card.image]);
+        gallery.style.display = 'block';
+        noPhotos.style.display = 'none';
+    } else {
+        gallery.style.display = 'none';
+        noPhotos.style.display = 'block';
+    }
+}
+
+// Close gallery modal
+function closeGalleryModal() {
+    const galleryModal = document.getElementById('galleryModal');
+    if (!galleryModal) return;
+    
+    galleryModal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Clear selected card
+    window.selectedCard = null;
+}
+
+// Display photos in gallery
+function displayGalleryPhotos(photos) {
+    const carouselContainer = document.getElementById('galleryCarouselContainer');
+    const dotsContainer = document.getElementById('galleryDots');
+    
+    if (!carouselContainer || !dotsContainer) return;
+    
+    // Clear existing content
+    carouselContainer.innerHTML = '';
+    dotsContainer.innerHTML = '';
+    
+    // Create slides
+    photos.forEach((photo, index) => {
+        const slide = document.createElement('div');
+        slide.className = `slide ${index === 0 ? 'active' : ''}`;
+        
+        const photoUrl = typeof photo === 'string' ? photo : photo.url;
+        slide.innerHTML = `<img src="${photoUrl}" alt="Photo ${index + 1}">`;
+        carouselContainer.appendChild(slide);
+        
+        // Create dot
+        const dot = document.createElement('button');
+        dot.className = `dot ${index === 0 ? 'active' : ''}`;
+        dot.addEventListener('click', () => goToGallerySlide(index));
+        dotsContainer.appendChild(dot);
+    });
+    
+    // Update variables
+    gallerySlides = document.querySelectorAll('#galleryCarouselContainer .slide');
+    galleryDots = document.querySelectorAll('#galleryDots .dot');
+    galleryTotalSlides = photos.length;
+    galleryCurrentSlide = 0;
+}
+
+// Show specific slide
+function showGallerySlide(index) {
+    if (!gallerySlides || gallerySlides.length === 0) return;
+    
+    gallerySlides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+    });
+    
+    if (galleryDots && galleryDots.length > 0) {
+        galleryDots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+    
+    galleryCurrentSlide = index;
+}
+
+// Change slide (previous/next)
+function changeGallerySlide(direction) {
+    if (galleryTotalSlides === 0) return;
+    
+    galleryCurrentSlide += direction;
+    if (galleryCurrentSlide >= galleryTotalSlides) {
+        galleryCurrentSlide = 0;
+    } else if (galleryCurrentSlide < 0) {
+        galleryCurrentSlide = galleryTotalSlides - 1;
+    }
+    showGallerySlide(galleryCurrentSlide);
+}
+
+// Go to specific slide
+function goToGallerySlide(index) {
+    if (index >= 0 && index < galleryTotalSlides) {
+        showGallerySlide(index);
+    }
+}
+
+// Save gallery function
+function saveGallery() {
+    console.log('გალერია შენახულია!');
+    alert('გალერია შენახულია! (ეს ფუნქცია მომავალში განვითარდება)');
+}
