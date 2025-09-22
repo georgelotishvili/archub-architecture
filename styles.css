@@ -1,0 +1,1324 @@
+@charset "UTF-8";
+
+/* ===== ზოგადი სტილები ===== */
+/* ყველა ელემენტის ზოგადი სტილები */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+/* HTML ელემენტის ზოგადი სტილები */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 0;
+}
+
+/* Body ელემენტის ზოგადი სტილები */
+body {
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
+  line-height: 1.6;
+  color: #242424;
+  background-color: #ffffff;
+}
+
+/* კონტეინერის ზოგადი სტილები */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ===== ჰედერი ===== */
+/* ჰედერის მთავარი კონტეინერი */
+.header {
+  background-color: #ffffff;
+  width: 100%;
+  height: 80px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ჰედერის შიდა კონტეინერი */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 85%;
+}
+
+/* ლოგოს ბმული */
+.logo-link {
+  display: block;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* ლოგოს ბმულის hover ეფექტი */
+.logo-link:hover {
+  transform: scale(1.05);
+}
+
+/* ლოგოს SVG სტილები */
+.logo-svg {
+  width: 200px;
+  height: auto;
+}
+
+/* მთავარი ნავიგაციის მენიუ */
+.nav {
+  width: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ნავიგაციის სია */
+.nav-list {
+  width: 100%;
+  list-style: none;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/* ნავიგაციის ბმულები */
+.nav-link {
+  text-decoration: none;
+  color: #242424;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* კონტაქტის ღილაკი */
+.contact-btn {
+  width: 150px;
+  height: 40px;
+  background: #ffc400;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* კონტაქტის ღილაკის hover ეფექტი */
+.contact-btn:hover {
+  transform: scale(1.05);
+}
+
+/* მობილური ბურგერ მენიუ */
+.burger-menu {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 10px;
+}
+
+/* ბურგერ მენიუს იკონი */
+.burger-icon {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2px 0px;
+}
+
+/* ბურგერ მენიუს ხაზები */
+.burger-icon span {
+  width: 100%;
+  height: 3px;
+  background-color: #242424;
+  transition: all 0.3s ease;
+}
+
+/* ბურგერ მენიუს hover ეფექტი */
+.burger-icon:hover span {
+  background-color: #616161;
+}
+
+/* ===== მთავარი კონტენტი ===== */
+/* მთავარი კონტენტის კონტეინერი */
+.main {
+  width: 100%;
+  padding-top: 80px;
+}
+
+/* ფოტოების კარუსელი */
+.carousel {
+  width: 100%;
+  height: 250px;
+  background-color: #f0f0f0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* კარუსელის კონტეინერი */
+.carousel-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+}
+
+/* კარუსელის სლაიდი */
+.carousel-slide {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+/* აქტიური კარუსელის სლაიდი */
+.carousel-slide.active {
+  opacity: 1;
+}
+
+/* კარუსელის სლაიდის სურათები */
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* კარუსელის ავტომატური ანიმაცია */
+@keyframes slideShow {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  20% { opacity: 1; }
+  30% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* კარუსელის სლაიდების ანიმაციის დროები */
+.carousel-slide:nth-child(1) { animation: slideShow 50s infinite 0s; }
+.carousel-slide:nth-child(2) { animation: slideShow 50s infinite 5s; }
+.carousel-slide:nth-child(3) { animation: slideShow 50s infinite 10s; }
+.carousel-slide:nth-child(4) { animation: slideShow 50s infinite 15s; }
+.carousel-slide:nth-child(5) { animation: slideShow 50s infinite 20s; }
+.carousel-slide:nth-child(6) { animation: slideShow 50s infinite 25s; }
+.carousel-slide:nth-child(7) { animation: slideShow 50s infinite 30s; }
+.carousel-slide:nth-child(8) { animation: slideShow 50s infinite 35s; }
+.carousel-slide:nth-child(9) { animation: slideShow 50s infinite 40s; }
+.carousel-slide:nth-child(10) { animation: slideShow 50s infinite 45s; }
+
+/* ===== სექცია 1 - არქიტექტურული სერვისები ===== */
+/* სექცია 1-ის მთავარი კონტეინერი */
+.section-1 {
+  width: 100%;
+  min-height: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  border-top: 5px solid #663399;
+  border-bottom: 5px solid #663399;
+}
+
+/* სექცია 1-ის მარცხენა ნაწილი - ფოტოების გალერეა */
+.section-1-left {
+  width: 600px;
+  height: 600px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ფოტოების შიდა კონტეინერი */
+.section-1-left-content {
+  width: 70%;
+  aspect-ratio: 1;
+  transform: rotate(23deg);
+  position: relative;
+}
+
+/* ფოტოების ზოგადი სტილები */
+.photo-1, .photo-2, .photo-3, .photo-4 {
+  width: 48%;
+  height: 48%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+}
+
+/* პირველი ფოტო */
+.photo-1 {
+  background-image: url(/photos/logo\ 1.jpg);
+  top: 0;
+  left: 0;
+}
+
+/* მეორე ფოტო */
+.photo-2 {
+  background-image: url(/photos/logo\ 2.jpg);
+  top: 0;
+  right: 0;
+}
+
+/* მესამე ფოტო */
+.photo-3 {
+  background-image: url(/photos/logo\ 3.jpg);
+  bottom: 0;
+  left: 0;
+}
+
+/* მეოთხე ფოტო */
+.photo-4 {
+  background-image: url(/photos/logo\ 4.jpg);
+  bottom: 0;
+  right: 0;
+}
+
+/* 30+ წლის გამოცდილების ოვერლეი ბლოკი */
+.overlay-element {
+  width: 280px;
+  height: 100px;
+  background-color: #ffffff;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  position: absolute;
+  bottom: 15%;
+  right: 2%;
+  z-index: 10;
+  box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ოვერლეი ბლოკის რიცხვი */
+.overlay-element h3 {
+  font-size: 60px;
+  font-weight: 600;
+  color: #ffc400;
+}
+
+/* ოვერლეი ბლოკის ტექსტი */
+.overlay-element p {
+  font-size: 20px;
+  font-weight: 400;
+  color: #242424;
+}
+
+/* სექცია 1-ის მარჯვენა ნაწილი - ტექსტური კონტენტი */
+.section-1-right {
+  width: 600px;
+  height: 600px;
+  padding: 10px;
+  position: relative;
+}
+
+/* მთავარი სათაური */
+.section-1-right h1 {
+  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  color: #ffc400;
+}
+
+/* ქვესათაური */
+.section-1-right h3 {
+  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  color: #242424;
+}
+
+/* აღწერის ტექსტი */
+.section-1-right p {
+  font-size: 14px;
+  color: #242424;
+  margin: 30px 20px 50px 30px;
+  text-align: justify;
+}
+
+/* GIPC-ის ბმულის ღილაკი */
+.projects-btn {
+  width: 150px;
+  height: 40px;
+  background: #ffc400;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: #ffffff;
+  font-size: 16px;
+  border: none;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* GIPC-ის ბმულის ღილაკის hover ეფექტი */
+.projects-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ===== სექცია 2 - პროექტები ===== */
+/* სექცია 2-ის მთავარი კონტეინერი */
+.section-2 {
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 30px;
+  flex-wrap: wrap;
+  padding: 5px;
+}
+
+/* პროექტების სკროლის კონტეინერი */
+.projects-scroll-1 {
+  width: 100%;
+}
+
+/* პროექტების კარუსელის კონტეინერი */
+.projects-scroll-1 .carousel-container {
+  position: relative;
+  width: 100%;
+  height: 240px;
+}
+
+/* კარუსელის ისრები */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #663399;
+  border: none;
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+
+/* წინა ისარი */
+.carousel-prev {
+  left: 15px;
+}
+
+/* შემდეგი ისარი */
+.carousel-next {
+  right: 15px;
+}
+
+/* კარუსელის ისრების hover ეფექტი */
+.carousel-arrow:hover {
+  background: rgba(102, 51, 153, 0.8);
+}
+
+/* კარუსელის ისრების disabled მდგომარეობა */
+.carousel-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ბარათების wrapper */
+.cards-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+/* ბარათების კონტეინერი */
+.cards-container {
+  display: flex;
+  gap: 10px;
+  transition: transform 0.5s ease;
+  width: max-content;
+  height: 100%;
+  align-items: center;
+}
+
+/* პროექტის ბარათი */
+.project-card {
+  width: 310px;
+  height: auto;
+  aspect-ratio: 4/3;
+  background: #ffffff;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* ბარათის სურათი */
+.card-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: #f0f0f0;
+}
+
+/* ბარათის ინფორმაცია */
+.card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.53);
+  color: #ffffff;
+  padding: 20px 15px 15px;
+}
+
+/* ბარათის ფართობის ინფორმაცია */
+.card-area {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ===== სექცია 3 - ჩვენი გუნდი ===== */
+/* სექცია 3-ის მთავარი კონტეინერი */
+.section-3 {
+  width: 100%;
+  min-height: 500px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 5px solid #663399;
+  padding: 60px 0;
+}
+
+/* სექცია 3-ის შინა კონტენტი */
+.section-3-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  color: #ffffff;
+  max-width: 900px;
+  width: 100%;
+}
+
+/* გუნდის სათაური */
+.section-3-content h2 {
+  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #ffc400;
+}
+
+/* გუნდის აღწერა */
+.section-3-content p {
+  font-size: 18px;
+  margin-bottom: 40px;
+  color: #242424;
+  line-height: 1.6;
+}
+
+/* გუნდის კარუსელი */
+.team-carousel {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2/1;
+  margin: 0 auto;
+  background-color: #ffffff;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* გუნდის კარუსელის კონტეინერი */
+.team-carousel-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* გუნდის წევრის სლაიდი */
+.team-slide {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #242424;
+  padding: 0;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* გუნდის წევრის ფოტო */
+.team-photo {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  margin-bottom: 0;
+  border: none;
+  box-shadow: none;
+  position: relative;
+}
+
+/* გუნდის წევრის ფოტოს სურათი */
+.team-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* გუნდის წევრის ფოტოს გრადიენტი */
+.team-photo::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%);
+  z-index: 1;
+}
+
+/* გუნდის წევრის ინფორმაცია */
+.team-info {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: none;
+  padding: 0;
+  z-index: 2;
+}
+
+/* გუნდის წევრის სახელი */
+.team-info h3 {
+  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  text-align: left;
+}
+
+/* გუნდის წევრის პოზიცია */
+.team-info .position {
+  font-size: 18px;
+  color: #ffc400;
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-align: left;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* გუნდის წევრის ტელეფონი */
+.team-info .phone {
+  font-size: 16px;
+  color: #ffffff;
+  margin: 0;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* გუნდის კარუსელის ისრები */
+.team-carousel .carousel-prev,
+.team-carousel .carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* გუნდის კარუსელის ისრების hover ეფექტი */
+.team-carousel .carousel-prev:hover,
+.team-carousel .carousel-next:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  border-color: rgb(255, 255, 255);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* გუნდის კარუსელის ისრების active მდგომარეობა */
+.team-carousel .carousel-prev:active,
+.team-carousel .carousel-next:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* გუნდის კარუსელის ისრების disabled მდგომარეობა */
+.team-carousel .carousel-prev:disabled,
+.team-carousel .carousel-next:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: translateY(-50%);
+}
+
+/* გუნდის კარუსელის წინა ისარი */
+.team-carousel .carousel-prev {
+  left: 20px;
+}
+
+/* გუნდის კარუსელის შემდეგი ისარი */
+.team-carousel .carousel-next {
+  right: 20px;
+}
+
+/* ===== ფუტერი ===== */
+/* ფუტერის მთავარი კონტეინერი */
+.footer {
+  background-color: #663399;
+  color: #ffffff;
+  padding: 3rem 0 1rem;
+  position: relative;
+}
+
+/* ფუტერის შინა კონტენტი */
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ფუტერის სექციების სათაურები */
+.footer-section h3, 
+.footer-section h4 {
+  margin-bottom: 1rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ფუტერის სექციების ტექსტი */
+.footer-section p {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+/* ფუტერის სექციების ტექსტის hover ეფექტი */
+.footer-section p:hover {
+  color: #ffffff;
+}
+
+/* ფუტერის სექციების ბმულები */
+.footer-section p a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* ფუტერის ნავიგაციის ბმულების სია */
+.footer-links {
+  list-style: none;
+}
+
+/* ფუტერის ნავიგაციის ბმულების ელემენტები */
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+/* ფუტერის ნავიგაციის ბმულები */
+.footer-links a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+/* ფუტერის ნავიგაციის ბმულების hover ეფექტი */
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+/* ფუტერის ქვედა ნაწილი */
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 1rem;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ფუტერის ქვედა ნაწილის ტექსტი */
+.footer-bottom p {
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+/* ფუტერის ქვედა ნაწილის ტექსტის hover ეფექტი */
+.footer-bottom p:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== მობილური ნავიგაცია ===== */
+/* მობილური ნავიგაციის პანელი */
+.mobile-nav-panel {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100vh;
+  background-color: #ffffff;
+  z-index: 9999;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+}
+
+/* აქტიური მობილური ნავიგაციის პანელი */
+.mobile-nav-panel.active {
+  left: 0;
+}
+
+/* მობილური ნავიგაციის შინა კონტენტი */
+.mobile-nav-content {
+  padding: 80px 20px 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკი */
+.mobile-nav-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  transition: all 0.3s ease;
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის hover ეფექტი */
+.mobile-nav-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის ხაზები */
+.mobile-nav-close span {
+  width: 24px;
+  height: 3px;
+  background-color: #242424;
+  position: absolute;
+  transition: all 0.3s ease;
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის პირველი ხაზი */
+.mobile-nav-close span:nth-child(1) {
+  transform: rotate(45deg);
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის მეორე ხაზი */
+.mobile-nav-close span:nth-child(2) {
+  transform: rotate(-45deg);
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის hover ეფექტი */
+.mobile-nav-close:hover span {
+  background-color: #616161;
+}
+
+/* მობილური ნავიგაციის სია */
+.mobile-nav-list {
+  list-style: none;
+  margin-bottom: 30px;
+}
+
+/* მობილური ნავიგაციის სიის ელემენტები */
+.mobile-nav-list li {
+  margin-bottom: 20px;
+}
+
+/* მობილური ნავიგაციის ბმულები */
+.mobile-nav-link {
+  display: block;
+  padding: 15px 0;
+  color: #242424;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 500;
+  border-bottom: 1px solid #616161;
+  transition: color 0.3s ease;
+}
+
+/* მობილური ნავიგაციის ბმულების hover ეფექტი */
+.mobile-nav-link:hover {
+  color: #616161;
+}
+
+/* მობილური კონტაქტის ღილაკი */
+.mobile-contact-btn {
+  width: 100%;
+  height: 50px;
+  background: #ffc400;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  cursor: pointer;
+}
+
+/* მობილური კონტაქტის ღილაკის hover ეფექტი */
+.mobile-contact-btn:hover {
+  transform: scale(1.02);
+}
+
+/* ===== ბურგერ მენიუს ანიმაცია ===== */
+/* აქტიური ბურგერ მენიუს პირველი ხაზი */
+.burger-icon.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+/* აქტიური ბურგერ მენიუს მეორე ხაზი */
+.burger-icon.active span:nth-child(2) {
+  opacity: 0;
+}
+
+/* აქტიური ბურგერ მენიუს მესამე ხაზი */
+.burger-icon.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* ===== კონტაქტის მოდალი ===== */
+/* კონტაქტის მოდალური ფანჯარა */
+.contact-modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+}
+
+/* აქტიური კონტაქტის მოდალი */
+.contact-modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* კონტაქტის მოდალის შინა კონტენტი */
+.contact-modal-content {
+  background-color: #ffffff;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease;
+}
+
+/* კონტაქტის მოდალის ჰედერი */
+.contact-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* კონტაქტის მოდალის სათაური */
+.contact-modal-header h2 {
+  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #242424;
+  margin: 0;
+}
+
+/* კონტაქტის მოდალის დახურვის ღილაკი */
+.contact-modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #616161;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* კონტაქტის მოდალის დახურვის ღილაკის hover ეფექტი */
+.contact-modal-close:hover {
+  background-color: #f0f0f0;
+  color: #242424;
+}
+
+/* კონტაქტის ფორმა */
+.contact-form {
+  padding: 30px;
+}
+
+/* ფორმის ჯგუფი */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* ფორმის ლეიბლები */
+.form-group label {
+  display: block;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #242424;
+  margin-bottom: 8px;
+}
+
+/* ფორმის ინპუტები და ტექსტარეა */
+.form-group input, 
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
+  font-size: 14px;
+  color: #242424;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+/* ფორმის ინპუტების focus მდგომარეობა */
+.form-group input:focus, 
+.form-group textarea:focus {
+  outline: none;
+  border-color: #ffc400;
+  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+}
+
+/* ფორმის readonly ინპუტები */
+.form-group input[readonly], 
+.form-group textarea[readonly] {
+  background-color: #f8f8f8;
+  color: #616161;
+  cursor: not-allowed;
+}
+
+/* ფორმის ტექსტარეა */
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* კონტაქტის ფორმის გაგზავნის ღილაკი */
+.contact-submit-btn {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
+  border: none;
+  color: #ffffff;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+/* კონტაქტის ფორმის გაგზავნის ღილაკის hover ეფექტი */
+.contact-submit-btn:hover {
+  background: linear-gradient(135deg, #e68a00 0%, #ffc400 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 153, 0, 0.3);
+}
+
+/* კონტაქტის ფორმის გაგზავნის ღილაკის active მდგომარეობა */
+.contact-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* კონტაქტის ფორმის გაგზავნის ღილაკის disabled მდგომარეობა */
+.contact-submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== ანიმაციები ===== */
+/* fadeIn ანიმაცია */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* slideIn ანიმაცია */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== რესპონსივი დიზაინი ===== */
+/* მობილური მოწყობილობები 900px-მდე */
+@media (max-width: 900px) {
+  /* ნავიგაცია და კონტაქტი ღილაკი იმალება */
+  .nav,
+  .contact-btn {
+    display: none;
+  }
+  
+  /* ბურგერ მენიუ ჩანს */
+  .burger-menu {
+    display: flex;
+  }
+  
+  /* ჰედერის კონტეინერი */
+  .header-container {
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* კონტაქტის მოდალი მობილურზე */
+  .contact-modal-content {
+    width: 95%;
+    max-width: none;
+    margin: 20px;
+    max-height: calc(100vh - 40px);
+  }
+  
+  .contact-modal-header {
+    padding: 20px 20px 15px;
+  }
+  
+  .contact-modal-header h2 {
+    font-size: 20px;
+  }
+  
+  .contact-form {
+    padding: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    font-size: 13px;
+  }
+  
+  .form-group input, 
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .form-group textarea {
+    min-height: 100px;
+  }
+  
+  .contact-submit-btn {
+    height: 45px;
+    font-size: 15px;
+  }
+  
+  /* სექცია 2 მობილურზე */
+  .section-2 {
+    gap: 15px;
+  }
+  
+  /* სექცია 3 მობილურზე */
+  .section-3 {
+    padding: 40px 0;
+  }
+  
+  .section-3-content {
+    width: 95%;
+    height: auto;
+  }
+  
+  .section-3-content h2 {
+    font-size: 32px;
+    margin-bottom: 15px;
+  }
+  
+  .section-3-content p {
+    font-size: 16px;
+    margin-bottom: 30px;
+    padding: 0 10px;
+  }
+  
+  .team-info .phone {
+    font-size: 14px;
+    color: #ffffff;
+  }
+  
+  .team-info {
+    bottom: 15px;
+    left: 15px;
+    padding: 0;
+  }
+  
+  .team-info h3 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  
+  .team-info .position {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  
+  .team-carousel .carousel-prev,
+  .team-carousel .carousel-next {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .team-carousel .carousel-prev {
+    left: 10px;
+  }
+  
+  .team-carousel .carousel-next {
+    right: 10px;
+  }
+}
+
+/* მობილური მოწყობილობები 600px-მდე */
+@media (max-width: 600px) {
+  /* ლოგოს ზომა მცირე ეკრანებზე */
+  .logo-svg {
+    width: 150px;
+  }
+  
+  /* სექცია 1 მცირე ეკრანებზე */
+  .section-1 {
+    gap: 0;
+  }
+  
+  /* სექცია 1-ის მარცხენა ნაწილი მცირე ეკრანებზე */
+  .section-1-left {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  
+  /* სექცია 1-ის მარჯვენა ნაწილი მცირე ეკრანებზე */
+  .section-1-right {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  
+  /* მთავარი სათაური მცირე ეკრანებზე */
+  .section-1-right h1 {
+    font-size: 2rem;
+  }
+  
+  /* ქვესათაური მცირე ეკრანებზე */
+  .section-1-right h3 {
+    font-size: 1.5rem;
+  }
+  
+  /* ოვერლეი ელემენტი მცირე ეკრანებზე */
+  .overlay-element {
+    width: 42%;
+    height: auto;
+    padding: 7px;
+    gap: 1px;
+    bottom: 20%;
+    right: 1%;
+  }
+  
+  /* ოვერლეი ელემენტის რიცხვი მცირე ეკრანებზე */
+  .overlay-element h3 {
+    font-size: 30px;
+  }
+  
+  /* ოვერლეი ელემენტის ტექსტი მცირე ეკრანებზე */
+  .overlay-element p {
+    font-size: 10px;
+  }
+  
+  /* გუნდის წევრის სახელი მცირე ეკრანებზე */
+  .team-info h3 {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  /* გუნდის წევრის პოზიცია მცირე ეკრანებზე */
+  .team-info .position {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  
+  /* გუნდის წევრის ტელეფონი მცირე ეკრანებზე */
+  .team-info .phone {
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ქარდის დეტალები - არქჰაბი</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        /* ქარდის დეტალური გვერდის სტილები */
+        .card-detail-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 0;
+        }
+
+        .card-detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .card-detail-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin: 0;
+        }
+
+        .card-area {
+            font-size: 18px;
+            color: #666;
+            background: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .photo-carousel {
+            position: relative;
+            max-width: 800px;
+            margin: 30px auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-nav.prev {
+            left: 20px;
+        }
+
+        .carousel-nav.next {
+            right: 20px;
+        }
+
+        .carousel-nav svg {
+            width: 24px;
+            height: 24px;
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.2);
+        }
+
+        .carousel-counter {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .no-photos {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-photos h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .no-photos p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .card-detail-content {
+                padding: 20px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .card-title {
+                font-size: 24px;
+            }
+
+            .photo-carousel {
+                max-width: 100%;
+                margin: 20px auto;
+            }
+
+            .carousel-container {
+                height: 300px;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+            }
+
+            .carousel-nav.prev {
+                left: 10px;
+            }
+
+            .carousel-nav.next {
+                right: 10px;
+            }
+
+            .carousel-nav svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .carousel-counter {
+                bottom: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+
+            .carousel-dots {
+                margin-top: 15px;
+            }
+
+            .carousel-dot {
+                width: 10px;
+                height: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-detail-page">
+        <div class="card-detail-container">
+            <button class="back-button" onclick="goBack()">
+                ← უკან დაბრუნება
+            </button>
+            
+            <div class="card-detail-content">
+                <div class="card-header">
+                    <h1 class="card-title" id="cardTitle">ქარდის დეტალები</h1>
+                    <div class="card-area" id="cardArea">ფართობი</div>
+                </div>
+                
+                <div id="photoCarousel" class="photo-carousel">
+                    <!-- კარუსელი აქ იტვირთება -->
+                    <div class="carousel-container">
+                        <!-- სლაიდები აქ დაემატება -->
+                    </div>
+                    <button class="carousel-nav prev" id="carouselPrev">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                    </button>
+                    <button class="carousel-nav next" id="carouselNext">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </button>
+                    <div class="carousel-counter" id="carouselCounter">1 / 1</div>
+                </div>
+                <div class="carousel-dots" id="carouselDots">
+                    <!-- ღილაკები აქ დაემატება -->
+                </div>
+                
+                <div id="noPhotos" class="no-photos" style="display: none;">
+                    <h3>ფოტოები არ არის</h3>
+                    <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- localStorage and sessionStorage polyfill -->
+    <script>
+        // localStorage polyfill for older browsers
+        if (!window.localStorage) {
+            console.log('localStorage not supported, using memory storage');
+            window.localStorage = {
+                data: {},
+                setItem: function(key, value) {
+                    this.data[key] = value;
+                },
+                getItem: function(key) {
+                    return this.data[key] || null;
+                },
+                removeItem: function(key) {
+                    delete this.data[key];
+                },
+                clear: function() {
+                    this.data = {};
+                }
+            };
+        }
+        
+        // sessionStorage polyfill
+        if (!window.sessionStorage) {
+            console.log('sessionStorage not supported, using memory storage');
+            window.sessionStorage = {
+                data: {},
+                setItem: function(key, value) {
+                    this.data[key] = value;
+                },
+                getItem: function(key) {
+                    return this.data[key] || null;
+                },
+                removeItem: function(key) {
+                    delete this.data[key];
+                },
+                clear: function() {
+                    this.data = {};
+                }
+            };
+        }
+    </script>
+    <script>
+        // ქარდის ID URL-იდან
+        const urlParams = new URLSearchParams(window.location.search);
+        const cardId = urlParams.get('id');
+        
+        // ქარდის მონაცემების ჩატვირთვა
+        function loadCardDetails() {
+            console.log('Loading card details for ID:', cardId);
+            
+            if (!cardId) {
+                console.log('Card ID not found');
+                return;
+            }
+            
+            try {
+                // localStorage-იდან ქარდების ჩატვირთვა
+                let savedCards = localStorage.getItem('adminCards');
+                
+                // თუ localStorage-ში არ არის, სცადოს sessionStorage-ში
+                if (!savedCards) {
+                    console.log('No cards in localStorage, checking sessionStorage...');
+                    try {
+                        savedCards = sessionStorage.getItem('adminCards');
+                        if (savedCards) {
+                            console.log('Found cards in sessionStorage');
+                        }
+                    } catch (sessionError) {
+                        console.warn('sessionStorage access failed:', sessionError);
+                    }
+                }
+                
+                console.log('Raw saved cards from detail page:', savedCards);
+                
+                if (savedCards) {
+                    const cards = JSON.parse(savedCards);
+                    console.log('Parsed cards from detail page:', cards);
+                    
+                    const card = cards.find(c => c.id === cardId);
+                    console.log('Found card:', card);
+                    
+                    if (card) {
+                        displayCardDetails(card);
+                    } else {
+                        console.log('Card not found with ID:', cardId);
+                        showNoCard();
+                    }
+                } else {
+                    console.log('No cards found in storage');
+                    showNoCard();
+                }
+            } catch (error) {
+                console.error('Error loading card details:', error);
+                showNoCard();
+            }
+        }
+        
+        // ქარდის დეტალების ჩვენება
+        function displayCardDetails(card) {
+            document.getElementById('cardTitle').textContent = card.title || `ქარდი #${card.id}`;
+            document.getElementById('cardArea').textContent = card.area;
+            
+            const photoCarousel = document.getElementById('photoCarousel');
+            const carouselDots = document.getElementById('carouselDots');
+            const noPhotos = document.getElementById('noPhotos');
+            
+            if (card.photos && card.photos.length > 0) {
+                // კარუსელის ჩვენება
+                photoCarousel.style.display = 'block';
+                carouselDots.style.display = 'flex';
+                noPhotos.style.display = 'none';
+                
+                // კარუსელის ინიციალიზაცია
+                initPhotoCarousel(card.photos);
+            } else {
+                // ფოტოების გარეშე შეტყობინება
+                photoCarousel.style.display = 'none';
+                carouselDots.style.display = 'none';
+                noPhotos.style.display = 'block';
+            }
+        }
+        
+        // ქარდი არ მოიძებნა
+        function showNoCard() {
+            document.getElementById('cardTitle').textContent = 'ქარდი არ მოიძებნა';
+            document.getElementById('cardArea').textContent = '';
+            document.getElementById('photosGallery').innerHTML = '';
+            document.getElementById('noPhotos').style.display = 'block';
+        }
+        
+        // უკან დაბრუნება
+        function goBack() {
+            window.history.back();
+        }
+        
+        // კარუსელის ცვლადები
+        let currentSlide = 0;
+        let totalSlides = 0;
+        let photos = [];
+
+        // ფოტო კარუსელის ინიციალიზაცია
+        function initPhotoCarousel(photoArray) {
+            photos = photoArray;
+            totalSlides = photos.length;
+            currentSlide = 0;
+            
+            const carouselContainer = document.querySelector('.carousel-container');
+            const carouselDots = document.getElementById('carouselDots');
+            const carouselCounter = document.getElementById('carouselCounter');
+            
+            // სლაიდების შექმნა
+            carouselContainer.innerHTML = '';
+            photos.forEach((photo, index) => {
+                const slide = document.createElement('div');
+                slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+                slide.innerHTML = `<img src="${photo.url}" alt="${photo.title || `ფოტო ${index + 1}`}">`;
+                carouselContainer.appendChild(slide);
+            });
+            
+            // ღილაკების შექმნა
+            carouselDots.innerHTML = '';
+            photos.forEach((_, index) => {
+                const dot = document.createElement('button');
+                dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
+                dot.addEventListener('click', () => goToSlide(index));
+                carouselDots.appendChild(dot);
+            });
+            
+            // მთვლელი
+            updateCounter();
+            
+            // კონტროლების დამატება
+            setupCarouselControls();
+        }
+
+        // კარუსელის კონტროლების დაყენება
+        function setupCarouselControls() {
+            const prevBtn = document.getElementById('carouselPrev');
+            const nextBtn = document.getElementById('carouselNext');
+            
+            prevBtn.onclick = () => changeSlide(-1);
+            nextBtn.onclick = () => changeSlide(1);
+            
+            // კლავიატურის კონტროლი
+            document.addEventListener('keydown', handleKeyboard);
+        }
+
+        // კლავიატურის კონტროლი
+        function handleKeyboard(e) {
+            if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            }
+        }
+
+        // სლაიდის შეცვლა
+        function changeSlide(direction) {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            // მიმდინარე სლაიდის ფარული
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            
+            // ახალი ინდექსის გამოთვლა
+            currentSlide += direction;
+            
+            if (currentSlide >= totalSlides) {
+                currentSlide = 0;
+            } else if (currentSlide < 0) {
+                currentSlide = totalSlides - 1;
+            }
+            
+            // ახალი სლაიდის ჩვენება
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+            
+            updateCounter();
+        }
+
+        // კონკრეტულ სლაიდზე გადასვლა
+        function goToSlide(index) {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            // მიმდინარე სლაიდის ფარული
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            
+            // ახალი სლაიდის ჩვენება
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+            
+            updateCounter();
+        }
+
+        // მთვლელის განახლება
+        function updateCounter() {
+            const counter = document.getElementById('carouselCounter');
+            counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        // გვერდის ჩატვირთვა
+        document.addEventListener('DOMContentLoaded', loadCardDetails);
+    </script>
+</body>
+</html>
