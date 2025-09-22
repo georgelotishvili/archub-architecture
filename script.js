@@ -649,16 +649,38 @@ function openGalleryModal(card) {
     galleryModal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Load card photos
-    if (card && card.photos && card.photos.length > 0) {
-        displayGalleryPhotos(card.photos);
-        gallery.style.display = 'block';
-        noPhotos.style.display = 'none';
-    } else if (card && card.image) {
-        displayGalleryPhotos([card.image]);
-        gallery.style.display = 'block';
-        noPhotos.style.display = 'none';
-    } else {
+    // Load gallery photos from localStorage
+    loadGalleryPhotosForModal();
+}
+
+// Load gallery photos for modal
+function loadGalleryPhotosForModal() {
+    const gallery = document.getElementById('gallery');
+    const noPhotos = document.getElementById('galleryNoPhotos');
+    
+    try {
+        let savedPhotos = localStorage.getItem('galleryPhotos');
+        
+        if (!savedPhotos) {
+            savedPhotos = sessionStorage.getItem('galleryPhotos');
+        }
+        
+        if (savedPhotos) {
+            const galleryPhotos = JSON.parse(savedPhotos);
+            if (galleryPhotos && galleryPhotos.length > 0) {
+                displayGalleryPhotos(galleryPhotos);
+                gallery.style.display = 'block';
+                noPhotos.style.display = 'none';
+            } else {
+                gallery.style.display = 'none';
+                noPhotos.style.display = 'block';
+            }
+        } else {
+            gallery.style.display = 'none';
+            noPhotos.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error loading gallery photos:', error);
         gallery.style.display = 'none';
         noPhotos.style.display = 'block';
     }

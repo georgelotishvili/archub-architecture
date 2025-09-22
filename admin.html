@@ -57,30 +57,16 @@
             <div class="admin-content">
                 <div class="admin-section">
                     <h2>ქარდების მართვა</h2>
-                    <div class="card-form">
-                        <div class="form-group">
-                            <label for="cardImage">მთავარი ფოტო:</label>
-                            <input type="file" id="cardImage" accept="image/*">
+                    <div class="cards-management">
+                        <div class="cards-grid" id="cardsGrid">
+                            <!-- Cards will be listed here -->
                         </div>
-                        <div class="form-group">
-                            <label for="cardPhotos">დამატებითი ფოტოები:</label>
-                            <input type="file" id="cardPhotos" accept="image/*" multiple>
-                            <small style="color: #666; font-size: 12px;">შეგიძლიათ რამდენიმე ფოტო აირჩიოთ</small>
+                        <div class="add-card-section">
+                            <button class="add-new-card-btn" id="addNewCardBtn">+ ახალი ქარდის დამატება</button>
                         </div>
-                        <div class="form-group">
-                            <label for="cardArea">ფართობი:</label>
-                            <input type="text" id="cardArea" placeholder="მაგ: 120 კვ.მ">
-                        </div>
-                        <button class="add-card-btn" id="addCardBtn">ქარდის დამატება</button>
                     </div>
                 </div>
                 
-                <div class="admin-section">
-                    <h2>არსებული ქარდები</h2>
-                    <div class="cards-list" id="cardsList">
-                        <!-- Cards will be listed here -->
-                    </div>
-                </div>
             </div>
         </div>
     </main>
