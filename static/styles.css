@@ -151,6 +151,59 @@ body {
   box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
 }
 
+/* My Page ღილაკის სტილები */
+.my-page-btn {
+  width: 120px;
+  height: 45px;
+  background: linear-gradient(135deg, #663399 0%, #8a4cbf 100%);
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  margin-left: 10px;
+}
+
+/* My Page ღილაკის hover ეფექტი */
+.my-page-btn:hover {
+  background: linear-gradient(135deg, #5a2d8a 0%, #7a42a8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 51, 153, 0.4);
+}
+
+/* My Page ღილაკის active ეფექტი */
+.my-page-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3);
+}
+
+/* My Page ღილაკის shine ეფექტი */
+.my-page-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.my-page-btn:hover::before {
+  left: 100%;
+}
+
+/* My Page ღილაკის focus ეფექტი */
+.my-page-btn:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3), 0 0 0 3px rgba(102, 51, 153, 0.2);
+}
+
 /* მობილური ბურგერ მენიუ */
 .burger-menu {
   display: none;
@@ -1065,6 +1118,62 @@ body {
 .mobile-auth-btn:focus {
   outline: none;
   box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
+}
+
+/* მობილური My Page ღილაკის სტილები */
+.mobile-my-page-btn {
+  width: 100%;
+  height: 55px;
+  background: linear-gradient(135deg, #663399 0%, #8a4cbf 100%);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* მობილური My Page ღილაკის hover ეფექტი */
+.mobile-my-page-btn:hover {
+  background: linear-gradient(135deg, #5a2d8a 0%, #7a42a8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 51, 153, 0.4);
+}
+
+/* მობილური My Page ღილაკის active ეფექტი */
+.mobile-my-page-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3);
+}
+
+/* მობილური My Page ღილაკის shine ეფექტი */
+.mobile-my-page-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.mobile-my-page-btn:hover::before {
+  left: 100%;
+}
+
+/* მობილური My Page ღილაკის focus ეფექტი */
+.mobile-my-page-btn:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3), 0 0 0 3px rgba(102, 51, 153, 0.2);
 }
 
 /* ===== ბურგერ მენიუს ანიმაცია ===== */

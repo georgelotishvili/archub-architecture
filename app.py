@@ -96,6 +96,12 @@ def delete_uploaded_file(file_url):
 def home():
     return render_template('index.html')
 
+# User profile page route
+@app.route('/my-page')
+@login_required
+def my_page():
+    return render_template('my_page.html')
+
 # Admin route
 @app.route('/admin')
 @login_required
@@ -751,6 +757,42 @@ def like_project(project_id):
         
     except Exception as e:
         db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to get user's liked projects
+@app.route('/api/user/liked-projects')
+@login_required
+def get_user_liked_projects():
+    try:
+        # Get all liked projects for current user
+        liked_projects = current_user.liked_projects.all()
+        
+        # Create JSON response
+        projects_data = []
+        for project in liked_projects:
+            # Get all photo URLs for this project
+            photo_urls = [photo.url for photo in project.photos]
+            
+            project_data = {
+                'id': project.id,
+                'area': project.area,
+                'main_image_url': project.main_image_url,
+                'photos': photo_urls,
+                'is_liked': True,  # Always true for liked projects
+                'likes_count': project.liked_by_users.count()
+            }
+            projects_data.append(project_data)
+        
+        return jsonify({
+            'success': True,
+            'projects': projects_data,
+            'count': len(projects_data)
+        })
+    
+    except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)

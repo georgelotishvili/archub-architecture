@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ჩემი გვერდი - Archub</title>
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <noscript> 
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800&display=swap">
+    </noscript>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* User profile page specific styles */
+        .profile-page {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            padding-top: 100px;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, #663399 0%, #8a4cbf 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .profile-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-family: "Jost", sans-serif;
+        }
+        
+        .profile-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .profile-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .back-to-home {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
+            color: #242424;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-family: "Jost", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        
+        .back-to-home:hover {
+            background: linear-gradient(135deg, #e6b000 0%, #ffc400 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
+        }
+        
+        
+        .liked-projects-section {
+            margin-top: 40px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: #242424;
+            margin-bottom: 30px;
+            text-align: center;
+            font-family: "Jost", sans-serif;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+            justify-items: center;
+        }
+        
+        .project-card {
+            width: 310px;
+            height: auto;
+            aspect-ratio: 4/3;
+            background: #ffffff;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+        
+        .card-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.53);
+            color: #ffffff;
+            padding: 20px 15px 15px;
+        }
+        
+        .card-area {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .no-projects {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-projects h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #242424;
+        }
+        
+        .no-projects p {
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .loading h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #242424;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .profile-header h1 {
+                font-size: 2rem;
+            }
+            
+            .profile-header p {
+                font-size: 1rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 20px;
+            }
+            
+            .project-card {
+                width: 100%;
+                max-width: 350px;
+                margin: 0 auto;
+            }
+            
+            .back-to-home {
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+                width: 200px;
+            }
+        }
+        
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .profile-content {
+                padding: 20px 10px;
+            }
+            
+            .projects-grid {
+                gap: 15px;
+                padding: 0 10px;
+            }
+            
+            .project-card {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .back-to-home {
+                width: 180px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- User Profile Page -->
+    <div class="profile-page">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="container">
+                <h1>ჩემი გვერდი</h1>
+                <p>აქ ნახავთ თქვენს მოწონებულ პროექტებს</p>
+            </div>
+        </div>
+        
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <div class="container">
+                <!-- Navigation Button -->
+                <div style="text-align: center;">
+                    <a href="/" class="back-to-home" id="backToHomeBtn">მთავარ გვერდზე დაბრუნება</a>
+                </div>
+                
+                <!-- Liked Projects Section -->
+                <div class="liked-projects-section">
+                    <h2 class="section-title">მოწონებული პროექტები</h2>
+                    
+                    <!-- Loading State -->
+                    <div class="loading" id="loadingState">
+                        <h3>იტვირთება...</h3>
+                        <p>მოწონებული პროექტების ჩატვირთვა</p>
+                    </div>
+                    
+                    <!-- No Projects State -->
+                    <div class="no-projects" id="noProjectsState" style="display: none;">
+                        <h3>ჯერ არ გაქვთ მოწონებული პროექტები</h3>
+                        <p>მთავარ გვერდზე გადადით და დაიწყეთ პროექტების მოწონება</p>
+                    </div>
+                    
+                    <!-- Projects Grid -->
+                    <div class="projects-grid" id="projectsGrid" style="display: none;">
+                        <!-- Projects will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Modal (reused from main page) -->
+    <div class="gallery-modal" id="galleryModal">
+        <div class="gallery-modal-content">
+            <!-- Gallery container -->
+            <div class="gallery" id="gallery">
+                <!-- Slides container -->
+                <div class="gallery-container">
+                    <div class="carousel-container" id="galleryCarouselContainer">
+                        <!-- Slides will be added dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Close icon -->
+                <span class="close-icon" id="galleryCloseBtn">✕</span>
+                
+                <!-- Navigation icons -->
+                <span class="nav-icon prev" id="galleryPrevBtn">‹</span>
+                <span class="nav-icon next" id="galleryNextBtn">›</span>
+                
+                <!-- Dots -->
+                <div class="dots" id="galleryDots">
+                    <!-- Dots will be added dynamically -->
+                </div>
+            </div>
+            
+            <!-- No photos message -->
+            <div class="no-photos" id="galleryNoPhotos" style="display: none;">
+                <h3>ფოტოები არ არის</h3>
+                <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript file -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+    <!-- User profile page specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingState = document.getElementById('loadingState');
+            const noProjectsState = document.getElementById('noProjectsState');
+            const projectsGrid = document.getElementById('projectsGrid');
+            const backToHomeBtn = document.getElementById('backToHomeBtn');
+            
+            // Load liked projects
+            async function loadLikedProjects() {
+                try {
+                    const response = await fetch('/api/user/liked-projects');
+                    const data = await response.json();
+                    
+                    loadingState.style.display = 'none';
+                    
+                    if (data.success && data.projects.length > 0) {
+                        projectsGrid.style.display = 'grid';
+                        displayProjects(data.projects);
+                    } else {
+                        noProjectsState.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error loading liked projects:', error);
+                    loadingState.style.display = 'none';
+                    noProjectsState.style.display = 'block';
+                }
+            }
+            
+            // Display projects in grid
+            function displayProjects(projects) {
+                const grid = document.getElementById('projectsGrid');
+                grid.innerHTML = '';
+                
+                projects.forEach(project => {
+                    const projectCard = document.createElement('div');
+                    projectCard.className = 'project-card';
+                    projectCard.setAttribute('data-project-id', project.id);
+                    projectCard.onclick = () => openGallery(project);
+                    
+                    // Create like button HTML
+                    const likeButtonHtml = `
+                        <button class="like-btn liked" data-project-id="${project.id}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </button>
+                    `;
+                    
+                    projectCard.innerHTML = `
+                        <img src="/${project.main_image_url}" alt="${project.area}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ფოტო არ არის</text+Cjwvc3ZnPg=='">
+                        <div class="card-info">
+                            <div class="card-area">${project.area}</div>
+                        </div>
+                        ${likeButtonHtml}
+                    `;
+                    
+                    // Add like button click event listener
+                    const likeBtn = projectCard.querySelector('.like-btn');
+                    if (likeBtn) {
+                        likeBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleUnlikeClick(project.id, projectCard);
+                        });
+                    }
+                    
+                    grid.appendChild(projectCard);
+                });
+            }
+            
+            // Handle unlike click
+            async function handleUnlikeClick(projectId, projectCard) {
+                // Show confirmation dialog
+                const confirmed = confirm('ნამდვილად გსურთ ამ პროექტის მოწონების გაუქმება? პროექტი წაიშლება თქვენი პირადი გვერდიდან.');
+                
+                if (!confirmed) {
+                    return; // User cancelled, do nothing
+                }
+                
+                try {
+                    const response = await fetch(`/api/projects/${projectId}/like`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        // Remove the card from the grid
+                        projectCard.remove();
+                        
+                        // Check if there are any remaining projects
+                        const remainingProjects = document.querySelectorAll('.project-card');
+                        if (remainingProjects.length === 0) {
+                            // Show "no projects" message
+                            document.getElementById('projectsGrid').style.display = 'none';
+                            document.getElementById('noProjectsState').style.display = 'block';
+                        }
+                    } else {
+                        // Error handling
+                        const errorMessage = data.error || 'შეცდომა მოწონების გაუქმებისას';
+                        alert(`შეცდომა: ${errorMessage}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error during unlike:', error);
+                    alert('შეცდომა სერვერთან კავშირისას.');
+                }
+            }
+            
+            // Gallery variables
+            let currentSlide = 0;
+            let totalSlides = 0;
+            
+            // Open gallery modal
+            function openGallery(project) {
+                const modal = document.getElementById('galleryModal');
+                const galleryContainer = document.getElementById('galleryCarouselContainer');
+                const dotsContainer = document.getElementById('galleryDots');
+                const noPhotosDiv = document.getElementById('galleryNoPhotos');
+                
+                if (!modal || !galleryContainer || !dotsContainer) {
+                    console.error('Gallery elements not found');
+                    return;
+                }
+                
+                // Clear previous content
+                galleryContainer.innerHTML = '';
+                dotsContainer.innerHTML = '';
+                
+                // Get all photos (main image + gallery photos)
+                const allPhotos = [];
+                if (project.main_image_url) {
+                    allPhotos.push(project.main_image_url);
+                }
+                if (project.photos && project.photos.length > 0) {
+                    allPhotos.push(...project.photos);
+                }
+                
+                // Filter out empty photos
+                const validPhotos = allPhotos.filter(photo => photo && photo.trim() !== '');
+                
+                if (validPhotos.length === 0) {
+                    noPhotosDiv.style.display = 'block';
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    return;
+                }
+                
+                noPhotosDiv.style.display = 'none';
+                
+                // Create slides
+                validPhotos.forEach((photoUrl, index) => {
+                    const slide = document.createElement('div');
+                    slide.className = `slide ${index === 0 ? 'active' : ''}`;
+                    slide.innerHTML = `<img src="/${photoUrl}" alt="Gallery image ${index + 1}">`;
+                    galleryContainer.appendChild(slide);
+                    
+                    // Create dot
+                    const dot = document.createElement('button');
+                    dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                    dot.onclick = () => goToSlide(index);
+                    dotsContainer.appendChild(dot);
+                });
+                
+                // Set up variables
+                currentSlide = 0;
+                totalSlides = validPhotos.length;
+                
+                // Show modal
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Go to specific slide
+            function goToSlide(index) {
+                const slides = document.querySelectorAll('#galleryCarouselContainer .slide');
+                const dots = document.querySelectorAll('#galleryDots .dot');
+                
+                if (slides.length === 0) return;
+                
+                // Hide all slides
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                // Show current slide
+                if (slides[index]) {
+                    slides[index].classList.add('active');
+                }
+                if (dots[index]) {
+                    dots[index].classList.add('active');
+                }
+                
+                currentSlide = index;
+            }
+            
+            // Previous slide
+            function prevSlide() {
+                if (totalSlides === 0) return;
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                goToSlide(currentSlide);
+            }
+            
+            // Next slide
+            function nextSlide() {
+                if (totalSlides === 0) return;
+                currentSlide = (currentSlide + 1) % totalSlides;
+                goToSlide(currentSlide);
+            }
+            
+            // Close gallery
+            function closeGallery() {
+                const modal = document.getElementById('galleryModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+            
+            // Back to home functionality (simple redirect)
+            backToHomeBtn.onclick = (e) => {
+                // Simply redirect to main page without logout
+                window.location.href = '/';
+            };
+            
+            // Set up gallery event listeners
+            document.getElementById('galleryCloseBtn').onclick = closeGallery;
+            document.getElementById('galleryPrevBtn').onclick = prevSlide;
+            document.getElementById('galleryNextBtn').onclick = nextSlide;
+            
+            // Close gallery when clicking outside
+            document.getElementById('galleryModal').onclick = (e) => {
+                if (e.target.id === 'galleryModal') {
+                    closeGallery();
+                }
+            };
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                const modal = document.getElementById('galleryModal');
+                if (!modal.classList.contains('active')) return;
+                
+                if (e.key === 'Escape') {
+                    closeGallery();
+                } else if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                }
+            });
+            
+            // Load liked projects on page load
+            loadLikedProjects();
+        });
+    </script>
+</body>
+</html>

@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
     const authBtn = document.getElementById('authBtn');
     const mobileAuthBtn = document.getElementById('mobileAuthBtn');
+    const myPageBtn = document.getElementById('myPageBtn');
+    const mobileMyPageBtn = document.getElementById('mobileMyPageBtn');
     const showRegisterModalLink = document.getElementById('showRegisterModal');
     const showLoginModalLink = document.getElementById('showLoginModal');
     
@@ -51,6 +53,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileAuthBtn.textContent = 'გასვლა';
                 mobileAuthBtn.onclick = handleLogout;
             }
+            // Show My Page buttons when logged in
+            if (myPageBtn) {
+                myPageBtn.style.display = 'block';
+                myPageBtn.onclick = () => window.location.href = '/my-page';
+            }
+            if (mobileMyPageBtn) {
+                mobileMyPageBtn.style.display = 'block';
+                mobileMyPageBtn.onclick = () => window.location.href = '/my-page';
+            }
         } else {
             if (authBtn) {
                 authBtn.textContent = 'შესვლა';
@@ -59,6 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mobileAuthBtn) {
                 mobileAuthBtn.textContent = 'შესვლა';
                 mobileAuthBtn.onclick = () => openModal('loginModal');
+            }
+            // Hide My Page buttons when not logged in
+            if (myPageBtn) {
+                myPageBtn.style.display = 'none';
+            }
+            if (mobileMyPageBtn) {
+                mobileMyPageBtn.style.display = 'none';
             }
         }
     }
@@ -382,18 +400,34 @@ async function loadCardsFromAPI() {
         const data = await response.json();
         
         if (data.success && data.projects) {
-            projectsCards = data.projects.map(project => ({
-                id: project.id,
-                area: project.area,
-                image: project.main_image_url,
-                link: `card-detail.html?id=${project.id}`,
-                is_liked: project.is_liked,
-                likes_count: project.likes_count,
-                photos: project.photos.map(photoUrl => ({
-                    url: photoUrl,
-                    title: 'პროექტის ფოტო'
-                }))
-            }));
+            projectsCards = data.projects.map(project => {
+                // Create photos array with main image first, then gallery photos
+                const allPhotos = [];
+                if (project.main_image_url) {
+                    allPhotos.push({
+                        url: project.main_image_url,
+                        title: 'მთავარი ფოტო'
+                    });
+                }
+                if (project.photos && project.photos.length > 0) {
+                    project.photos.forEach(photoUrl => {
+                        allPhotos.push({
+                            url: photoUrl,
+                            title: 'პროექტის ფოტო'
+                        });
+                    });
+                }
+                
+                return {
+                    id: project.id,
+                    area: project.area,
+                    image: project.main_image_url,
+                    link: `card-detail.html?id=${project.id}`,
+                    is_liked: project.is_liked,
+                    likes_count: project.likes_count,
+                    photos: allPhotos
+                };
+            });
             
             totalCards = projectsCards.length;
         } else {
