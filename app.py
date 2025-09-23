@@ -345,6 +345,253 @@ def update_project(project_id):
             'error': str(e)
         }), 500
 
+# API route to add photos to an existing project
+@app.route('/api/projects/<int:project_id>/photos', methods=['POST'])
+def add_project_photos(project_id):
+    try:
+        # Find the project in the database
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({
+                'success': False,
+                'error': f'Project with ID {project_id} not found'
+            }), 404
+        
+        # Check if request has files
+        if 'photos' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No photos provided'
+            }), 400
+        
+        # Get uploaded photos
+        photos = request.files.getlist('photos')
+        if not photos or photos[0].filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No photos provided'
+            }), 400
+        
+        saved_photos = []
+        
+        # Save each photo
+        for photo_file in photos:
+            if photo_file and photo_file.filename != '':
+                photo_url = save_uploaded_file(photo_file, 'gallery')
+                if photo_url:
+                    photo = Photo(
+                        url=photo_url,
+                        project_id=project.id
+                    )
+                    db.session.add(photo)
+                    saved_photos.append(photo_url)
+        
+        # Commit all changes
+        db.session.commit()
+        
+        # Get all photos for this project
+        all_photos = [photo.url for photo in project.photos]
+        
+        return jsonify({
+            'success': True,
+            'message': f'{len(saved_photos)} photos added successfully',
+            'added_photos': saved_photos,
+            'project': {
+                'id': project.id,
+                'area': project.area,
+                'main_image_url': project.main_image_url,
+                'photos': all_photos
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to update main image of a project
+@app.route('/api/projects/<int:project_id>/main-image', methods=['PUT'])
+def update_project_main_image(project_id):
+    try:
+        # Find the project in the database
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({
+                'success': False,
+                'error': f'Project with ID {project_id} not found'
+            }), 404
+        
+        # Check if request has file
+        if 'main_image' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'Main image file is required'
+            }), 400
+        
+        # Get uploaded main image
+        main_image = request.files['main_image']
+        if main_image.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'Main image file is required'
+            }), 400
+        
+        # Delete old main image file if exists
+        if project.main_image_url:
+            delete_uploaded_file(project.main_image_url)
+        
+        # Save new main image
+        new_main_image_url = save_uploaded_file(main_image, 'main')
+        if not new_main_image_url:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid main image file format'
+            }), 400
+        
+        # Update project's main image URL
+        project.main_image_url = new_main_image_url
+        
+        # Commit changes
+        db.session.commit()
+        
+        # Get all photos for this project
+        all_photos = [photo.url for photo in project.photos]
+        
+        return jsonify({
+            'success': True,
+            'message': 'Main image updated successfully',
+            'project': {
+                'id': project.id,
+                'area': project.area,
+                'main_image_url': project.main_image_url,
+                'photos': all_photos
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to delete main image of a project
+@app.route('/api/projects/<int:project_id>/main-image', methods=['DELETE'])
+def delete_project_main_image(project_id):
+    try:
+        # Find the project in the database
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({
+                'success': False,
+                'error': f'Project with ID {project_id} not found'
+            }), 404
+        
+        # Check if project has main image
+        if not project.main_image_url:
+            return jsonify({
+                'success': False,
+                'error': 'Project does not have a main image'
+            }), 400
+        
+        # Delete main image file from filesystem
+        file_deleted = delete_uploaded_file(project.main_image_url)
+        
+        # Set main image URL to empty (or you could set it to None)
+        old_main_image_url = project.main_image_url
+        project.main_image_url = ''
+        
+        # Commit changes
+        db.session.commit()
+        
+        # Get all photos for this project
+        all_photos = [photo.url for photo in project.photos]
+        
+        return jsonify({
+            'success': True,
+            'message': 'Main image deleted successfully',
+            'deleted_main_image': {
+                'url': old_main_image_url,
+                'file_deleted': file_deleted
+            },
+            'project': {
+                'id': project.id,
+                'area': project.area,
+                'main_image_url': project.main_image_url,
+                'photos': all_photos
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to delete a photo from a project by URL
+@app.route('/api/projects/<int:project_id>/photos', methods=['DELETE'])
+def delete_project_photo_by_url(project_id):
+    try:
+        # Find the project in the database
+        project = Project.query.get(project_id)
+        if not project:
+            return jsonify({
+                'success': False,
+                'error': f'Project with ID {project_id} not found'
+            }), 404
+        
+        # Get photo URL from request
+        photo_url = request.form.get('photo_url')
+        if not photo_url:
+            return jsonify({
+                'success': False,
+                'error': 'Photo URL is required'
+            }), 400
+        
+        # Find the photo by URL
+        photo = Photo.query.filter_by(url=photo_url, project_id=project_id).first()
+        if not photo:
+            return jsonify({
+                'success': False,
+                'error': f'Photo with URL {photo_url} not found in project {project_id}'
+            }), 404
+        
+        # Delete the photo file from filesystem
+        file_deleted = delete_uploaded_file(photo.url)
+        
+        # Delete from database
+        db.session.delete(photo)
+        db.session.commit()
+        
+        # Get remaining photos for this project
+        remaining_photos = [p.url for p in project.photos]
+        
+        return jsonify({
+            'success': True,
+            'message': 'Photo deleted successfully',
+            'deleted_photo': {
+                'id': photo.id,
+                'url': photo.url,
+                'file_deleted': file_deleted
+            },
+            'project': {
+                'id': project.id,
+                'area': project.area,
+                'main_image_url': project.main_image_url,
+                'photos': remaining_photos
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # Contact form API endpoint
 @app.route('/api/contact', methods=['POST'])
 def contact_form():
