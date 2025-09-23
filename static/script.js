@@ -9,6 +9,87 @@ document.addEventListener('DOMContentLoaded', function() {
     const showRegisterModalLink = document.getElementById('showRegisterModal');
     const showLoginModalLink = document.getElementById('showLoginModal');
     
+    // Global variable to track authentication status
+    let userAuthenticated = false;
+    let currentUser = null;
+    
+    // --- Authentication Status Check ---
+    async function checkAuthStatus() {
+        try {
+            const response = await fetch('/api/status');
+            const data = await response.json();
+            
+            if (data.logged_in) {
+                userAuthenticated = true;
+                currentUser = data.user;
+                updateAuthButtons('logout');
+            } else {
+                userAuthenticated = false;
+                currentUser = null;
+                updateAuthButtons('login');
+            }
+            
+            // Make authentication status available globally
+            window.userAuthenticated = userAuthenticated;
+        } catch (error) {
+            console.error('Error checking auth status:', error);
+            userAuthenticated = false;
+            currentUser = null;
+            updateAuthButtons('login');
+            window.userAuthenticated = false;
+        }
+    }
+    
+    // --- Update Authentication Buttons ---
+    function updateAuthButtons(state) {
+        if (state === 'logout') {
+            if (authBtn) {
+                authBtn.textContent = 'გასვლა';
+                authBtn.onclick = handleLogout;
+            }
+            if (mobileAuthBtn) {
+                mobileAuthBtn.textContent = 'გასვლა';
+                mobileAuthBtn.onclick = handleLogout;
+            }
+        } else {
+            if (authBtn) {
+                authBtn.textContent = 'შესვლა';
+                authBtn.onclick = () => openModal('loginModal');
+            }
+            if (mobileAuthBtn) {
+                mobileAuthBtn.textContent = 'შესვლა';
+                mobileAuthBtn.onclick = () => openModal('loginModal');
+            }
+        }
+    }
+    
+    // --- Logout Handler ---
+    async function handleLogout() {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                userAuthenticated = false;
+                currentUser = null;
+                window.userAuthenticated = false;
+                updateAuthButtons('login');
+                alert('წარმატებით გამოხვედით სისტემიდან!');
+                // Reload the page to update the UI state
+                window.location.reload();
+            } else {
+                alert('შეცდომა გასვლისას: ' + (data.error || 'უცნობი შეცდომა'));
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            alert('შეცდომა სერვერთან კავშირისას.');
+        }
+    }
+    
     // --- Modal Management ---
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
@@ -37,12 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // --- Authentication Button Events ---
-    if (authBtn) {
-        authBtn.addEventListener('click', () => openModal('loginModal'));
-    }
-    if (mobileAuthBtn) {
-        mobileAuthBtn.addEventListener('click', () => openModal('loginModal'));
-    }
+    // These will be set by updateAuthButtons function based on auth status
 
     // --- Modal Switching ---
     if (showRegisterModalLink) {
@@ -81,8 +157,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
 
                 if (result.success) {
+                    userAuthenticated = true;
+                    currentUser = result.user;
+                    window.userAuthenticated = true;
+                    updateAuthButtons('logout');
                     alert('წარმატებით შეხვედით სისტემაში!');
-                    window.location.reload();
+                    closeModal('loginModal');
                 } else {
                     alert('შეცდომა: ' + result.error);
                 }
@@ -684,4 +764,7 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
         console.error('Error initializing projects carousel:', error);
     });
     initGalleryModal();
+    
+    // Check authentication status on page load
+    checkAuthStatus();
 });
