@@ -11,7 +11,14 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileContactBtn: document.querySelector('.mobile-contact-btn'),
         contactModalClose: document.getElementById('contactModalClose'),
         contactForm: document.getElementById('contactForm'),
-        projectsBtn: document.querySelector('.projects-btn')
+        projectsBtn: document.querySelector('.projects-btn'),
+        // Authentication elements
+        authBtn: document.getElementById('authBtn'),
+        mobileAuthBtn: document.getElementById('mobileAuthBtn'),
+        loginModal: document.getElementById('loginModal'),
+        registerModal: document.getElementById('registerModal'),
+        loginForm: document.getElementById('loginForm'),
+        registerForm: document.getElementById('registerForm')
     };
 
     // გვერდი ზედიდან იწყება - ამოღებულია ავტომატური scroll
@@ -62,6 +69,10 @@ document.addEventListener('DOMContentLoaded', function() {
     elements.contactBtn?.addEventListener('click', openContactModal);
     elements.mobileContactBtn?.addEventListener('click', openContactModal);
     elements.contactModalClose?.addEventListener('click', closeContactModal);
+
+    // Authentication events
+    elements.authBtn?.addEventListener('click', openLoginModal);
+    elements.mobileAuthBtn?.addEventListener('click', openLoginModal);
 
     // Projects button
     elements.projectsBtn?.addEventListener('click', () => {
@@ -139,6 +150,26 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = originalText;
         }
     });
+
+    // Authentication form submissions
+    elements.loginForm?.addEventListener('submit', handleLogin);
+    elements.registerForm?.addEventListener('submit', handleRegister);
+
+    // Modal switching
+    document.getElementById('showRegisterModal')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('loginModal');
+        openModal('registerModal');
+    });
+
+    document.getElementById('showLoginModal')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('registerModal');
+        openModal('loginModal');
+    });
+
+    // Check user status on page load
+    checkUserStatus();
 
     // Close mobile menu on window resize
     window.addEventListener('resize', () => {
@@ -358,6 +389,8 @@ async function loadCardsFromAPI() {
                 area: project.area,
                 image: project.main_image_url,
                 link: `card-detail.html?id=${project.id}`,
+                is_liked: project.is_liked,
+                likes_count: project.likes_count,
                 photos: project.photos.map(photoUrl => ({
                     url: photoUrl,
                     title: 'პროექტის ფოტო'
@@ -426,11 +459,24 @@ function renderProjectsCards() {
             cardElement.className = 'project-card';
             cardElement.setAttribute('data-original-index', index);
             cardElement.setAttribute('data-set', set);
+            cardElement.setAttribute('data-project-id', card.id);
+            
+            // Create like button HTML (only for authenticated users)
+            const likeButtonHtml = (card.is_liked !== undefined && window.userAuthenticated) ? `
+                <button class="like-btn ${card.is_liked ? 'liked' : ''}" data-project-id="${card.id}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="${card.is_liked ? '#ff4757' : 'none'}" stroke="${card.is_liked ? '#ff4757' : '#ffffff'}" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <span class="likes-count">${card.likes_count || 0}</span>
+                </button>
+            ` : '';
+            
             cardElement.innerHTML = `
                 <img src="${card.image}" class="card-image">
                 <div class="card-info">
                     <div class="card-area">${card.area}</div>
                 </div>
+                ${likeButtonHtml}
             `;
             
             cardElement.addEventListener('click', (e) => {
@@ -449,6 +495,16 @@ function renderProjectsCards() {
                 // Navigate to gallery page with card data
                 openGalleryForCard(card);
             });
+            
+            // Add like button click event listener
+            const likeBtn = cardElement.querySelector('.like-btn');
+            if (likeBtn) {
+                likeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleLikeClick(card.id, likeBtn);
+                });
+            }
             
             cardsContainer.appendChild(cardElement);
         });
@@ -764,4 +820,311 @@ function goToGallerySlide(index) {
 function saveGallery() {
     console.log('გალერია შენახულია!');
     alert('გალერია შენახულია! (ეს ფუნქცია მომავალში განვითარდება)');
+}
+
+// ===== ავტორიზაციის ფუნქციები =====
+
+// Check user authentication status
+async function checkUserStatus() {
+    try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        
+        if (data.logged_in) {
+            updateAuthButton(data.user);
+            window.userAuthenticated = true;
+        } else {
+            updateAuthButton(null);
+            window.userAuthenticated = false;
+        }
+        
+        // Re-render project cards to show/hide like buttons
+        if (projectsCards.length > 0) {
+            renderProjectsCards();
+            setTimeout(() => {
+                updateCarouselPosition();
+                updateCarouselButtons();
+            }, 100);
+        }
+    } catch (error) {
+        console.error('Error checking user status:', error);
+        updateAuthButton(null);
+        window.userAuthenticated = false;
+    }
+}
+
+// Update authentication button based on user status
+function updateAuthButton(user) {
+    const authBtn = document.getElementById('authBtn');
+    const mobileAuthBtn = document.getElementById('mobileAuthBtn');
+    
+    if (user) {
+        // User is logged in
+        if (authBtn) {
+            authBtn.innerHTML = `${user.username} <span style="font-size: 12px;">(გამოსვლა)</span>`;
+            authBtn.onclick = handleLogout;
+        }
+        if (mobileAuthBtn) {
+            mobileAuthBtn.innerHTML = `${user.username} <span style="font-size: 12px;">(გამოსვლა)</span>`;
+            mobileAuthBtn.onclick = handleLogout;
+        }
+    } else {
+        // User is not logged in
+        if (authBtn) {
+            authBtn.innerHTML = 'შესვლა';
+            authBtn.onclick = openLoginModal;
+        }
+        if (mobileAuthBtn) {
+            mobileAuthBtn.innerHTML = 'შესვლა';
+            mobileAuthBtn.onclick = openLoginModal;
+        }
+    }
+}
+
+// Open login modal
+function openLoginModal() {
+    const loginModal = document.getElementById('loginModal');
+    if (loginModal) {
+        loginModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('loginEmail')?.focus(), 100);
+    }
+}
+
+// Open register modal
+function openRegisterModal() {
+    const registerModal = document.getElementById('registerModal');
+    if (registerModal) {
+        registerModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('registerUsername')?.focus(), 100);
+    }
+}
+
+// Open modal by ID
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Close modal by ID
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+    }
+}
+
+// Handle login form submission
+async function handleLogin(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const submitBtn = e.target.querySelector('.contact-submit-btn');
+    const originalText = submitBtn.textContent;
+    
+    if (!email || !password) {
+        alert('გთხოვთ შეავსოთ ყველა ველი');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'შესვლა...';
+    
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Success
+            alert(`მოგესალმებით, ${data.user.username}!`);
+            closeModal('loginModal');
+            updateAuthButton(data.user);
+            window.userAuthenticated = true;
+            
+            // Re-render project cards to show like buttons
+            if (projectsCards.length > 0) {
+                renderProjectsCards();
+                setTimeout(() => {
+                    updateCarouselPosition();
+                    updateCarouselButtons();
+                }, 100);
+            }
+        } else {
+            // Error
+            const errorMessage = data.error || 'შეცდომა შესვლისას';
+            alert(`შეცდომა: ${errorMessage}`);
+        }
+        
+    } catch (error) {
+        console.error('Error during login:', error);
+        alert('შეცდომა სერვერთან კავშირისას. გთხოვთ სცადოთ მოგვიანებით.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+}
+
+// Handle register form submission
+async function handleRegister(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('registerUsername').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const submitBtn = e.target.querySelector('.contact-submit-btn');
+    const originalText = submitBtn.textContent;
+    
+    if (!username || !email || !password) {
+        alert('გთხოვთ შეავსოთ ყველა ველი');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'რეგისტრაცია...';
+    
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Success
+            alert('რეგისტრაცია წარმატებით დასრულდა! ახლა შეგიძლიათ შეხვიდეთ.');
+            closeModal('registerModal');
+            openLoginModal();
+        } else {
+            // Error
+            const errorMessage = data.error || 'შეცდომა რეგისტრაციისას';
+            alert(`შეცდომა: ${errorMessage}`);
+        }
+        
+    } catch (error) {
+        console.error('Error during registration:', error);
+        alert('შეცდომა სერვერთან კავშირისას. გთხოვთ სცადოთ მოგვიანებით.');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+}
+
+// Handle logout
+async function handleLogout() {
+    if (!confirm('ნამდვილად გსურთ გამოსვლა?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/logout', {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            alert('წარმატებით გამოხვედით!');
+            updateAuthButton(null);
+            window.userAuthenticated = false;
+            
+            // Re-render project cards to hide like buttons
+            if (projectsCards.length > 0) {
+                renderProjectsCards();
+                setTimeout(() => {
+                    updateCarouselPosition();
+                    updateCarouselButtons();
+                }, 100);
+            }
+        } else {
+            const errorMessage = data.error || 'შეცდომა გამოსვლისას';
+            alert(`შეცდომა: ${errorMessage}`);
+        }
+        
+    } catch (error) {
+        console.error('Error during logout:', error);
+        alert('შეცდომა სერვერთან კავშირისას.');
+    }
+}
+
+// Handle like button click
+async function handleLikeClick(projectId, likeButton) {
+    try {
+        const response = await fetch(`/api/projects/${projectId}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Update button visual state
+            updateLikeButton(likeButton, data.liked, data.likes_count);
+            
+            // Update the project card data
+            updateProjectCardData(projectId, data.liked, data.likes_count);
+        } else {
+            // Error handling
+            const errorMessage = data.error || 'შეცდომა მოწონებისას';
+            if (response.status === 401) {
+                alert('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
+            } else {
+                alert(`შეცდომა: ${errorMessage}`);
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error during like/unlike:', error);
+        alert('შეცდომა სერვერთან კავშირისას.');
+    }
+}
+
+// Update like button visual state
+function updateLikeButton(likeButton, isLiked, likesCount) {
+    const svg = likeButton.querySelector('svg');
+    const likesCountSpan = likeButton.querySelector('.likes-count');
+    
+    if (isLiked) {
+        likeButton.classList.add('liked');
+        svg.setAttribute('fill', '#ff4757');
+        svg.setAttribute('stroke', '#ff4757');
+    } else {
+        likeButton.classList.remove('liked');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', '#ffffff');
+    }
+    
+    if (likesCountSpan) {
+        likesCountSpan.textContent = likesCount;
+    }
+}
+
+// Update project card data in the projectsCards array
+function updateProjectCardData(projectId, isLiked, likesCount) {
+    projectsCards.forEach(card => {
+        if (card.id == projectId) {
+            card.is_liked = isLiked;
+            card.likes_count = likesCount;
+        }
+    });
 }

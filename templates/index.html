@@ -60,7 +60,7 @@
 
                 <!-- კონტაქტის ღილაკი - მარჯვენა მხარე -->
 
-                <button class="contact-btn">Email Us</button>
+                <button class="contact-btn" id="authBtn">შესვლა</button>
             </nav>
 
             <!-- მობილური ბურგერ მენიუ -->
@@ -91,7 +91,7 @@
                     <li><a href="#footer" class="mobile-nav-link">კონტაქტი</a></li>
                 </ul>
                 <!-- მობილური კონტაქტის ღილაკი -->
-                <button class="mobile-contact-btn">Email Us</button>
+                <button class="mobile-contact-btn" id="mobileAuthBtn">შესვლა</button>
             </nav>
         </div>
     </div>
@@ -434,6 +434,54 @@
                 <h3>ფოტოები არ არის</h3>
                 <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
             </div>
+        </div>
+    </div>
+
+    <!-- შესვლის მოდალური ფანჯარა -->
+    <div class="contact-modal" id="loginModal">
+        <div class="contact-modal-content">
+            <div class="contact-modal-header">
+                <h2>შესვლა</h2>
+                <button class="contact-modal-close" onclick="closeModal('loginModal')">✕</button>
+            </div>
+            <form class="contact-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">ელ-ფოსტა:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">პაროლი:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="contact-submit-btn">შესვლა</button>
+                <p style="text-align:center; margin-top:15px;">არ გაქვს ანგარიში? <a href="#" id="showRegisterModal">რეგისტრაცია</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- რეგისტრაციის მოდალური ფანჯარა -->
+    <div class="contact-modal" id="registerModal">
+        <div class="contact-modal-content">
+            <div class="contact-modal-header">
+                <h2>რეგისტრაცია</h2>
+                <button class="contact-modal-close" onclick="closeModal('registerModal')">✕</button>
+            </div>
+            <form class="contact-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">მომხმარებლის სახელი:</label>
+                    <input type="text" id="registerUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">ელ-ფოსტა:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">პაროლი:</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <button type="submit" class="contact-submit-btn">რეგისტრაცია</button>
+                <p style="text-align:center; margin-top:15px;">უკვე გაქვს ანგარიში? <a href="#" id="showLoginModal">შესვლა</a></p>
+            </form>
         </div>
     </div>
 

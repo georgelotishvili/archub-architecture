@@ -1,10 +1,12 @@
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 import os
 import uuid
 from datetime import datetime
+from email_validator import validate_email, EmailNotValidError
 from config import config
 
 # Create Flask application instance
@@ -18,28 +20,21 @@ app.config.from_object(config[config_name])
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize extensions
-db = SQLAlchemy(app)
+from extensions import db
+db.init_app(app)
 migrate = Migrate(app, db)
 
-# Database Models
-class Project(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    area = db.Column(db.String(100), nullable=False)
-    main_image_url = db.Column(db.String(200), nullable=False)
-    
-    # Relationship with Photo model
-    photos = db.relationship('Photo', backref='project', lazy=True, cascade='all, delete-orphan')
-    
-    def __repr__(self):
-        return f'<Project {self.id}: {self.area}>'
+# Initialize LoginManager
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-class Photo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    url = db.Column(db.String(200), nullable=False)
-    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
-    
-    def __repr__(self):
-        return f'<Photo {self.id}: {self.url}>'
+# Import models from models.py
+from models import Project, Photo, User, project_likes
+
+# User loader function for Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Helper functions for file upload
 def allowed_file(filename):
@@ -99,8 +94,19 @@ def home():
 
 # Admin route
 @app.route('/admin')
+@login_required
 def admin():
+    if not current_user.is_admin:
+        return "Forbidden", 403
     return render_template('admin.html')
+
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        return "Forbidden", 403
+    all_users = User.query.all()
+    return render_template('admin_users.html', users=all_users)
 
 # API test route
 @app.route('/test-api')
@@ -117,6 +123,11 @@ def test_upload():
 def test_delete():
     return app.send_static_file('test_delete.html')
 
+# Authentication test route
+@app.route('/test-auth')
+def test_auth():
+    return app.send_static_file('test_auth.html')
+
 # API route to get all projects
 @app.route('/api/projects')
 def get_projects():
@@ -130,11 +141,18 @@ def get_projects():
             # Get all photo URLs for this project
             photo_urls = [photo.url for photo in project.photos]
             
+            # Check if current user has liked this project
+            is_liked = False
+            if current_user.is_authenticated:
+                is_liked = project in current_user.liked_projects
+            
             project_data = {
                 'id': project.id,
                 'area': project.area,
                 'main_image_url': project.main_image_url,
-                'photos': photo_urls
+                'photos': photo_urls,
+                'is_liked': is_liked,
+                'likes_count': project.liked_by_users.count()
             }
             projects_data.append(project_data)
         
@@ -616,6 +634,161 @@ def delete_project_photo_by_url(project_id):
                 'photos': remaining_photos
             }
         }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# User authentication API endpoints
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        # Validate required fields
+        if not username or not email or not password:
+            return jsonify({
+                'success': False, 
+                'error': 'ყველა ველი სავალდებულოა'
+            }), 400
+
+        # Validate email format
+        try:
+            validate_email(email)
+        except EmailNotValidError:
+            return jsonify({
+                'success': False, 
+                'error': 'არასწორი ელ-ფოსტის ფორმატი'
+            }), 400
+
+        # Check if user already exists
+        if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
+            return jsonify({
+                'success': False, 
+                'error': 'მომხმარებელი ან ელ-ფოსტა უკვე არსებობს'
+            }), 409
+
+        # Create new user
+        new_user = User(username=username, email=email)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': 'რეგისტრაცია წარმატებით დასრულდა'
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+
+        # Validate required fields
+        if not email or not password:
+            return jsonify({
+                'success': False, 
+                'error': 'ელ-ფოსტა და პაროლი სავალდებულოა'
+            }), 400
+
+        # Validate email format
+        try:
+            validate_email(email)
+        except EmailNotValidError:
+            return jsonify({
+                'success': False, 
+                'error': 'არასწორი ელ-ფოსტის ფორმატი'
+            }), 400
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and user.check_password(password):
+            login_user(user)
+            return jsonify({
+                'success': True, 
+                'user': {
+                    'username': user.username, 
+                    'is_admin': user.is_admin
+                }
+            })
+
+        return jsonify({
+            'success': False, 
+            'error': 'არასწორი ელ-ფოსტა ან პაროლი'
+        }), 401
+
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def logout():
+    try:
+        logout_user()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/status')
+def status():
+    try:
+        if current_user.is_authenticated:
+            return jsonify({
+                'logged_in': True, 
+                'user': {
+                    'username': current_user.username, 
+                    'is_admin': current_user.is_admin
+                }
+            })
+        return jsonify({'logged_in': False})
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/projects/<int:project_id>/like', methods=['POST'])
+@login_required
+def like_project(project_id):
+    try:
+        project = Project.query.get_or_404(project_id)
+        
+        if project in current_user.liked_projects:
+            current_user.liked_projects.remove(project)
+            liked = False
+        else:
+            current_user.liked_projects.append(project)
+            liked = True
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'liked': liked, 
+            'likes_count': project.liked_by_users.count()
+        })
         
     except Exception as e:
         db.session.rollback()

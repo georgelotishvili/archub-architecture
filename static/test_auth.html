@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <h1>Authentication API Test</h1>
+    
+    <div class="container">
+        <h2>User Registration</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="regUsername">Username:</label>
+                <input type="text" id="regUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="regEmail">Email:</label>
+                <input type="email" id="regEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Password:</label>
+                <input type="password" id="regPassword" required>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <div id="registerResponse"></div>
+    </div>
+
+    <div class="container">
+        <h2>User Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <div id="loginResponse"></div>
+    </div>
+
+    <div class="container">
+        <h2>User Status & Actions</h2>
+        <button onclick="checkStatus()">Check Status</button>
+        <button onclick="logout()">Logout</button>
+        <div id="statusResponse"></div>
+    </div>
+
+    <script>
+        // Registration
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                const responseDiv = document.getElementById('registerResponse');
+                
+                if (data.success) {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = 'Success: ' + data.message;
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                document.getElementById('registerResponse').className = 'response error';
+                document.getElementById('registerResponse').textContent = 'Error: ' + error.message;
+            }
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                const responseDiv = document.getElementById('loginResponse');
+                
+                if (data.success) {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = 'Success: Logged in as ' + data.user.username + 
+                        (data.user.is_admin ? ' (Admin)' : '');
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                document.getElementById('loginResponse').className = 'response error';
+                document.getElementById('loginResponse').textContent = 'Error: ' + error.message;
+            }
+        });
+
+        // Check Status
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                const responseDiv = document.getElementById('statusResponse');
+                
+                if (data.logged_in) {
+                    responseDiv.className = 'response success';
+                    responseDiv.textContent = 'Logged in as: ' + data.user.username + 
+                        (data.user.is_admin ? ' (Admin)' : '');
+                } else {
+                    responseDiv.className = 'response info';
+                    responseDiv.textContent = 'Not logged in';
+                }
+            } catch (error) {
+                document.getElementById('statusResponse').className = 'response error';
+                document.getElementById('statusResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                const responseDiv = document.getElementById('statusResponse');
+                
+                if (data.success) {
+                    responseDiv.className = 'response info';
+                    responseDiv.textContent = 'Logged out successfully';
+                } else {
+                    responseDiv.className = 'response error';
+                    responseDiv.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                document.getElementById('statusResponse').className = 'response error';
+                document.getElementById('statusResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Check status on page load
+        window.onload = function() {
+            checkStatus();
+        };
+    </script>
+</body>
+</html>

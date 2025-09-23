@@ -525,6 +525,57 @@ body {
   font-weight: 600;
 }
 
+/* მოწონების ღილაკი */
+.like-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+}
+
+.like-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+.like-btn.liked {
+  background: rgba(255, 71, 87, 0.2);
+}
+
+.like-btn.liked:hover {
+  background: rgba(255, 71, 87, 0.4);
+}
+
+.like-btn svg {
+  transition: all 0.3s ease;
+}
+
+.like-btn .likes-count {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #242424;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1;
+}
+
 /* ===== სექცია 3 - ჩვენი გუნდი ===== */
 /* სექცია 3-ის მთავარი კონტეინერი */
 .section-3 {
@@ -977,7 +1028,7 @@ body {
   transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* ===== კონტაქტის მოდალი ===== */
+/* ===== კონტაქტის მოდალი და ავტორიზაციის მოდალები ===== */
 /* კონტაქტის მოდალური ფანჯარა */
 .contact-modal {
   display: none;
@@ -990,6 +1041,12 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   animation: fadeIn 0.3s ease;
+}
+
+/* ავტორიზაციის მოდალები (შესვლა და რეგისტრაცია) */
+#loginModal,
+#registerModal {
+  display: none;
 }
 
 /* აქტიური კონტაქტის მოდალი */
@@ -1138,6 +1195,34 @@ body {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+/* ავტორიზაციის მოდალების დამატებითი სტილები */
+#loginModal .contact-modal-content,
+#registerModal .contact-modal-content {
+  max-width: 450px;
+}
+
+/* ავტორიზაციის ფორმების ლინკები */
+.contact-form p a {
+  color: #ffc400;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.contact-form p a:hover {
+  color: #e68a00;
+  text-decoration: underline;
+}
+
+/* მომხმარებლის ინფორმაციის ღილაკი */
+.contact-btn span {
+  display: block;
+  font-size: 11px;
+  opacity: 0.8;
+  line-height: 1;
+  margin-top: 2px;
 }
 
 /* ===== გალერიის მოდალი ===== */
@@ -1425,6 +1510,13 @@ body {
     font-size: 15px;
   }
   
+  /* ავტორიზაციის მოდალები მობილურზე */
+  #loginModal .contact-modal-content,
+  #registerModal .contact-modal-content {
+    max-width: none;
+    width: 95%;
+  }
+  
   /* სექცია 2 მობილურზე */
   .section-2 {
     gap: 15px;
@@ -1516,6 +1608,26 @@ body {
   
   .carousel-next {
     right: 10px;
+  }
+  
+  /* მოწონების ღილაკი მობილურზე */
+  .like-btn {
+    width: 35px;
+    height: 35px;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .like-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .like-btn .likes-count {
+    font-size: 9px;
+    bottom: -6px;
+    right: -6px;
+    min-width: 14px;
   }
 }
 
