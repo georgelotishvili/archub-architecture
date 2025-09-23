@@ -582,6 +582,27 @@ function editCard(index) {
     
     document.body.appendChild(modal);
     
+    // Add event listener for main image preview
+    const mainImageInput = document.getElementById('editMainImage');
+    if (mainImageInput) {
+        mainImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const currentImageDiv = document.querySelector('.current-main-image');
+                    if (currentImageDiv) {
+                        const img = currentImageDiv.querySelector('img');
+                        if (img) {
+                            img.src = e.target.result;
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
     // Load existing gallery photos
     loadGalleryPhotosForEdit(index);
 }
