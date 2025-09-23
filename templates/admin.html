@@ -17,14 +17,14 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap">
     </noscript>
     
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body>
     <!-- ჰედერი -->
     <header class="admin-header">
         <div class="admin-header-container">
             <div class="logo">
-                <a href="index.html" class="logo-link">
+                <a href="{{ url_for('home') }}" class="logo-link">
                     <svg class="logo-svg" width="324" height="86" viewBox="0 0 324 86" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <title>Archub Logo</title>
                         <g clip-path="url(#clip0_8_2)">
@@ -46,7 +46,7 @@
             
             <div class="admin-title">
                 <h1>ადმინ პანელი</h1>
-                <a href="index.html" class="back-to-site">მთავარ გვერდზე დაბრუნება</a>
+                <a href="{{ url_for('home') }}" class="back-to-site">მთავარ გვერდზე დაბრუნება</a>
             </div>
         </div>
     </header>
@@ -65,7 +65,8 @@
                             </div>
                         </div>
                     </div>
-                </div>                
+                </div>
+                
             </div>
         </div>
     </main>
@@ -112,6 +113,6 @@
             };
         }
     </script>
-    <script src="admin.js"></script>
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
 </body>
 </html>

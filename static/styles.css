@@ -260,28 +260,28 @@ body {
 
 /* პირველი ფოტო */
 .photo-1 {
-  background-image: url(/photos/logo\ 1.jpg);
+  background-image: url(photos/logo\ 1.jpg);
   top: 0;
   left: 0;
 }
 
 /* მეორე ფოტო */
 .photo-2 {
-  background-image: url(/photos/logo\ 2.jpg);
+  background-image: url(photos/logo\ 2.jpg);
   top: 0;
   right: 0;
 }
 
 /* მესამე ფოტო */
 .photo-3 {
-  background-image: url(/photos/logo\ 3.jpg);
+  background-image: url(photos/logo\ 3.jpg);
   bottom: 0;
   left: 0;
 }
 
 /* მეოთხე ფოტო */
 .photo-4 {
-  background-image: url(/photos/logo\ 4.jpg);
+  background-image: url(photos/logo\ 4.jpg);
   bottom: 0;
   right: 0;
 }

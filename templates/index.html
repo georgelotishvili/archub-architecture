@@ -21,7 +21,7 @@
     </noscript>
     
     <!-- მთავარი CSS სტილების ფაილი -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <!-- ვებ-გვერდის ჰედერი -->
@@ -104,43 +104,43 @@
             <div class="carousel-container">
                 <!-- კარუსელის პირველი სლაიდი (აქტიური) -->
                 <div class="carousel-slide active">
-                    <img src="photos/car (1).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (1).jpg') }}">
                 </div>
                 <!-- კარუსელის მეორე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (2).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (2).jpg') }}">
                 </div>
                 <!-- კარუსელის მესამე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (3).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (3).jpg') }}">
                 </div>
                 <!-- კარუსელის მეოთხე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (4).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (4).jpg') }}">
                 </div>
                 <!-- კარუსელის მეხუთე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (5).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (5).jpg') }}">
                 </div>
                 <!-- კარუსელის მეექვსე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (6).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (6).jpg') }}">
                 </div>
                 <!-- კარუსელის მეშვიდე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (7).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (7).jpg') }}">
                 </div>
                 <!-- კარუსელის მერვე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (8).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (8).jpg') }}">
                 </div>
                 <!-- კარუსელის მეცხრე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (9).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (9).jpg') }}">
                 </div>
                 <!-- კარუსელის მეათე სლაიდი -->
                 <div class="carousel-slide">
-                    <img src="photos/car (10).jpg">
+                    <img src="{{ url_for('static', filename='photos/car (10).jpg') }}">
                 </div>
             </div>
         </div>
@@ -234,7 +234,7 @@
                         <!-- პირველი გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 1.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 1.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">გიორგი ლოთიშვილი</span>
@@ -246,7 +246,7 @@
                         <!-- მეორე გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 7.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 7.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">ნათია ფოფხაძე</span>
@@ -257,7 +257,7 @@
                         <!-- მესამე გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 3.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 3.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">ლაშა ფოფხაძე</span>
@@ -268,7 +268,7 @@
                         <!-- მეოთხე გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 8.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 8.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">თამარ ლოთიშვილი</span>
@@ -279,7 +279,7 @@
                         <!-- მეხუთე გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 2.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 2.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">დავით თუთბერიძე</span>
@@ -290,7 +290,7 @@
                         <!-- მეექვსე გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 5.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 5.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">ანი ლოლაძე</span>
@@ -301,7 +301,7 @@
                         <!-- მეშვიდე გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 4.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 4.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">ირაკლი ღონღაძე</span>
@@ -312,7 +312,7 @@
                         <!-- მერვე გუნდის წევრი -->
                         <div class="team-slide">
                             <div class="team-photo">
-                                <img src="/photos/fot 6.jpg">
+                                <img src="{{ url_for('static', filename='photos/fot 6.jpg') }}">
                             </div>
                             <div class="team-info">
                                 <span class="name">მარიამ ჯაფარიძე</span>
@@ -369,7 +369,7 @@
             </div>
             <!-- ფუტერის ქვედა ნაწილი -->
             <div class="footer-bottom">
-                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია. | <a href="admin.html" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
+                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია. | <a href="{{ url_for('admin') }}" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
             </div>
         </div>
     </footer>
@@ -438,6 +438,6 @@
     </div>
 
     <!-- მთავარი JavaScript ფაილი -->
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
