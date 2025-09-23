@@ -52,9 +52,8 @@
                     <li><a href="#footer" class="nav-link">კონტაქტი</a></li>
                 </ul>
 
-                <!-- კონტაქტის ღილაკი - მარჯვენა მხარე -->
-
-                <button class="contact-btn" id="authBtn">შესვლა</button>
+                <!-- Authentication ღილაკი - მარჯვენა მხარე -->
+                <button class="auth-btn" id="authBtn">შესვლა</button>
             </nav>
 
             <!-- მობილური ბურგერ მენიუ -->
@@ -84,8 +83,8 @@
                     <li><a href="#section3" class="mobile-nav-link">ჩვენს შესახებ</a></li>
                     <li><a href="#footer" class="mobile-nav-link">კონტაქტი</a></li>
                 </ul>
-                <!-- მობილური კონტაქტის ღილაკი -->
-                <button class="mobile-contact-btn" id="mobileAuthBtn">შესვლა</button>
+                <!-- მობილური Authentication ღილაკი -->
+                <button class="mobile-auth-btn" id="mobileAuthBtn">შესვლა</button>
             </nav>
         </div>
     </div>
@@ -369,31 +368,6 @@
     </footer>
 
 
-    <!-- კონტაქტის მოდალური ფანჯარა -->
-    <div class="contact-modal" id="contactModal">
-        <div class="contact-modal-content">
-            <div class="contact-modal-header">
-                <h2>დაგვიკავშირდით</h2>
-                <button class="contact-modal-close" id="contactModalClose" aria-label="Close contact form">✕</button>
-            </div>
-            <!-- კონტაქტის ფორმა -->
-            <form class="contact-form" id="contactForm">
-                <div class="form-group">
-                    <label for="senderEmail">თქვენი ელ-ფოსტა:</label>
-                    <input type="email" id="senderEmail" name="senderEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">წერილი:</label>
-                    <textarea id="message" name="message" rows="6" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="recipientEmail">მიმღები ელ-ფოსტა:</label>
-                    <input type="email" id="recipientEmail" name="recipientEmail" value="naormala@gmail.com" readonly>
-                </div>
-                <button type="submit" class="contact-submit-btn">წერილის გაგზავნა</button>
-            </form>
-        </div>
-    </div>
 
     <!-- გალერიის მოდალური ფანჯარა -->
     <div class="gallery-modal" id="galleryModal">
@@ -407,8 +381,6 @@
                     </div>
                 </div>
                 
-                <!-- შენახვის ღილაკი - მარცხენა ზედა კუთხე -->
-                <button class="save-btn" id="gallerySaveBtn">Save</button>
                 
                 <!-- დახურვის აიქონი - მარჯვენა ზედა კუთხე -->
                 <span class="close-icon" id="galleryCloseBtn">✕</span>
@@ -432,13 +404,13 @@
     </div>
 
     <!-- შესვლის მოდალური ფანჯარა -->
-    <div class="contact-modal" id="loginModal">
-        <div class="contact-modal-content">
-            <div class="contact-modal-header">
+    <div class="auth-modal" id="loginModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
                 <h2>შესვლა</h2>
-                <button class="contact-modal-close" onclick="closeModal('loginModal')">✕</button>
+                <button class="auth-modal-close" onclick="closeModal('loginModal')">✕</button>
             </div>
-            <form class="contact-form" id="loginForm">
+            <form class="auth-form" id="loginForm">
                 <div class="form-group">
                     <label for="loginEmail">ელ-ფოსტა:</label>
                     <input type="email" id="loginEmail" required>
@@ -454,13 +426,13 @@
     </div>
 
     <!-- რეგისტრაციის მოდალური ფანჯარა -->
-    <div class="contact-modal" id="registerModal">
-        <div class="contact-modal-content">
-            <div class="contact-modal-header">
+    <div class="auth-modal" id="registerModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
                 <h2>რეგისტრაცია</h2>
-                <button class="contact-modal-close" onclick="closeModal('registerModal')">✕</button>
+                <button class="auth-modal-close" onclick="closeModal('registerModal')">✕</button>
             </div>
-            <form class="contact-form" id="registerForm">
+            <form class="auth-form" id="registerForm">
                 <div class="form-group">
                     <label for="registerUsername">მომხმარებლის სახელი:</label>
                     <input type="text" id="registerUsername" required>

@@ -98,22 +98,57 @@ body {
   font-size: 14px;
 }
 
-/* კონტაქტის ღილაკი */
-.contact-btn {
-  width: 150px;
-  height: 40px;
-  background: #ffc400;
+
+/* Authentication ღილაკი */
+.auth-btn {
+  width: 120px;
+  height: 45px;
+  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
   border: none;
-  color: #ffffff;
+  color: #242424;
   font-size: 16px;
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-/* კონტაქტის ღილაკის hover ეფექტი */
-.contact-btn:hover {
-  transform: scale(1.05);
+/* Authentication ღილაკის hover ეფექტი */
+.auth-btn:hover {
+  background: linear-gradient(135deg, #e6b000 0%, #ffc400 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
+}
+
+/* Authentication ღილაკის active ეფექტი */
+.auth-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+}
+
+/* Authentication ღილაკის shine ეფექტი */
+.auth-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.auth-btn:hover::before {
+  left: 100%;
+}
+
+/* Authentication ღილაკის focus ეფექტი */
+.auth-btn:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
 }
 
 /* მობილური ბურგერ მენიუ */
@@ -991,25 +1026,60 @@ body {
   color: #616161;
 }
 
-/* მობილური კონტაქტის ღილაკი */
-.mobile-contact-btn {
+
+/* მობილური Authentication ღილაკი */
+.mobile-auth-btn {
   width: 100%;
-  height: 50px;
-  background: #ffc400;
+  height: 55px;
+  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
   align-items: center;
   justify-content: center;
   display: flex;
   border: none;
-  color: #ffffff;
+  color: #242424;
   font-size: 16px;
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  font-weight: 600;
+  transition: all 0.3s ease;
   cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-/* მობილური კონტაქტის ღილაკის hover ეფექტი */
-.mobile-contact-btn:hover {
-  transform: scale(1.02);
+/* მობილური Authentication ღილაკის hover ეფექტი */
+.mobile-auth-btn:hover {
+  background: linear-gradient(135deg, #e6b000 0%, #ffc400 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
+}
+
+/* მობილური Authentication ღილაკის active ეფექტი */
+.mobile-auth-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+}
+
+/* მობილური Authentication ღილაკის shine ეფექტი */
+.mobile-auth-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.mobile-auth-btn:hover::before {
+  left: 100%;
+}
+
+/* მობილური Authentication ღილაკის focus ეფექტი */
+.mobile-auth-btn:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
 }
 
 /* ===== ბურგერ მენიუს ანიმაცია ===== */
@@ -1028,9 +1098,10 @@ body {
   transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* ===== კონტაქტის მოდალი და ავტორიზაციის მოდალები ===== */
-/* კონტაქტის მოდალური ფანჯარა */
-.contact-modal {
+/* ===== ავტორიზაციის მოდალები ===== */
+
+/* Authentication მოდალი */
+.auth-modal {
   display: none;
   position: fixed;
   z-index: 10000;
@@ -1043,40 +1114,48 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
-/* ავტორიზაციის მოდალები (შესვლა და რეგისტრაცია) */
-#loginModal,
-#registerModal {
-  display: none;
+/* Authentication მოდალის fadeIn ანიმაცია */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-/* აქტიური ავტორიზაციის მოდალები */
-#loginModal.active,
-#registerModal.active {
+/* აქტიური Authentication მოდალი */
+.auth-modal.active {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* აქტიური კონტაქტის მოდალი */
-.contact-modal.active {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* კონტაქტის მოდალის შინა კონტენტი */
-.contact-modal-content {
+/* Authentication მოდალის შინა კონტენტი */
+.auth-modal-content {
   background-color: #ffffff;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   width: 90%;
-  max-width: 500px;
+  max-width: 450px;
   max-height: 90vh;
   overflow-y: auto;
   animation: slideIn 0.3s ease;
 }
 
-/* კონტაქტის მოდალის ჰედერი */
-.contact-modal-header {
+/* Authentication მოდალის slideIn ანიმაცია */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Authentication მოდალის ჰედერი */
+.auth-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1084,8 +1163,8 @@ body {
   border-bottom: 1px solid #e0e0e0;
 }
 
-/* კონტაქტის მოდალის სათაური */
-.contact-modal-header h2 {
+/* Authentication მოდალის სათაური */
+.auth-modal-header h2 {
   font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
   font-size: 24px;
   font-weight: 700;
@@ -1093,8 +1172,8 @@ body {
   margin: 0;
 }
 
-/* კონტაქტის მოდალის დახურვის ღილაკი */
-.contact-modal-close {
+/* Authentication მოდალის დახურვის ღილაკი */
+.auth-modal-close {
   background: none;
   border: none;
   font-size: 28px;
@@ -1106,23 +1185,84 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* კონტაქტის მოდალის დახურვის ღილაკის hover ეფექტი */
-.contact-modal-close:hover {
+/* Authentication მოდალის დახურვის ღილაკის hover ეფექტი */
+.auth-modal-close:hover {
   background-color: #f0f0f0;
   color: #242424;
 }
 
-/* კონტაქტის ფორმა */
-.contact-form {
+/* Authentication ფორმა */
+.auth-form {
   padding: 30px;
 }
 
+/* Authentication ფორმის submit ღილაკი */
+.auth-form button[type="submit"] {
+  width: 100%;
+  height: 50px;
+  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
+  border: none;
+  color: #242424;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Authentication ფორმის submit ღილაკის hover ეფექტი */
+.auth-form button[type="submit"]:hover {
+  background: linear-gradient(135deg, #e68a00 0%, #ffc400 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 153, 0, 0.3);
+}
+
+/* Authentication ფორმის submit ღილაკის active ეფექტი */
+.auth-form button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* Authentication ფორმის submit ღილაკის disabled მდგომარეობა */
+.auth-form button[type="submit"]:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Authentication ფორმის submit ღილაკის shine ეფექტი */
+.auth-form button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.auth-form button[type="submit"]:hover::before {
+  left: 100%;
+}
+
+/* Authentication ფორმის submit ღილაკის focus ეფექტი */
+.auth-form button[type="submit"]:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
+}
+
+
 /* ფორმის ჯგუფი */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 /* ფორმის ლეიბლები */
@@ -1139,13 +1279,21 @@ body {
 .form-group input, 
 .form-group textarea {
   width: 100%;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 2px solid #e0e0e0;
-  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
-  font-size: 14px;
+  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-size: 16px;
   color: #242424;
-  background-color: #ffffff;
+  background-color: #fafafa;
   transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+/* ფორმის ინპუტების hover მდგომარეობა */
+.form-group input:hover, 
+.form-group textarea:hover {
+  border-color: #ffc400;
+  background-color: #ffffff;
 }
 
 /* ფორმის ინპუტების focus მდგომარეობა */
@@ -1153,7 +1301,9 @@ body {
 .form-group textarea:focus {
   outline: none;
   border-color: #ffc400;
-  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.15);
+  background-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 /* ფორმის readonly ინპუტები */
@@ -1170,68 +1320,21 @@ body {
   min-height: 120px;
 }
 
-/* კონტაქტის ფორმის გაგზავნის ღილაკი */
-.contact-submit-btn {
-  width: 100%;
-  height: 50px;
-  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
-  border: none;
-  color: #ffffff;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-}
 
-/* კონტაქტის ფორმის გაგზავნის ღილაკის hover ეფექტი */
-.contact-submit-btn:hover {
-  background: linear-gradient(135deg, #e68a00 0%, #ffc400 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 153, 0, 0.3);
-}
-
-/* კონტაქტის ფორმის გაგზავნის ღილაკის active მდგომარეობა */
-.contact-submit-btn:active {
-  transform: translateY(0);
-}
-
-/* კონტაქტის ფორმის გაგზავნის ღილაკის disabled მდგომარეობა */
-.contact-submit-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* ავტორიზაციის მოდალების დამატებითი სტილები */
-#loginModal .contact-modal-content,
-#registerModal .contact-modal-content {
-  max-width: 450px;
-}
 
 /* ავტორიზაციის ფორმების ლინკები */
-.contact-form p a {
+.auth-form p a {
   color: #ffc400;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
-.contact-form p a:hover {
+.auth-form p a:hover {
   color: #e68a00;
   text-decoration: underline;
 }
 
-/* მომხმარებლის ინფორმაციის ღილაკი */
-.contact-btn span {
-  display: block;
-  font-size: 11px;
-  opacity: 0.8;
-  line-height: 1;
-  margin-top: 2px;
-}
 
 /* ===== გალერიის მოდალი ===== */
 /* გალერიის მოდალური ფანჯარა */
@@ -1308,37 +1411,6 @@ body {
   object-fit: cover;
 }
 
-/* შენახვის ღილაკი - მარცხენა ზედა კუთხე */
-.save-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: #663399;
-  border: none;
-  width: 80px;
-  height: 40px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-  z-index: 20;
-  transition: all 0.3s ease;
-  text-align: center;
-  line-height: 1;
-  padding: 0;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-/* შენახვის ღილაკის hover ეფექტი */
-.save-btn:hover {
-  background: #72469d;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-}
 
 /* დახურვის აიქონი - მარჯვენა ზედა კუთხე */
 .close-icon {
@@ -1458,9 +1530,9 @@ body {
 /* ===== რესპონსივი დიზაინი ===== */
 /* მობილური მოწყობილობები 900px-მდე */
 @media (max-width: 900px) {
-  /* ნავიგაცია და კონტაქტი ღილაკი იმალება */
+  /* ნავიგაცია და ღილაკები იმალება */
   .nav,
-  .contact-btn {
+  .auth-btn {
     display: none;
   }
   
@@ -1475,25 +1547,6 @@ body {
     align-items: center;
   }
   
-  /* კონტაქტის მოდალი მობილურზე */
-  .contact-modal-content {
-    width: 95%;
-    max-width: none;
-    margin: 20px;
-    max-height: calc(100vh - 40px);
-  }
-  
-  .contact-modal-header {
-    padding: 20px 20px 15px;
-  }
-  
-  .contact-modal-header h2 {
-    font-size: 20px;
-  }
-  
-  .contact-form {
-    padding: 20px;
-  }
   
   .form-group {
     margin-bottom: 15px;
@@ -1513,16 +1566,30 @@ body {
     min-height: 100px;
   }
   
-  .contact-submit-btn {
-    height: 45px;
-    font-size: 15px;
-  }
   
   /* ავტორიზაციის მოდალები მობილურზე */
-  #loginModal .contact-modal-content,
-  #registerModal .contact-modal-content {
+  .auth-modal-content {
     max-width: none;
     width: 95%;
+    margin: 20px;
+    max-height: calc(100vh - 40px);
+  }
+  
+  .auth-modal-header {
+    padding: 20px 20px 15px;
+  }
+  
+  .auth-modal-header h2 {
+    font-size: 20px;
+  }
+  
+  .auth-form {
+    padding: 20px;
+  }
+  
+  .auth-form button[type="submit"] {
+    height: 45px;
+    font-size: 15px;
   }
   
   /* სექცია 2 მობილურზე */
