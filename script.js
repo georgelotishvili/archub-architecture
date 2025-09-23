@@ -659,6 +659,16 @@ function loadGalleryPhotosForModal() {
     const noPhotos = document.getElementById('galleryNoPhotos');
     
     try {
+        // First try to get photos from the selected card
+        if (window.selectedCard && window.selectedCard.photos && window.selectedCard.photos.length > 0) {
+            console.log('Using photos from selected card:', window.selectedCard.photos);
+            displayGalleryPhotos(window.selectedCard.photos);
+            gallery.style.display = 'block';
+            noPhotos.style.display = 'none';
+            return;
+        }
+        
+        // Fallback to global gallery photos
         let savedPhotos = localStorage.getItem('galleryPhotos');
         
         if (!savedPhotos) {

@@ -819,6 +819,10 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
                 processedCount++;
                 if (processedCount === totalFields) {
                     // All photos processed
+                    // Update the card's photos array
+                    projectsCards[cardIndex].photos = newGalleryPhotos;
+                    
+                    // Also update global gallery photos
                     galleryPhotos.splice(0, 5, ...newGalleryPhotos);
                     saveCardsToStorage();
                     saveGalleryPhotosToStorage();
@@ -838,6 +842,10 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
             
                 if (processedCount === totalFields) {
                     // All photos processed
+                    // Update the card's photos array
+                    projectsCards[cardIndex].photos = newGalleryPhotos;
+                    
+                    // Also update global gallery photos
                     galleryPhotos.splice(0, 5, ...newGalleryPhotos);
                     saveCardsToStorage();
                     saveGalleryPhotosToStorage();
@@ -849,6 +857,10 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
             processedCount++;
             if (processedCount === totalFields) {
                 // All photos processed
+                // Update the card's photos array
+                projectsCards[cardIndex].photos = newGalleryPhotos;
+                
+                // Also update global gallery photos
                 galleryPhotos.splice(0, 5, ...newGalleryPhotos);
                 saveCardsToStorage();
                 saveGalleryPhotosToStorage();
