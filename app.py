@@ -108,25 +108,6 @@ def admin_users():
     all_users = User.query.all()
     return render_template('admin_users.html', users=all_users)
 
-# API test route
-@app.route('/test-api')
-def test_api():
-    return app.send_static_file('test_api.html')
-
-# Upload test route
-@app.route('/test-upload')
-def test_upload():
-    return app.send_static_file('test_upload.html')
-
-# Delete test route
-@app.route('/test-delete')
-def test_delete():
-    return app.send_static_file('test_delete.html')
-
-# Authentication test route
-@app.route('/test-auth')
-def test_auth():
-    return app.send_static_file('test_auth.html')
 
 # API route to get all projects
 @app.route('/api/projects')
@@ -827,26 +808,8 @@ def contact_form():
                 'error': 'message is required'
             }), 400
         
-        # Print received data to console (for development)
-        print("=" * 50)
-        print("CONTACT FORM SUBMISSION")
-        print("=" * 50)
-        print(f"Sender Email: {sender_email}")
-        print(f"Message: {message}")
-        print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 50)
-        
-        # TODO: In a real application, here would be the email sending logic
-        # For example, using Flask-Mail:
-        # from flask_mail import Mail, Message
-        # mail = Mail(app)
-        # msg = Message(
-        #     subject='New Contact Form Submission',
-        #     sender=sender_email,
-        #     recipients=['admin@archub.ge']
-        # )
-        # msg.body = f"From: {sender_email}\n\nMessage:\n{message}"
-        # mail.send(msg)
+        # Log contact form submission
+        print(f"Contact form submission from {sender_email}: {message[:50]}...")
         
         return jsonify({
             'success': True,

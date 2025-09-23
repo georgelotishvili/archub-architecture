@@ -31,7 +31,7 @@ class User(UserMixin, db.Model):
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     area = db.Column(db.String(100), nullable=False)
-    main_image_url = db.Column(db.String(200), nullable=False)
+    main_image_url = db.Column(db.String(200), nullable=True, default='')
     
     # Relationship with Photo model
     photos = db.relationship('Photo', backref='project', lazy=True, cascade='all, delete-orphan')

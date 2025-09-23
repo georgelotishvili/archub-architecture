@@ -3,8 +3,8 @@
 Database management commands for the Archub project
 """
 
-from app import app, db, Project, Photo
-from models import User
+from app import app, db
+from models import Project, Photo, User
 
 def create_sample_data():
     """Create sample projects and photos for testing"""

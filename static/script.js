@@ -21,8 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
         registerForm: document.getElementById('registerForm')
     };
 
-    // გვერდი ზედიდან იწყება - ამოღებულია ავტომატური scroll
-    // window.scrollTo(0, 0);
 
     // მობილური მენიუ
     function toggleMobileMenu() {
@@ -43,11 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', closeMobileMenu);
     });
 
-    // Smooth scroll - DISABLED (only manual scrolling allowed)
-    // document.querySelectorAll('a[href^="#"]').forEach(link => {
-    //     link.addEventListener('click', (e) => {
-    //         e.preventDefault();
-    //         const target = document.querySelector(link.getAttribute('href'));
     //         target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     //     });
     // });
