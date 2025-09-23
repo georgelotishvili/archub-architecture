@@ -442,10 +442,9 @@ function renderProjectsCards() {
             // Create like button HTML (only for authenticated users)
             const likeButtonHtml = (card.is_liked !== undefined && window.userAuthenticated) ? `
                 <button class="like-btn ${card.is_liked ? 'liked' : ''}" data-project-id="${card.id}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="${card.is_liked ? '#ff4757' : 'none'}" stroke="${card.is_liked ? '#ff4757' : '#ffffff'}" stroke-width="2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="${card.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
-                    <span class="likes-count">${card.likes_count || 0}</span>
                 </button>
             ` : '';
             
@@ -731,20 +730,15 @@ async function handleLikeClick(projectId, likeButton) {
 // Update like button visual state
 function updateLikeButton(likeButton, isLiked, likesCount) {
     const svg = likeButton.querySelector('svg');
-    const likesCountSpan = likeButton.querySelector('.likes-count');
     
     if (isLiked) {
         likeButton.classList.add('liked');
-        svg.setAttribute('fill', '#ff4757');
-        svg.setAttribute('stroke', '#ff4757');
+        svg.setAttribute('fill', '#ffffff');
+        svg.setAttribute('stroke', '#ffffff');
     } else {
         likeButton.classList.remove('liked');
         svg.setAttribute('fill', 'none');
         svg.setAttribute('stroke', '#ffffff');
-    }
-    
-    if (likesCountSpan) {
-        likesCountSpan.textContent = likesCount;
     }
 }
 
