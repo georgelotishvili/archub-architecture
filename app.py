@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -11,6 +12,9 @@ from config import config
 
 # Create Flask application instance
 app = Flask(__name__)
+
+# Initialize CORS
+CORS(app)
 
 # Configuration selection based on FLASK_ENV
 config_name = os.getenv('FLASK_ENV', 'default')
@@ -627,52 +631,26 @@ def delete_project_photo_by_url(project_id):
 
 @app.route('/api/register', methods=['POST'])
 def register():
-    try:
-        data = request.get_json()
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
 
-        # Validate required fields
-        if not username or not email or not password:
-            return jsonify({
-                'success': False, 
-                'error': 'ყველა ველი სავალდებულოა'
-            }), 400
+    if not username or not email or not password:
+        return jsonify({'success': False, 'error': 'ყველა ველის შევსება აუცილებელია'}), 400
 
-        # Validate email format
-        try:
-            validate_email(email)
-        except EmailNotValidError:
-            return jsonify({
-                'success': False, 
-                'error': 'არასწორი ელ-ფოსტის ფორმატი'
-            }), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'error': 'მომხმარებელი ამ ელ-ფოსტით უკვე არსებობს'}), 409
 
-        # Check if user already exists
-        if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
-            return jsonify({
-                'success': False, 
-                'error': 'მომხმარებელი ან ელ-ფოსტა უკვე არსებობს'
-            }), 409
+    if User.query.filter_by(username=username).first():
+        return jsonify({'success': False, 'error': 'მომხმარებელი ამ სახელით უკვე არსებობს'}), 409
 
-        # Create new user
-        new_user = User(username=username, email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True, 
-            'message': 'რეგისტრაცია წარმატებით დასრულდა'
-        }), 201
+    new_user = User(username=username, email=email)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    return jsonify({'success': True, 'message': 'რეგისტრაცია წარმატებით დასრულდა'}), 201
 
 @app.route('/api/login', methods=['POST'])
 def login():
