@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>მომხმარებლის გვერდი - ადმინისტრაცია</title>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <style>
+        /* Global font family for admin user view */
+        * {
+            font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif !important;
+        }
+        
+        /* Force font on ALL elements including buttons */
+        html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup,
+        menu, nav, output, ruby, section, summary, time, mark, audio, video,
+        button, input, select, textarea, a.button, .button, .back-btn {
+            font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif !important;
+        }
+        .admin-user-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #ffc400;
+        }
+        
+        .admin-user-title {
+            font-size: 2rem;
+            color: #242424;
+            font-weight: bold;
+        }
+        
+        .back-btn {
+            background: #ffc400;
+            color: #242424;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+            font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif !important;
+        }
+        
+        .back-btn:hover {
+            background: #e68a00;
+        }
+        
+        .user-info-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            color: #242424;
+            font-weight: 500;
+        }
+        
+        .admin-badge {
+            background: #ffc400;
+            color: #242424;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            width: fit-content;
+        }
+        
+        .user-badge {
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            width: fit-content;
+        }
+        
+        .liked-projects-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #242424;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .project-card {
+            width: 310px;
+            height: auto;
+            aspect-ratio: 4/3;
+            background: #ffffff;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .project-card.admin-view {
+            cursor: default;
+            border: 2px solid #e9ecef;
+        }
+        
+        .project-card.admin-view:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+        
+        .card-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.53);
+            color: #ffffff;
+            padding: 20px 15px 15px;
+        }
+        
+        .card-area {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .card-likes {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+        }
+        
+        .no-projects {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .no-projects h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #242424;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .loading h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #242424;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .admin-user-container {
+                padding: 10px;
+            }
+            
+            .admin-user-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .admin-user-title {
+                font-size: 1.5rem;
+            }
+            
+            .user-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-user-container">
+        <div class="admin-user-header">
+            <h1 class="admin-user-title">{{ user.username }} - მომხმარებლის გვერდი</h1>
+            <a href="/admin/users" class="back-btn">← უკან</a>
+        </div>
+        
+        <!-- User Information Card -->
+        <div class="user-info-card">
+            <div class="user-info-grid">
+                <div class="info-item">
+                    <span class="info-label">მომხმარებლის ID</span>
+                    <span class="info-value">{{ user.id }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">მომხმარებლის სახელი</span>
+                    <span class="info-value">{{ user.username }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">ელ-ფოსტა</span>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">სტატუსი</span>
+                    <span class="info-value">
+                        {% if user.is_admin %}
+                            <span class="admin-badge">ადმინი</span>
+                        {% else %}
+                            <span class="user-badge">მომხმარებელი</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Liked Projects Section -->
+        <div class="liked-projects-section">
+            <h2 class="section-title">მოწონებული პროექტები</h2>
+            
+            <!-- Loading State -->
+            <div class="loading" id="loadingState">
+                <h3>იტვირთება...</h3>
+                <p>მოწონებული პროექტების ჩატვირთვა</p>
+            </div>
+            
+            <!-- No Projects State -->
+            <div class="no-projects" id="noProjectsState" style="display: none;">
+                <h3>პროექტები არ არის მოწონებული</h3>
+                <p>ამ მომხმარებელს ჯერ არ აქვს მოწონებული პროექტები</p>
+            </div>
+            
+            <!-- Projects Grid -->
+            <div class="projects-grid" id="projectsGrid" style="display: none;">
+                <!-- Projects will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Modal removed for admin view -->
+    
+    <!-- Admin user view specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingState = document.getElementById('loadingState');
+            const noProjectsState = document.getElementById('noProjectsState');
+            const projectsGrid = document.getElementById('projectsGrid');
+            const userId = {{ user.id }};
+            
+            // Load user's liked projects
+            async function loadUserLikedProjects() {
+                try {
+                    const response = await fetch(`/api/admin/user/${userId}/liked-projects`);
+                    const data = await response.json();
+                    
+                    loadingState.style.display = 'none';
+                    
+                    if (data.success && data.projects.length > 0) {
+                        projectsGrid.style.display = 'grid';
+                        displayProjects(data.projects);
+                    } else {
+                        noProjectsState.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error loading user liked projects:', error);
+                    loadingState.style.display = 'none';
+                    noProjectsState.style.display = 'block';
+                }
+            }
+            
+            // Display projects in grid
+            function displayProjects(projects) {
+                const grid = document.getElementById('projectsGrid');
+                grid.innerHTML = '';
+                
+                projects.forEach(project => {
+                    const projectCard = document.createElement('div');
+                    projectCard.className = 'project-card admin-view';
+                    projectCard.setAttribute('data-project-id', project.id);
+                    // Remove onclick event - admin should only view, not interact
+                    
+                    projectCard.innerHTML = `
+                        <img src="/${project.main_image_url}" alt="${project.area}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ფოტო არ არის</text+Cjwvc3ZnPg=='">
+                        <div class="card-info">
+                            <div class="card-area">${project.area}</div>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(projectCard);
+                });
+            }
+            
+            // Gallery functionality removed for admin view
+            // Admin should only view project cards without interaction
+            
+            // Load user's liked projects on page load
+            loadUserLikedProjects();
+        });
+    </script>
+</body>
+</html>

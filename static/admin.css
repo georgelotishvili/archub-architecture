@@ -6,6 +6,7 @@
   padding: 0;
   box-sizing: border-box;
   text-decoration: none;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif !important;
 }
 
 html {
@@ -19,6 +20,12 @@ body {
   color: #242424;
   background-color: #f8f9fa;
   min-height: 100vh;
+}
+
+/* Force Noto Serif Georgian on all buttons and form elements */
+button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-edit-btn, 
+.add-gallery-photo-btn, .remove-gallery-photo-btn, .upload-photos-btn {
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif !important;
 }
 
 .container {

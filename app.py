@@ -118,6 +118,14 @@ def admin_users():
     all_users = User.query.all()
     return render_template('admin_users.html', users=all_users)
 
+@app.route('/admin/user/<int:user_id>')
+@login_required
+def admin_view_user(user_id):
+    if not current_user.is_admin:
+        return "Forbidden", 403
+    target_user = User.query.get_or_404(user_id)
+    return render_template('admin_user_view.html', user=target_user)
+
 
 # API route to get all projects
 @app.route('/api/projects')
@@ -788,6 +796,62 @@ def get_user_liked_projects():
         
         return jsonify({
             'success': True,
+            'projects': projects_data,
+            'count': len(projects_data)
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to get specific user's liked projects (for admin)
+@app.route('/api/admin/user/<int:user_id>/liked-projects')
+@login_required
+def get_admin_user_liked_projects(user_id):
+    try:
+        # Check if current user is admin
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+        
+        # Get the target user
+        target_user = User.query.get(user_id)
+        if not target_user:
+            return jsonify({
+                'success': False,
+                'error': f'User with ID {user_id} not found'
+            }), 404
+        
+        # Get all liked projects for the target user
+        liked_projects = target_user.liked_projects.all()
+        
+        # Create JSON response
+        projects_data = []
+        for project in liked_projects:
+            # Get all photo URLs for this project
+            photo_urls = [photo.url for photo in project.photos]
+            
+            project_data = {
+                'id': project.id,
+                'area': project.area,
+                'main_image_url': project.main_image_url,
+                'photos': photo_urls,
+                'is_liked': True,  # Always true for liked projects
+                'likes_count': project.liked_by_users.count()
+            }
+            projects_data.append(project_data)
+        
+        return jsonify({
+            'success': True,
+            'user': {
+                'id': target_user.id,
+                'username': target_user.username,
+                'email': target_user.email
+            },
             'projects': projects_data,
             'count': len(projects_data)
         })

@@ -113,6 +113,23 @@
             font-style: italic;
         }
         
+        .view-user-btn {
+            display: inline-block;
+            background: #ffc400;
+            color: #242424;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .view-user-btn:hover {
+            background: #e68a00;
+        }
+        
         .stats-row {
             background: #f8f9fa;
             font-weight: 600;
@@ -187,8 +204,12 @@
                             {% for project in user.liked_projects %}
                                 <span class="project-tag">{{ project.area }}</span>
                             {% endfor %}
+                            <br>
+                            <a href="/admin/user/{{ user.id }}" class="view-user-btn">გვერდის ნახვა</a>
                         {% else %}
                             <span class="no-projects">პროექტები არ არის მოწონებული</span>
+                            <br>
+                            <a href="/admin/user/{{ user.id }}" class="view-user-btn">გვერდის ნახვა</a>
                         {% endif %}
                     </td>
                 </tr>
