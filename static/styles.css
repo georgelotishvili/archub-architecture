@@ -1590,7 +1590,6 @@ body {
   /* გუნდის წევრის ტელეფონი მცირე ეკრანებზე */
   .team-info .phone {
     font-size: 10px;
-    line-height: 0.7
-    ;
+    line-height: 0.7;
   }
 }

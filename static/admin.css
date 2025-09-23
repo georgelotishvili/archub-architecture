@@ -801,3 +801,177 @@ body {
     font-size: 14px;
   }
 }
+
+/* ===== ახალი პროექტის ფორმის სტილები ===== */
+.add-project-form-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.add-project-form-container h3 {
+  color: #663399;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-align: center;
+  border-bottom: 2px solid #f8f9fa;
+  padding-bottom: 15px;
+}
+
+.add-project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 16px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: "Noto Serif Georgian", serif;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
+  outline: none;
+  border-color: #663399;
+  box-shadow: 0 0 0 3px rgba(102, 51, 153, 0.1);
+}
+
+.form-group input[type="text"]::placeholder {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.form-group input[type="file"] {
+  cursor: pointer;
+  padding: 10px 16px;
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button {
+  background: #663399;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: "Noto Serif Georgian", serif;
+  font-size: 14px;
+  margin-right: 10px;
+  transition: background 0.3s ease;
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button:hover {
+  background: #5a2d8a;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.submit-btn,
+.clear-btn {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Noto Serif Georgian", serif;
+  min-width: 150px;
+}
+
+.submit-btn {
+  background: #663399;
+  color: white;
+}
+
+.submit-btn:hover {
+  background: #5a2d8a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 51, 153, 0.3);
+}
+
+.submit-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.clear-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.clear-btn:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* ფორმის რესპონსივი სტილები */
+@media (max-width: 768px) {
+  .add-project-form-container {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .add-project-form-container h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .submit-btn,
+  .clear-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-project-form-container {
+    padding: 15px;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="file"] {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .submit-btn,
+  .clear-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}

@@ -1,499 +1,69 @@
-// ადმინ პანელის ფუნქციონალი
+// ადმინ პანელის ფუნქციონალი - API ვერსია
 let projectsCards = [];
 let galleryPhotos = [];
 
-// ქარდების შენახვა localStorage-ში
-function saveCardsToStorage() {
+// API ბაზის URL
+const API_BASE_URL = '/api/projects';
+
+// ქარდების ჩატვირთვა API-დან
+async function loadCardsFromAPI() {
     try {
-        console.log('Saving cards to localStorage:', projectsCards);
-        const cardsData = JSON.stringify(projectsCards);
+        console.log('Loading cards from API...');
+        const response = await fetch(API_BASE_URL);
         
-        // შეინახოს localStorage-ში
-        localStorage.setItem('adminCards', cardsData);
-        console.log('Cards saved successfully to localStorage');
-        
-        // ალტერნატივად sessionStorage-შიც
-        try {
-            sessionStorage.setItem('adminCards', cardsData);
-            console.log('Cards also saved to sessionStorage');
-        } catch (sessionError) {
-            console.warn('sessionStorage save failed:', sessionError);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        // შეტყობინება სხვა ტაბებისთვის
-        window.dispatchEvent(new StorageEvent('storage', {
-            key: 'adminCards',
-            newValue: cardsData
-        }));
-        console.log('Storage event dispatched');
-    } catch (error) {
-        console.error('Error saving to localStorage:', error);
+        const data = await response.json();
+        console.log('API response:', data);
         
-        // თუ localStorage სრულია, სცადოს გასუფთავება
-        if (error.message.includes('quota') || error.message.includes('exceeded')) {
-            console.log('localStorage quota exceeded, attempting cleanup...');
-            clearOldCards();
-            
-            // კვლავ სცადოს შენახვა
-            try {
-                localStorage.setItem('adminCards', JSON.stringify(projectsCards));
-                console.log('Cards saved after cleanup');
-            } catch (retryError) {
-                console.error('Still failed after cleanup:', retryError);
-                alert('localStorage სრულია. გთხოვთ გასუფთავოთ ბრაუზერის მონაცემები.');
+        if (data.success) {
+            projectsCards = data.projects || [];
+            console.log('Cards loaded successfully from API:', projectsCards);
+            loadCardsList();
+        } else {
+            console.error('API returned error:', data.error);
+            projectsCards = [];
+            showError('შეცდომა მონაცემების ჩატვირთვისას: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error loading cards from API:', error);
+        projectsCards = [];
+        showError('შეცდომა API-თან კავშირისას: ' + error.message);
+    }
+}
+
+// შეცდომის ჩვენება
+function showError(message) {
+    const cardsGrid = document.getElementById('cardsGrid');
+    if (cardsGrid) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'text-align: center; color: #dc3545; padding: 20px; font-size: 16px; width: 90%; margin: 0 auto; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px;';
+        errorDiv.textContent = message;
+        cardsGrid.insertBefore(errorDiv, cardsGrid.querySelector('.add-card-section'));
+    }
+}
+
+// წარმატების შეტყობინების ჩვენება
+function showSuccess(message) {
+    const cardsGrid = document.getElementById('cardsGrid');
+    if (cardsGrid) {
+        const successDiv = document.createElement('div');
+        successDiv.style.cssText = 'text-align: center; color: #155724; padding: 20px; font-size: 16px; width: 90%; margin: 0 auto; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px;';
+        successDiv.textContent = message;
+        cardsGrid.insertBefore(successDiv, cardsGrid.querySelector('.add-card-section'));
+        
+        // ავტომატურად წაშალოს 3 წამის შემდეგ
+        setTimeout(() => {
+            if (successDiv.parentNode) {
+                successDiv.parentNode.removeChild(successDiv);
             }
-        } else {
-            alert('შეცდომა localStorage-ში შენახვისას: ' + error.message);
-        }
+        }, 3000);
     }
 }
 
-// გალერიის ფოტოების შენახვა localStorage-ში
-function saveGalleryPhotosToStorage() {
-    try {
-        console.log('Saving gallery photos to localStorage:', galleryPhotos);
-        const photosData = JSON.stringify(galleryPhotos);
-        
-        localStorage.setItem('galleryPhotos', photosData);
-        console.log('Gallery photos saved successfully to localStorage');
-        
-        // ალტერნატივად sessionStorage-შიც
-        try {
-            sessionStorage.setItem('galleryPhotos', photosData);
-            console.log('Gallery photos also saved to sessionStorage');
-        } catch (sessionError) {
-            console.warn('sessionStorage save failed:', sessionError);
-        }
-        
-        // შეტყობინება სხვა ტაბებისთვის
-        window.dispatchEvent(new StorageEvent('storage', {
-            key: 'galleryPhotos',
-            newValue: photosData
-        }));
-        console.log('Gallery photos storage event dispatched');
-    } catch (error) {
-        console.error('Error saving gallery photos to localStorage:', error);
-        alert('შეცდომა გალერიის ფოტოების შენახვისას: ' + error.message);
-    }
-}
-
-// ქარდების ჩატვირთვა localStorage-იდან
-function loadCardsFromStorage() {
-    try {
-        console.log('Loading cards from storage...');
-        let savedCards = localStorage.getItem('adminCards');
-        
-        // თუ localStorage-ში არ არის, სცადოს sessionStorage-ში
-        if (!savedCards) {
-            console.log('No cards in localStorage, checking sessionStorage...');
-            try {
-                savedCards = sessionStorage.getItem('adminCards');
-                if (savedCards) {
-                    console.log('Found cards in sessionStorage');
-                }
-            } catch (sessionError) {
-                console.warn('sessionStorage access failed:', sessionError);
-            }
-        }
-        
-        console.log('Raw saved cards:', savedCards);
-        
-        if (savedCards) {
-            projectsCards = JSON.parse(savedCards);
-            console.log('Parsed cards from storage:', projectsCards);
-        } else {
-            console.log('No saved cards found, creating random cards');
-            // თუ არ არის შენახული ქარდები, შევქმნათ ნიმუშები
-            createRandomCards();
-        }
-    } catch (error) {
-        console.error('Error loading from storage:', error);
-        console.log('Creating random cards as fallback');
-        createRandomCards();
-    }
-}
-
-// გალერიის ფოტოების ჩატვირთვა localStorage-იდან
-function loadGalleryPhotosFromStorage() {
-    try {
-        console.log('Loading gallery photos from storage...');
-        let savedPhotos = localStorage.getItem('galleryPhotos');
-        
-        // თუ localStorage-ში არ არის, სცადოს sessionStorage-ში
-        if (!savedPhotos) {
-            console.log('No gallery photos in localStorage, checking sessionStorage...');
-            try {
-                savedPhotos = sessionStorage.getItem('galleryPhotos');
-                if (savedPhotos) {
-                    console.log('Found gallery photos in sessionStorage');
-                }
-            } catch (sessionError) {
-                console.warn('sessionStorage access failed:', sessionError);
-            }
-        }
-        
-        console.log('Raw saved gallery photos:', savedPhotos);
-        
-        if (savedPhotos) {
-            galleryPhotos = JSON.parse(savedPhotos);
-            console.log('Parsed gallery photos from storage:', galleryPhotos);
-        } else {
-            console.log('No saved gallery photos found, creating default photos');
-            // თუ არ არის შენახული ფოტოები, შევქმნათ ნიმუშები
-            createDefaultGalleryPhotos();
-        }
-    } catch (error) {
-        console.error('Error loading gallery photos from storage:', error);
-        console.log('Creating default gallery photos as fallback');
-        createDefaultGalleryPhotos();
-    }
-}
-
-// ნიმუშის გალერიის ფოტოების შექმნა
-function createDefaultGalleryPhotos() {
-    const defaultPhotos = [
-        { id: 'gallery-1', url: 'photos/car (1).jpg', title: 'ფოტო 1' },
-        { id: 'gallery-2', url: 'photos/car (2).jpg', title: 'ფოტო 2' },
-        { id: 'gallery-3', url: 'photos/car (3).jpg', title: 'ფოტო 3' },
-        { id: 'gallery-4', url: 'photos/car (4).jpg', title: 'ფოტო 4' },
-        { id: 'gallery-5', url: 'photos/car (5).jpg', title: 'ფოტო 5' }
-    ];
-    
-    galleryPhotos = defaultPhotos;
-    saveGalleryPhotosToStorage();
-}
-
-// მთავარი ფუნქცია
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Admin page loaded');
-    
-    // ინიციალიზაცია
-    loadCardsFromStorage();
-    loadCardsList();
-    loadGalleryPhotosFromStorage();
-    
-    // Event listeners
-    const addCardBtn = document.getElementById('addCardBtn');
-    console.log('addCardBtn found:', addCardBtn);
-    
-    if (addCardBtn) {
-        // Remove any existing listeners first
-        const newBtn = addCardBtn.cloneNode(true);
-        addCardBtn.parentNode.replaceChild(newBtn, addCardBtn);
-        
-        // Add fresh event listener
-        newBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Button clicked, calling addNewCard');
-            
-            // Debug: Check form values
-            const areaValue = document.getElementById('cardArea').value;
-            const imageFiles = document.getElementById('cardImage').files;
-            console.log('Form values - Area:', areaValue, 'Image files:', imageFiles.length);
-            
-            addNewCard();
-        });
-        
-        console.log('Event listener added to button successfully');
-    } else {
-        console.log('Button not found!');
-    }
-    
-    
-    // Add new card button event listener
-    const addNewCardBtn = document.getElementById('addNewCardBtn');
-    console.log('addNewCardBtn found:', addNewCardBtn);
-    
-    if (addNewCardBtn) {
-        addNewCardBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Add new card button clicked, creating empty card');
-            createEmptyCard();
-        });
-        console.log('Add new card event listener added successfully');
-    } else {
-        console.log('Add new card button not found!');
-    }
-});
-
-// ქარდების შექმნა
-function createRandomCards() {
-    const sampleCards = [
-        { area: '120 კვ.მ', image: 'photos/pro 1.png' },
-        { area: '150 კვ.მ', image: 'photos/pro 2.jpg' },
-        { area: '90 კვ.მ', image: 'photos/pro 3.png' },
-        { area: '200 კვ.მ', image: 'photos/pro 4.jpg' },
-        { area: '180 კვ.მ', image: 'photos/pro 5.jpg' }
-    ];
-    
-    projectsCards = sampleCards.map((card, index) => ({
-        id: `card-${index}`,
-        area: card.area,
-        image: card.image,
-        link: `card-detail.html?id=card-${index}`,
-        photos: [{
-            url: card.image,
-            title: 'მთავარი ფოტო'
-        }]
-    }));
-}
-
-// ცარიელი ქარდის შექმნა
-function createEmptyCard() {
-    console.log('Creating empty card');
-    
-    const emptyCard = {
-        id: `card-${Date.now()}`,
-        area: 'ცარიელი ქარდი',
-        image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1IiBzdHJva2U9IiNEREQiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIxMDAiIHk9Ijc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPuaXoOazleWbvueJhzwvdGV4dD4KPC9zdmc+',
-        link: `card-detail.html?id=card-${Date.now()}`,
-        photos: []
-    };
-    
-    projectsCards.push(emptyCard);
-    saveCardsToStorage();
-    loadCardsList();
-    
-    console.log('Empty card created:', emptyCard);
-}
-
-// ახალი ქარდის დამატება
-function addNewCard() {
-    console.log('addNewCard function called');
-    
-    try {
-        // ღილაკის დაბლოკვა რომ ორჯერ არ გამოიძახოს
-        const addCardBtn = document.getElementById('addCardBtn');
-        console.log('addCardBtn:', addCardBtn);
-        
-        if (addCardBtn && addCardBtn.disabled) {
-            console.log('Button is disabled, returning');
-            return;
-        }
-        
-        const imageInput = document.getElementById('cardImage');
-        const areaInput = document.getElementById('cardArea');
-        
-        console.log('imageInput:', imageInput);
-        console.log('areaInput:', areaInput);
-        
-        if (!imageInput || !areaInput) {
-            console.log('Inputs not found, returning');
-            alert('შეცდომა: ფორმის ელემენტები არ მოიძებნა!');
-            return;
-        }
-        
-        const area = areaInput.value.trim();
-        console.log('area:', area);
-        
-        if (!area) {
-            alert('შეავსეთ ფართობის ველი!');
-            return;
-        }
-        
-        if (!imageInput.files || !imageInput.files[0]) {
-            console.log('No file selected');
-            alert('აირჩიეთ ფოტო!');
-            return;
-        }
-        
-        console.log('File selected:', imageInput.files[0]);
-        
-        // ღილაკის დაბლოკვა
-        if (addCardBtn) {
-            addCardBtn.disabled = true;
-            addCardBtn.textContent = 'მიმდინარეობს... (ფოტოები ატვირთება)';
-        }
-        
-        const mainFile = imageInput.files[0];
-        const additionalFilesInput = document.getElementById('cardPhotos');
-        const additionalFiles = additionalFilesInput ? additionalFilesInput.files : [];
-        
-        // ყველა ფოტოს ატვირთვა
-        const allFiles = [mainFile];
-        for (let i = 0; i < additionalFiles.length; i++) {
-            allFiles.push(additionalFiles[i]);
-        }
-        
-        let processedFiles = 0;
-        const photos = [];
-        
-        allFiles.forEach((file, index) => {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                photos.push({
-                    url: e.target.result,
-                    title: index === 0 ? 'მთავარი ფოტო' : `ფოტო ${index + 1}`
-                });
-                
-                processedFiles++;
-                
-                // ყველა ფაილი დამუშავდა
-                if (processedFiles === allFiles.length) {
-                    console.log('All files processed');
-                    
-                    const newCard = {
-                        id: `card-${Date.now()}`,
-                        area: area,
-                        image: photos[0].url, // მთავარი ფოტო
-                        link: `card-detail.html?id=card-${Date.now()}`,
-                        photos: photos
-                    };
-                    
-                    console.log('New card:', newCard);
-                    projectsCards.push(newCard);
-                    console.log('Updated projectsCards:', projectsCards);
-                    
-                    // გალერიის ფოტოების დამატება
-                    const galleryPhotosToAdd = photos.map(photo => ({
-                        id: `gallery-${Date.now()}-${Math.random()}`,
-                        url: photo.url,
-                        title: photo.title
-                    }));
-                    
-                    galleryPhotos.push(...galleryPhotosToAdd);
-                    console.log('Added to gallery photos:', galleryPhotosToAdd);
-                    
-                    saveCardsToStorage(); // შენახვა localStorage-ში
-                    saveGalleryPhotosToStorage(); // გალერიის ფოტოების შენახვა
-                    loadCardsList();
-                    loadGalleryPhotosList(); // გალერიის ფოტოების განახლება
-                    clearForm([imageInput, areaInput, additionalFilesInput]);
-                    
-                    // ღილაკის განბლოკვა
-                    if (addCardBtn) {
-                        addCardBtn.disabled = false;
-                        addCardBtn.textContent = 'ქარდის დამატება (ფოტოები გალერიაშიც დაემატება)';
-                    }
-                }
-            };
-            
-            reader.onerror = function() {
-                console.error('Error reading file:', file);
-                alert('ფაილის წაკითხვის შეცდომა!');
-                if (addCardBtn) {
-                    addCardBtn.disabled = false;
-                    addCardBtn.textContent = 'ქარდის დამატება (ფოტოები გალერიაშიც დაემატება)';
-                }
-            };
-            
-            reader.readAsDataURL(file);
-        });
-    } catch (error) {
-        console.error('Error in addNewCard:', error);
-        alert('შეცდომა ქარდის დამატებისას: ' + error.message);
-        
-        const addCardBtn = document.getElementById('addCardBtn');
-        if (addCardBtn) {
-            addCardBtn.disabled = false;
-            addCardBtn.textContent = 'ქარდის დამატება (ფოტოები გალერიაშიც დაემატება)';
-        }
-    }
-}
-
-// addNewCard ფუნქციის window-ზე დამატება onclick-ისთვის
-window.addNewCard = addNewCard;
-
-// ძველი ქარდების გასუფთავება localStorage-იდან
-function clearOldCards() {
-    try {
-        console.log('Clearing old cards to free up space...');
-        
-        // მხოლოდ ბოლო 5 ქარდი დატოვოს
-        if (projectsCards.length > 5) {
-            projectsCards = projectsCards.slice(-5); // ბოლო 5 ქარდი
-            console.log('Kept only last 5 cards:', projectsCards);
-        }
-        
-        // localStorage-ის გასუფთავება
-        localStorage.removeItem('adminCards');
-        console.log('Cleared localStorage adminCards');
-        
-        // sessionStorage-ის გასუფთავება
-        sessionStorage.removeItem('adminCards');
-        console.log('Cleared sessionStorage adminCards');
-        
-        // სხვა localStorage keys-ების შემოწმება
-        const keysToRemove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.includes('admin') || key.includes('card')) {
-                keysToRemove.push(key);
-            }
-        }
-        
-        keysToRemove.forEach(key => {
-            localStorage.removeItem(key);
-            console.log('Removed key:', key);
-        });
-        
-        console.log('Cleanup completed');
-    } catch (error) {
-        console.error('Error during cleanup:', error);
-    }
-}
-
-
-// ტესტის ფუნქცია (commented out - debugging only)
-/*
-function testFunction() {
-    console.log('Test function called');
-    
-    // ტესტი - ვამოწმებთ ველებს
-    const imageInput = document.getElementById('cardImage');
-    const areaInput = document.getElementById('cardArea');
-    
-    console.log('Image input:', imageInput);
-    console.log('Area input:', areaInput);
-    console.log('Area value:', areaInput ? areaInput.value : 'No area input');
-    console.log('Image files:', imageInput ? imageInput.files : 'No image input');
-    
-    // localStorage და sessionStorage ტესტი
-    try {
-        const testData = localStorage.getItem('adminCards');
-        console.log('localStorage test - adminCards:', testData);
-        
-        const sessionTestData = sessionStorage.getItem('adminCards');
-        console.log('sessionStorage test - adminCards:', sessionTestData);
-        
-        // ტესტის მონაცემების შექმნა
-        localStorage.setItem('test', 'test value');
-        const testValue = localStorage.getItem('test');
-        localStorage.removeItem('test');
-        
-        sessionStorage.setItem('test', 'test value');
-        const sessionTestValue = sessionStorage.getItem('test');
-        sessionStorage.removeItem('test');
-        
-        let message = 'ტესტი მუშაობს!\n';
-        
-        if (testValue === 'test value') {
-            console.log('localStorage is working correctly');
-            message += 'localStorage: ✓\n';
-        } else {
-            console.log('localStorage test failed');
-            message += 'localStorage: ✗\n';
-        }
-        
-        if (sessionTestValue === 'test value') {
-            console.log('sessionStorage is working correctly');
-            message += 'sessionStorage: ✓';
-        } else {
-            console.log('sessionStorage test failed');
-            message += 'sessionStorage: ✗';
-        }
-        
-        console.log(message);
-    } catch (error) {
-        console.error('Storage error:', error);
-        console.error('Storage შეცდომა: ' + error.message);
-    }
-}
-window.testFunction = testFunction;
-*/
-
-// ქარდების სიის ჩატვირთვა
+// ქარდების სიის ჩვენება
 function loadCardsList() {
     console.log('loadCardsList called');
     const cardsGrid = document.getElementById('cardsGrid');
@@ -507,6 +77,10 @@ function loadCardsList() {
     // Clear only the cards, not the add-card-section
     const existingCards = cardsGrid.querySelectorAll('.card-item');
     existingCards.forEach(card => card.remove());
+    
+    // Clear any error/success messages
+    const messages = cardsGrid.querySelectorAll('[style*="text-align: center"]');
+    messages.forEach(msg => msg.remove());
     
     console.log('projectsCards length:', projectsCards.length);
     
@@ -524,380 +98,215 @@ function loadCardsList() {
         cardItem.className = 'card-item';
         cardItem.innerHTML = `
             <div class="card-preview">
-                <img src="${card.image}" alt="ქარდი">
+                <img src="${card.main_image_url}" alt="ქარდი">
             </div>
             <div class="card-details">
                 <div class="card-area">${card.area}</div>
             </div>
             <div class="card-actions">
-                <button class="edit-btn" onclick="editCard(${index})">რედაქტირება</button>
-                <button class="delete-btn" onclick="deleteCard(${index})">წაშლა</button>
+                <button class="edit-btn" onclick="editCard(${card.id})">რედაქტირება</button>
+                <button class="delete-btn" onclick="deleteCard(${card.id})">წაშლა</button>
             </div>
         `;
         cardsGrid.insertBefore(cardItem, cardsGrid.querySelector('.add-card-section'));
     });
 }
 
-// ქარდის რედაქტირება
-function editCard(index) {
-    const card = projectsCards[index];
+// ქარდის წაშლა API-ით
+async function deleteCard(projectId) {
+    if (confirm('ნამდვილად გსურთ ქარდის წაშლა? (გალერიის ფოტოებიც წაიშლება)')) {
+        try {
+            console.log('Deleting project with ID:', projectId);
+            const response = await fetch(`${API_BASE_URL}/${projectId}`, {
+                method: 'DELETE'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Delete response:', data);
+            
+            if (data.success) {
+                console.log('Project deleted successfully');
+                showSuccess(`პროექტი ${data.project_info.area} წარმატებით წაიშალა`);
+                
+                // განაახლოს ქარდების სია
+                await loadCardsFromAPI();
+            } else {
+                console.error('Delete failed:', data.error);
+                showError('შეცდომა ქარდის წაშლისას: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error deleting project:', error);
+            showError('შეცდომა API-თან კავშირისას: ' + error.message);
+        }
+    }
+}
+
+// ქარდის რედაქტირება - მოდალური ფანჯრის გახსნა
+function editCard(projectId) {
+    // იპოვოს პროექტი projectsCards მასივიდან
+    const project = projectsCards.find(p => p.id === projectId);
+    if (!project) {
+        showError('პროექტი ვერ მოიძებნა');
+        return;
+    }
     
-    // შევქმნათ რედაქტირების მოდალი
+    // შექმნას მოდალური ფანჯარა
     const modal = document.createElement('div');
-    modal.className = 'edit-modal';
+    modal.id = 'editModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+    
     modal.innerHTML = `
-        <div class="edit-modal-content">
-            <div class="edit-modal-header">
-                <h3>ქარდის რედაქტირება</h3>
-                <button class="edit-close" onclick="closeEditModal()">დახურვა</button>
+        <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        ">
+            <h2 style="margin-top: 0; color: #333; text-align: center;">პროექტის რედაქტირება</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="editArea" style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">ფართობი:</label>
+                <input 
+                    type="text" 
+                    id="editArea" 
+                    value="${project.area}" 
+                    style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px solid #ddd;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        box-sizing: border-box;
+                    "
+                    placeholder="შეიყვანეთ ფართობი"
+                >
             </div>
-            <div class="edit-modal-body">
-                <div class="form-group">
-                    <label for="editText">ტექსტი:</label>
-                    <input type="text" id="editText" value="${card.area}" placeholder="ფართობი ან სხვა ტექსტი">
-                </div>
-                
-                <div class="form-group">
-                    <label for="editMainImage">მთავარი ფოტო:</label>
-                    <input type="file" id="editMainImage" accept="image/*">
-                    <div class="current-main-image">
-                        <img src="${card.image}" alt="მიმდინარე მთავარი ფოტო" style="width: 150px; height: 100px; object-fit: cover; border-radius: 4px; margin-top: 10px;">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>გალერიის ფოტოები:</label>
-                    <div class="gallery-photos-container" id="galleryPhotosContainer">
-                        <!-- Gallery photos will be loaded here -->
-                    </div>
-                    <button type="button" class="add-gallery-photo-btn" onclick="addGalleryPhotoField()">+ ფოტოს დამატება</button>
-                </div>
-                
-                <div class="edit-actions">
-                    <button class="save-edit-btn" onclick="saveCardEdit(${index})">შენახვა</button>
-                </div>
+            
+            <div style="text-align: center; margin-top: 25px;">
+                <button 
+                    onclick="saveProjectUpdate(${projectId})" 
+                    style="
+                        background: #28a745;
+                        color: white;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        margin-right: 10px;
+                        font-weight: bold;
+                    "
+                >
+                    შენახვა
+                </button>
+                <button 
+                    onclick="closeEditModal()" 
+                    style="
+                        background: #6c757d;
+                        color: white;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: bold;
+                    "
+                >
+                    დახურვა
+                </button>
             </div>
         </div>
     `;
     
+    // დაემატოს მოდალი DOM-ში
     document.body.appendChild(modal);
     
-    // Add event listener for main image preview
-    const mainImageInput = document.getElementById('editMainImage');
-    if (mainImageInput) {
-        mainImageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const currentImageDiv = document.querySelector('.current-main-image');
-                    if (currentImageDiv) {
-                        const img = currentImageDiv.querySelector('img');
-                        if (img) {
-                            img.src = e.target.result;
-                        }
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-    
-    // Load existing gallery photos
-    loadGalleryPhotosForEdit(index);
+    // ფოკუსი input ველზე
+    setTimeout(() => {
+        const areaInput = document.getElementById('editArea');
+        if (areaInput) {
+            areaInput.focus();
+            areaInput.select();
+        }
+    }, 100);
 }
 
-// რედაქტირების მოდალის დახურვა
+// მოდალის დახურვა
 function closeEditModal() {
-    const modal = document.querySelector('.edit-modal');
+    const modal = document.getElementById('editModal');
     if (modal) {
         modal.remove();
     }
 }
 
-// გალერიის ფოტოების ჩატვირთვა რედაქტირებისთვის
-function loadGalleryPhotosForEdit(cardIndex) {
-    const container = document.getElementById('galleryPhotosContainer');
-    const card = projectsCards[cardIndex];
-    
-    if (!container) {
-        console.error('Gallery photos container not found');
+// პროექტის განახლების შენახვა
+async function saveProjectUpdate(projectId) {
+    const areaInput = document.getElementById('editArea');
+    if (!areaInput) {
+        showError('შეცდომა: input ველი ვერ მოიძებნა');
         return;
     }
     
-    container.innerHTML = '';
+    const newArea = areaInput.value.trim();
+    if (!newArea) {
+        showError('გთხოვთ შეიყვანოთ ფართობი');
+        return;
+    }
     
-    // Load existing gallery photos (first 5)
-    const existingPhotos = galleryPhotos.slice(0, 5);
-    
-    if (existingPhotos.length === 0) {
-        // No existing photos, create empty fields
-        for (let i = 0; i < 3; i++) {
-            const photoField = document.createElement('div');
-            photoField.className = 'gallery-photo-field';
-            photoField.innerHTML = `
-                <div class="gallery-photo-preview">
-                    <div class="no-photo-placeholder">ფოტო არ არის</div>
-                    <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${i})">×</button>
-                </div>
-                <input type="file" class="gallery-photo-input" accept="image/*" onchange="handleGalleryPhotoChange(${i}, this)">
-            `;
-            container.appendChild(photoField);
-        }
-    } else {
-        existingPhotos.forEach((photo, index) => {
-            const photoField = document.createElement('div');
-            photoField.className = 'gallery-photo-field';
-            photoField.innerHTML = `
-                <div class="gallery-photo-preview">
-                    <img src="${photo.url}" alt="Gallery Photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-                    <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${index})">×</button>
-                </div>
-                <input type="file" class="gallery-photo-input" accept="image/*" onchange="handleGalleryPhotoChange(${index}, this)">
-            `;
-            container.appendChild(photoField);
+    try {
+        console.log('Updating project with ID:', projectId, 'New area:', newArea);
+        
+        // შექმნას FormData
+        const formData = new FormData();
+        formData.append('area', newArea);
+        
+        const response = await fetch(`${API_BASE_URL}/${projectId}`, {
+            method: 'PUT',
+            body: formData
         });
-    }
-}
-
-// გალერიის ფოტოს ველის დამატება
-function addGalleryPhotoField() {
-    const container = document.getElementById('galleryPhotosContainer');
-    if (!container) {
-        console.error('Gallery photos container not found');
-        return;
-    }
-    
-    const currentCount = container.children.length;
-    
-        if (currentCount >= 10) {
-            return;
-        }
-    
-    const photoField = document.createElement('div');
-    photoField.className = 'gallery-photo-field';
-    photoField.innerHTML = `
-        <div class="gallery-photo-preview">
-            <div class="no-photo-placeholder">ფოტო არ არის</div>
-            <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${currentCount})">×</button>
-        </div>
-        <input type="file" class="gallery-photo-input" accept="image/*" onchange="handleGalleryPhotoChange(${currentCount}, this)">
-    `;
-    container.appendChild(photoField);
-}
-
-// გალერიის ფოტოს ველის წაშლა
-function removeGalleryPhotoField(index) {
-    const container = document.getElementById('galleryPhotosContainer');
-    if (!container) return;
-    
-    const field = container.children[index];
-    if (field) {
-        field.remove();
-        // Update indices for remaining fields
-        updateGalleryPhotoIndices();
-    }
-}
-
-// გალერიის ფოტოს ცვლილების დამუშავება
-function handleGalleryPhotoChange(index, input) {
-    const file = input.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = input.previousElementSibling;
-            const img = preview.querySelector('img');
-            if (img) {
-                img.src = e.target.result;
-            } else {
-                preview.innerHTML = `
-                    <img src="${e.target.result}" alt="Gallery Photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-                    <button type="button" class="remove-gallery-photo-btn" onclick="removeGalleryPhotoField(${index})">×</button>
-                `;
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-// გალერიის ფოტოების ინდექსების განახლება
-function updateGalleryPhotoIndices() {
-    const container = document.getElementById('galleryPhotosContainer');
-    if (!container) return;
-    
-    const fields = container.children;
-    
-    Array.from(fields).forEach((field, index) => {
-        const input = field.querySelector('.gallery-photo-input');
-        const removeBtn = field.querySelector('.remove-gallery-photo-btn');
         
-        if (input) {
-            input.setAttribute('onchange', `handleGalleryPhotoChange(${index}, this)`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        if (removeBtn) {
-            removeBtn.setAttribute('onclick', `removeGalleryPhotoField(${index})`);
-        }
-    });
-}
-
-// ქარდის რედაქტირების შენახვა
-function saveCardEdit(index) {
-    const textInput = document.getElementById('editText');
-    const mainImageInput = document.getElementById('editMainImage');
-    const galleryContainer = document.getElementById('galleryPhotosContainer');
-    
-    if (!textInput) {
-        alert('ტექსტის ველი ვერ მოიძებნა!');
-        return;
-    }
-    
-    const newText = textInput.value.trim();
-    
-    if (!newText) {
-        alert('შეავსეთ ტექსტის ველი!');
-        return;
-    }
-    
-    // Update card text
-    projectsCards[index].area = newText;
-    
-    // Handle main image update
-    if (mainImageInput && mainImageInput.files && mainImageInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            projectsCards[index].image = e.target.result;
-            saveCardAndGallery(index, galleryContainer);
-        };
-        reader.readAsDataURL(mainImageInput.files[0]);
-    } else {
-        saveCardAndGallery(index, galleryContainer);
-    }
-}
-
-// ქარდისა და გალერიის შენახვა
-function saveCardAndGallery(cardIndex, galleryContainer) {
-    const card = projectsCards[cardIndex];
-    
-    if (!galleryContainer) {
-        // No gallery container, just save card
-        saveCardsToStorage();
-        saveGalleryPhotosToStorage();
-        loadCardsList();
-        closeEditModal();
-        return;
-    }
-    
-    // Update gallery photos
-    const galleryFields = galleryContainer.children;
-    const newGalleryPhotos = [];
-    let processedCount = 0;
-    let totalFields = galleryFields.length;
-    
-    if (totalFields === 0) {
-        // No gallery fields, just save card
-        saveCardsToStorage();
-        saveGalleryPhotosToStorage();
-        loadCardsList();
-        closeEditModal();
-        return;
-    }
-    
-    Array.from(galleryFields).forEach((field, index) => {
-        const input = field.querySelector('.gallery-photo-input');
-        const img = field.querySelector('img');
         
-        if (input && input.files && input.files[0]) {
-            // New photo uploaded
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                newGalleryPhotos.push({
-                    id: `gallery-${Date.now()}-${Math.random()}`,
-                    url: e.target.result,
-                    title: `ფოტო ${index + 1}`
-                });
-                
-                processedCount++;
-                if (processedCount === totalFields) {
-                    // All photos processed
-                    // Update the card's photos array
-                    projectsCards[cardIndex].photos = newGalleryPhotos;
-                    
-                    // Also update global gallery photos
-                    galleryPhotos.splice(0, 5, ...newGalleryPhotos);
-                    saveCardsToStorage();
-                    saveGalleryPhotosToStorage();
-                    loadCardsList();
-                    closeEditModal();
-                }
-            };
-            reader.readAsDataURL(input.files[0]);
-        } else if (img && img.src && !img.src.includes('placeholder')) {
-            // Existing photo
-            newGalleryPhotos.push({
-                id: `gallery-${Date.now()}-${Math.random()}`,
-                url: img.src,
-                title: `ფოტო ${index + 1}`
-            });
-            processedCount++;
+        const data = await response.json();
+        console.log('Update response:', data);
+        
+        if (data.success) {
+            console.log('Project updated successfully');
+            showSuccess(`პროექტი "${data.project.area}" წარმატებით განახლდა`);
             
-                if (processedCount === totalFields) {
-                    // All photos processed
-                    // Update the card's photos array
-                    projectsCards[cardIndex].photos = newGalleryPhotos;
-                    
-                    // Also update global gallery photos
-                    galleryPhotos.splice(0, 5, ...newGalleryPhotos);
-                    saveCardsToStorage();
-                    saveGalleryPhotosToStorage();
-                    loadCardsList();
-                    closeEditModal();
-                }
+            // დახურვა მოდალი
+            closeEditModal();
+            
+            // განაახლოს ქარდების სია
+            await loadCardsFromAPI();
         } else {
-            // Empty field
-            processedCount++;
-            if (processedCount === totalFields) {
-                // All photos processed
-                // Update the card's photos array
-                projectsCards[cardIndex].photos = newGalleryPhotos;
-                
-                // Also update global gallery photos
-                galleryPhotos.splice(0, 5, ...newGalleryPhotos);
-                saveCardsToStorage();
-                saveGalleryPhotosToStorage();
-                loadCardsList();
-                closeEditModal();
-            }
+            console.error('Update failed:', data.error);
+            showError('შეცდომა პროექტის განახლებისას: ' + data.error);
         }
-    });
-}
-
-// გალერიის ფოტოების ჩატვირთვა (placeholder)
-function loadGalleryPhotosList() {
-    console.log('loadGalleryPhotosList called - placeholder function');
-    // This function is kept for compatibility but doesn't do anything
-    // Gallery photos are managed through the card edit modal
-}
-
-// ქარდის წაშლა
-function deleteCard(index) {
-    if (confirm('ნამდვილად გსურთ ქარდის წაშლა? (გალერიის ფოტოებიც წაიშლება)')) {
-        const card = projectsCards[index];
-        
-        // გალერიის ფოტოების წაშლა
-        if (card.photos && card.photos.length > 0) {
-            card.photos.forEach(photo => {
-                const galleryPhotoIndex = galleryPhotos.findIndex(galleryPhoto => galleryPhoto.url === photo.url);
-                if (galleryPhotoIndex !== -1) {
-                    galleryPhotos.splice(galleryPhotoIndex, 1);
-                }
-            });
-            saveGalleryPhotosToStorage();
-            loadGalleryPhotosList();
-        }
-        
-        projectsCards.splice(index, 1);
-        saveCardsToStorage(); // შენახვა localStorage-ში
-        loadCardsList();
+    } catch (error) {
+        console.error('Error updating project:', error);
+        showError('შეცდომა API-თან კავშირისას: ' + error.message);
     }
 }
 
@@ -918,197 +327,199 @@ function exportCards() {
     URL.revokeObjectURL(url);
 }
 
-// ქარდების იმპორტი JSON ფაილიდან
+// ქარდების იმპორტი JSON ფაილიდან (ძველი ფუნქცია - ამჟამად არ არის API-ში)
 function importCards() {
+    alert('იმპორტის ფუნქცია ამჟამად არ არის ხელმისაწვდომი. გთხოვთ, გამოიყენოთ ფაილების ატვირთვის ფუნქცია.');
+}
+
+// გალერიის ფოტოების ჩვენება
+function loadGalleryPhotosList() {
+    console.log('loadGalleryPhotosList called');
+    const galleryContainer = document.getElementById('galleryPhotosContainer');
+    
+    if (!galleryContainer) {
+        console.log('galleryPhotosContainer not found');
+        return;
+    }
+    
+    // Clear existing photos
+    galleryContainer.innerHTML = '';
+    
+    console.log('galleryPhotos length:', galleryPhotos.length);
+    
+    if (galleryPhotos.length === 0) {
+        const noPhotosMessage = document.createElement('div');
+        noPhotosMessage.style.cssText = 'text-align: center; color: #666; padding: 20px; font-size: 16px;';
+        noPhotosMessage.textContent = 'გალერიის ფოტოები არ არის დამატებული';
+        galleryContainer.appendChild(noPhotosMessage);
+        return;
+    }
+    
+    galleryPhotos.forEach((photo, index) => {
+        console.log('Rendering gallery photo:', photo);
+        const photoDiv = document.createElement('div');
+        photoDiv.className = 'gallery-photo-item';
+        photoDiv.style.cssText = 'margin: 10px; display: inline-block; text-align: center;';
+        photoDiv.innerHTML = `
+            <img src="${photo.url}" alt="გალერიის ფოტო" style="width: 150px; height: 150px; object-fit: cover; border-radius: 5px; border: 2px solid #ddd;">
+            <div style="margin-top: 5px;">
+                <button onclick="removeGalleryPhoto(${index})" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">წაშლა</button>
+            </div>
+        `;
+        galleryContainer.appendChild(photoDiv);
+    });
+}
+
+// გალერიის ფოტოს წაშლა
+function removeGalleryPhoto(index) {
+    if (confirm('ნამდვილად გსურთ ფოტოს წაშლა?')) {
+        galleryPhotos.splice(index, 1);
+        loadGalleryPhotosList();
+    }
+}
+
+// გალერიის ფოტოების დამატება
+function addGalleryPhotos() {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = 'image/*';
+    input.multiple = true;
     input.onchange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    const importedCards = JSON.parse(e.target.result);
-                    if (Array.isArray(importedCards)) {
-        projectsCards = importedCards;
-        saveCardsToStorage(); // შენახვა localStorage-ში
-        loadCardsList();
-                    } else {
-                        alert('არასწორი ფაილის ფორმატი!');
-                    }
-                } catch (error) {
-                    alert('ფაილის წაკითხვის შეცდომა!');
-                }
+                const photo = {
+                    url: e.target.result,
+                    name: file.name,
+                    size: file.size
+                };
+                galleryPhotos.push(photo);
+                loadGalleryPhotosList();
             };
-            reader.readAsText(file);
-        }
+            reader.readAsDataURL(file);
+        });
     };
     input.click();
 }
 
-// კლავიატურის შორტკატები
-document.addEventListener('keydown', function(e) {
-    // Ctrl + S - ექსპორტი
-    if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        exportCards();
-    }
+// ძველი ფუნქციები, რომლებიც ამჟამად არ გამოიყენება
+function clearOldCards() {
+    // ძველი ფუნქცია - ამჟამად არ გამოიყენება
+}
+
+// გვერდის ჩატვირთვისას
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Admin page loaded, initializing...');
     
-    // Ctrl + O - იმპორტი
-    if (e.ctrlKey && e.key === 'o') {
-        e.preventDefault();
-        importCards();
-    }
+    // ჩატვირთოს ქარდები API-დან
+    loadCardsFromAPI();
     
-    // Escape - ფორმის გასუფთავება ან რედაქტირების მოდალის დახურვა
-    if (e.key === 'Escape') {
-        const editModal = document.querySelector('.edit-modal');
-        if (editModal) {
-            closeEditModal();
-        } else {
-            const inputs = document.querySelectorAll('#cardImage, #cardArea');
-            clearForm(Array.from(inputs));
-        }
-    }
+    // ჩატვირთოს გალერიის ფოტოები (თუ არის)
+    loadGalleryPhotosList();
+    
+    console.log('Admin page initialization complete');
 });
 
-
-
-
-
-
-
-
-
-// ახალი ქარდის დამატების მოდალის ჩვენება
-function showAddCardModal() {
-    const modal = document.createElement('div');
-    modal.className = 'add-card-modal';
-    modal.innerHTML = `
-        <div class="add-card-modal-content">
-            <div class="add-card-modal-header">
-                <h3>ახალი ქარდის დამატება</h3>
-                <button class="add-card-close" onclick="closeAddCardModal()">დახურვა</button>
-            </div>
-            <div class="add-card-modal-body">
-                <div class="form-group">
-                    <label for="modalCardImage">მთავარი ფოტო:</label>
-                    <input type="file" id="modalCardImage" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label for="modalCardPhotos">დამატებითი ფოტოები:</label>
-                    <input type="file" id="modalCardPhotos" accept="image/*" multiple>
-                    <small style="color: #666; font-size: 12px;">შეგიძლიათ რამდენიმე ფოტო აირჩიოთ</small>
-                </div>
-                <div class="form-group">
-                    <label for="modalCardArea">ფართობი:</label>
-                    <input type="text" id="modalCardArea" placeholder="მაგ: 120 კვ.მ">
-                </div>
-                <div class="add-card-modal-actions">
-                    <button class="save-card-btn" onclick="saveNewCard()">ქარდის დამატება</button>
-                    <button class="cancel-card-btn" onclick="closeAddCardModal()">გაუქმება</button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
+// ქარდის დამატების ღილაკის ფუნქცია
+function addNewCard() {
+    // გადამისამართოს ადმინ გვერდზე (რადგან ფორმა იქ არის)
+    window.location.href = '/admin';
 }
 
-// ახალი ქარდის შენახვა
-function saveNewCard() {
-    const imageInput = document.getElementById('modalCardImage');
-    const areaInput = document.getElementById('modalCardArea');
-    const additionalFilesInput = document.getElementById('modalCardPhotos');
-    
-    const area = areaInput.value.trim();
-    
-    if (!area) {
-        alert('შეავსეთ ფართობის ველი!');
-        return;
+// ფორმის გასუფთავება
+function clearAddProjectForm() {
+    const form = document.getElementById('add-project-form');
+    if (form) {
+        form.reset();
+        console.log('Form cleared');
     }
-    
-    if (!imageInput.files || !imageInput.files[0]) {
-        alert('აირჩიეთ მთავარი ფოტო!');
-        return;
-    }
-    
-    const mainFile = imageInput.files[0];
-    const additionalFiles = additionalFilesInput ? additionalFilesInput.files : [];
-    
-    // ყველა ფოტოს ატვირთვა
-    const allFiles = [mainFile];
-    for (let i = 0; i < additionalFiles.length; i++) {
-        allFiles.push(additionalFiles[i]);
-    }
-    
-    let processedFiles = 0;
-    const photos = [];
-    
-    allFiles.forEach((file, index) => {
-        const reader = new FileReader();
+}
+
+// ახალი პროექტის დამატება
+async function addNewProject(formData) {
+    try {
+        console.log('Adding new project...');
+        const response = await fetch(API_BASE_URL, {
+            method: 'POST',
+            body: formData
+        });
         
-        reader.onload = function(e) {
-            photos.push({
-                url: e.target.result,
-                title: index === 0 ? 'მთავარი ფოტო' : `ფოტო ${index + 1}`
-            });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Add project response:', data);
+        
+        if (data.success) {
+            console.log('Project added successfully');
+            showSuccess(`პროექტი "${data.project.area}" წარმატებით დაემატა`);
             
-            processedFiles++;
+            // გაასუფთავოს ფორმა
+            clearAddProjectForm();
             
-            if (processedFiles === allFiles.length) {
-                const newCard = {
-                    id: `card-${Date.now()}`,
-                    area: area,
-                    image: photos[0].url,
-                    link: `card-detail.html?id=card-${Date.now()}`,
-                    photos: photos
-                };
-                
-                projectsCards.push(newCard);
-                
-                // გალერიის ფოტოების დამატება
-                const galleryPhotosToAdd = photos.map(photo => ({
-                    id: `gallery-${Date.now()}-${Math.random()}`,
-                    url: photo.url,
-                    title: photo.title
-                }));
-                
-                galleryPhotos.push(...galleryPhotosToAdd);
-                
-                saveCardsToStorage();
-                saveGalleryPhotosToStorage();
-                loadCardsList();
-                loadGalleryPhotosList();
-                closeAddCardModal();
+            // განაახლოს პროექტების სია
+            await loadCardsFromAPI();
+        } else {
+            console.error('Add project failed:', data.error);
+            showError('შეცდომა პროექტის დამატებისას: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error adding project:', error);
+        showError('შეცდომა API-თან კავშირისას: ' + error.message);
+    }
+}
+
+// ფორმის submit event listener
+document.addEventListener('DOMContentLoaded', function() {
+    // ახალი პროექტის ფორმის event listener
+    const addProjectForm = document.getElementById('add-project-form');
+    if (addProjectForm) {
+        addProjectForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            // შეამოწმოს ვალიდაცია
+            const areaInput = document.getElementById('area');
+            const mainImageInput = document.getElementById('main_image');
+            
+            if (!areaInput.value.trim()) {
+                showError('გთხოვთ შეიყვანოთ ფართობი');
+                return;
             }
-        };
-        
-        reader.readAsDataURL(file);
-    });
-}
-
-// ახალი ქარდის მოდალის დახურვა
-function closeAddCardModal() {
-    const modal = document.querySelector('.add-card-modal');
-    if (modal) {
-        modal.remove();
+            
+            if (!mainImageInput.files || mainImageInput.files.length === 0) {
+                showError('გთხოვთ აირჩიოთ მთავარი ფოტო');
+                return;
+            }
+            
+            // შექმნას FormData
+            const formData = new FormData();
+            formData.append('area', areaInput.value.trim());
+            formData.append('main_image', mainImageInput.files[0]);
+            
+            // დაემატოს გალერეის ფოტოები
+            const galleryPhotosInput = document.getElementById('gallery_photos');
+            if (galleryPhotosInput.files && galleryPhotosInput.files.length > 0) {
+                for (let i = 0; i < galleryPhotosInput.files.length; i++) {
+                    formData.append('gallery_photos', galleryPhotosInput.files[i]);
+                }
+            }
+            
+            // გააუქმოს submit ღილაკი დამუშავებისას
+            const submitBtn = addProjectForm.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'მუშავდება...';
+            
+            try {
+                await addNewProject(formData);
+            } finally {
+                // აღადგინოს submit ღილაკი
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
     }
-}
-
-// ფუნქციების window-ზე დამატება onclick-ისთვის
-window.editCard = editCard;
-window.deleteCard = deleteCard;
-window.closeEditModal = closeEditModal;
-window.saveCardEdit = saveCardEdit;
-window.clearForm = clearForm;
-window.exportCards = exportCards;
-window.importCards = importCards;
-window.showAddCardModal = showAddCardModal;
-window.saveNewCard = saveNewCard;
-window.closeAddCardModal = closeAddCardModal;
-window.addGalleryPhotoField = addGalleryPhotoField;
-window.removeGalleryPhotoField = removeGalleryPhotoField;
-window.handleGalleryPhotoChange = handleGalleryPhotoChange;
-window.createEmptyCard = createEmptyCard;
+});

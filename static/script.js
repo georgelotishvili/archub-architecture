@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Form submission
-    elements.contactForm?.addEventListener('submit', (e) => {
+    elements.contactForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = elements.contactForm.querySelector('.contact-submit-btn');
         const originalText = submitBtn.textContent;
@@ -88,22 +88,56 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'გაგზავნა...';
         
-        const formData = new FormData(elements.contactForm);
-        const senderEmail = formData.get('senderEmail');
-        const message = formData.get('message');
-        const recipientEmail = formData.get('recipientEmail');
-        
-        const subject = encodeURIComponent('კონტაქტი Archub.ge-დან');
-        const body = encodeURIComponent(`გამგზავნი: ${senderEmail}\n\nწერილი:\n${message}`);
-        
-        window.location.href = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
-        
-        setTimeout(() => {
+        try {
+            // Get form data
+            const formData = new FormData(elements.contactForm);
+            const senderEmail = formData.get('senderEmail');
+            const message = formData.get('message');
+            
+            // Validate required fields
+            if (!senderEmail || !message) {
+                alert('გთხოვთ შეავსოთ ყველა ველი');
+                return;
+            }
+            
+            // Prepare JSON data for API
+            const contactData = {
+                senderEmail: senderEmail,
+                message: message
+            };
+            
+            console.log('Sending contact form data:', contactData);
+            
+            // Send POST request to API
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(contactData)
+            });
+            
+            const result = await response.json();
+            console.log('Contact form response:', result);
+            
+            if (response.ok && result.success) {
+                // Success
+                alert('წერილი წარმატებით გაიგზავნა!');
+                closeContactModal();
+            } else {
+                // Error
+                const errorMessage = result.error || 'შეცდომა წერილის გაგზავნისას';
+                alert(`შეცდომა: ${errorMessage}`);
+            }
+            
+        } catch (error) {
+            console.error('Error sending contact form:', error);
+            alert('შეცდომა სერვერთან კავშირისას. გთხოვთ სცადოთ მოგვიანებით.');
+        } finally {
+            // Reset button state
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
-            closeContactModal();
-            alert('წერილი წარმატებით გაიგზავნა');
-        }, 1000);
+        }
     });
 
     // Close mobile menu on window resize
@@ -116,7 +150,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // კარუსელების ინიციალიზაცია
     initTeamCarousel();
-    initProjectsCarousel();
+    initProjectsCarousel().catch(error => {
+        console.error('Error initializing projects carousel:', error);
+    });
 });
 
 // Team Carousel
@@ -211,7 +247,7 @@ let cardsContainer = null;
 let totalCards = 0; // Total number of original cards
 let isInfiniteMode = true; // Enable infinite scrolling
 
-function initProjectsCarousel() {
+async function initProjectsCarousel() {
     const cardsWrapper = document.getElementById('cardsWrapper');
     const prevBtn = document.getElementById('carouselPrev');
     const nextBtn = document.getElementById('carouselNext');
@@ -224,7 +260,7 @@ function initProjectsCarousel() {
     cardsWrapper.appendChild(cardsContainer);
     
     // ინიციალიზაცია
-    loadCardsFromStorage();
+    await loadCardsFromAPI();
     renderProjectsCards();
     
     // Check if returning from gallery and set carousel position
@@ -257,18 +293,16 @@ function initProjectsCarousel() {
         }, 100);
     }
     
-    // localStorage-ში ცვლილებების მონიტორინგი
-    window.addEventListener('storage', function(e) {
-        console.log('Storage event received:', e);
-        if (e.key === 'adminCards') {
-            console.log('adminCards storage event detected');
-            loadCardsFromStorage();
-            renderProjectsCards();
-            setTimeout(() => {
-                updateCarouselPosition();
-                updateCarouselButtons();
-            }, 100);
-        }
+    // Refresh mechanism for when projects are updated
+    // This can be called manually or through a custom event
+    window.addEventListener('projectsUpdated', async function() {
+        console.log('Projects updated event received');
+        await loadCardsFromAPI();
+        renderProjectsCards();
+        setTimeout(() => {
+            updateCarouselPosition();
+            updateCarouselButtons();
+        }, 100);
     });
     
     // Manual refresh button for debugging (commented out)
@@ -276,9 +310,9 @@ function initProjectsCarousel() {
     const refreshButton = document.createElement('button');
     refreshButton.textContent = '🔄 Refresh Cards';
     refreshButton.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 1000; padding: 10px; background: #ff6633; color: white; border: none; border-radius: 5px; cursor: pointer;';
-    refreshButton.onclick = function() {
+    refreshButton.onclick = async function() {
         console.log('Manual refresh triggered');
-        loadCardsFromStorage();
+        await loadCardsFromAPI();
         renderProjectsCards();
         setTimeout(() => {
             updateCarouselPosition();
@@ -304,40 +338,42 @@ function initProjectsCarousel() {
     });
 }
 
-// ქარდების ჩატვირთვა localStorage-იდან
-function loadCardsFromStorage() {
+// ქარდების ჩატვირთვა API-დან
+async function loadCardsFromAPI() {
     try {
-        console.log('Loading cards from storage...');
-        let savedCards = localStorage.getItem('adminCards');
+        console.log('Loading cards from API...');
+        const response = await fetch('/api/projects');
         
-        // თუ localStorage-ში არ არის, სცადოს sessionStorage-ში
-        if (!savedCards) {
-            console.log('No cards in localStorage, checking sessionStorage...');
-            try {
-                savedCards = sessionStorage.getItem('adminCards');
-                if (savedCards) {
-                    console.log('Found cards in sessionStorage');
-                }
-            } catch (sessionError) {
-                console.warn('sessionStorage access failed:', sessionError);
-            }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        console.log('Raw saved cards from main page:', savedCards);
+        const data = await response.json();
+        console.log('API response:', data);
         
-        if (savedCards) {
-            projectsCards = JSON.parse(savedCards);
+        if (data.success && data.projects) {
+            // Convert API data to the format expected by the carousel
+            projectsCards = data.projects.map(project => ({
+                id: project.id,
+                area: project.area,
+                image: project.main_image_url,
+                link: `card-detail.html?id=${project.id}`,
+                photos: project.photos.map(photoUrl => ({
+                    url: photoUrl,
+                    title: 'პროექტის ფოტო'
+                }))
+            }));
+            
             totalCards = projectsCards.length;
-            console.log('Loaded cards from storage:', projectsCards);
+            console.log('Loaded cards from API:', projectsCards);
             console.log('Total cards:', totalCards);
         } else {
-            console.log('No cards in storage, creating random cards');
-            // თუ storage-ში არ არის, ნიმუშები შევქმნათ
+            console.log('API returned no projects, creating sample cards');
             createRandomCards();
         }
     } catch (error) {
-        console.error('Error loading cards from storage:', error);
-        console.log('Creating random cards as fallback');
+        console.error('Error loading cards from API:', error);
+        console.log('Creating sample cards as fallback');
         createRandomCards();
     }
 }
@@ -547,45 +583,8 @@ function clearForm(inputs) {
     inputs.forEach(input => input.value = '');
 }
 
-// localStorage და sessionStorage polyfill ძველი ბრაუზერებისთვის
-if (!window.localStorage) {
-    console.log('localStorage not supported, using memory storage');
-    window.localStorage = {
-        data: {},
-        setItem: function(key, value) {
-            this.data[key] = value;
-        },
-        getItem: function(key) {
-            return this.data[key] || null;
-        },
-        removeItem: function(key) {
-            delete this.data[key];
-        },
-        clear: function() {
-            this.data = {};
-        }
-    };
-}
-
-// sessionStorage polyfill ძველი ბრაუზერებისთვის
-if (!window.sessionStorage) {
-    console.log('sessionStorage not supported, using memory storage');
-    window.sessionStorage = {
-        data: {},
-        setItem: function(key, value) {
-            this.data[key] = value;
-        },
-        getItem: function(key) {
-            return this.data[key] || null;
-        },
-        removeItem: function(key) {
-            delete this.data[key];
-        },
-        clear: function() {
-            this.data = {};
-        }
-    };
-}
+// localStorage და sessionStorage polyfills removed - no longer needed
+// Projects are now loaded from API instead of localStorage
 
 // გვერდის load/refresh - ამოღებულია ავტომატური scroll
 // window.addEventListener('load', () => window.scrollTo(0, 0));
@@ -649,7 +648,7 @@ function openGalleryModal(card) {
     galleryModal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Load gallery photos from localStorage
+    // Load gallery photos from selected card
     loadGalleryPhotosForModal();
 }
 
@@ -659,7 +658,7 @@ function loadGalleryPhotosForModal() {
     const noPhotos = document.getElementById('galleryNoPhotos');
     
     try {
-        // First try to get photos from the selected card
+        // Use photos from the selected card (which now comes from API)
         if (window.selectedCard && window.selectedCard.photos && window.selectedCard.photos.length > 0) {
             console.log('Using photos from selected card:', window.selectedCard.photos);
             displayGalleryPhotos(window.selectedCard.photos);
@@ -668,27 +667,9 @@ function loadGalleryPhotosForModal() {
             return;
         }
         
-        // Fallback to global gallery photos
-        let savedPhotos = localStorage.getItem('galleryPhotos');
-        
-        if (!savedPhotos) {
-            savedPhotos = sessionStorage.getItem('galleryPhotos');
-        }
-        
-        if (savedPhotos) {
-            const galleryPhotos = JSON.parse(savedPhotos);
-            if (galleryPhotos && galleryPhotos.length > 0) {
-                displayGalleryPhotos(galleryPhotos);
-                gallery.style.display = 'block';
-                noPhotos.style.display = 'none';
-            } else {
-                gallery.style.display = 'none';
-                noPhotos.style.display = 'block';
-            }
-        } else {
-            gallery.style.display = 'none';
-            noPhotos.style.display = 'block';
-        }
+        // If no selected card photos, show no photos message
+        gallery.style.display = 'none';
+        noPhotos.style.display = 'block';
     } catch (error) {
         console.error('Error loading gallery photos:', error);
         gallery.style.display = 'none';
