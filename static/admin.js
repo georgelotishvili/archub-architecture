@@ -88,7 +88,7 @@ function loadCardsList() {
         const noCardsMessage = document.createElement('div');
         noCardsMessage.style.cssText = 'text-align: center; color: #666; padding: 40px; font-size: 18px; width: 90%; margin: 0 auto;';
         noCardsMessage.textContent = 'ქარდები არ არის დამატებული';
-        cardsGrid.insertBefore(noCardsMessage, cardsGrid.querySelector('.add-card-section'));
+        cardsGrid.appendChild(noCardsMessage);
         return;
     }
     
@@ -96,9 +96,16 @@ function loadCardsList() {
         console.log('Rendering card:', card);
         const cardItem = document.createElement('div');
         cardItem.className = 'card-item';
+        
+        // Check if project has main image
+        const hasMainImage = card.main_image_url && card.main_image_url.trim() !== '';
+        const imageHtml = hasMainImage 
+            ? `<img src="${card.main_image_url}" alt="ქარდი">`
+            : `<div style="width: 100%; height: 200px; background: #f8f9fa; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;">ფოტო არ არის</div>`;
+        
         cardItem.innerHTML = `
             <div class="card-preview">
-                <img src="${card.main_image_url}" alt="ქარდი">
+                ${imageHtml}
             </div>
             <div class="card-details">
                 <div class="card-area">${card.area}</div>
@@ -108,8 +115,26 @@ function loadCardsList() {
                 <button class="delete-btn" onclick="deleteCard(${card.id})">წაშლა</button>
             </div>
         `;
-        cardsGrid.insertBefore(cardItem, cardsGrid.querySelector('.add-card-section'));
+        cardsGrid.appendChild(cardItem);
     });
+    
+    // Add the "Add Project" button as a card-like element after all projects
+    const addCardItem = document.createElement('div');
+    addCardItem.className = 'card-item';
+    addCardItem.innerHTML = `
+        <div class="card-preview">
+            <div style="width: 100%; height: 200px; background: #f8f9fa; border: 2px dashed #007bff; display: flex; align-items: center; justify-content: center; color: #007bff; font-size: 16px; font-weight: bold; cursor: pointer;" onclick="addNewCard()">
+                + პროექტის დამატება
+            </div>
+        </div>
+        <div class="card-details">
+            <div class="card-area" style="color: #007bff; font-weight: bold;">ახალი პროექტი</div>
+        </div>
+        <div class="card-actions">
+            <button class="edit-btn" onclick="addNewCard()" style="background: #007bff;">დამატება</button>
+        </div>
+    `;
+    cardsGrid.appendChild(addCardItem);
 }
 
 // ქარდის წაშლა API-ით
@@ -204,7 +229,7 @@ function editCard(projectId) {
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">მთავარი ფოტო:</label>
                 <div id="mainImageContainer" style="text-align: center; margin-bottom: 10px; position: relative; display: inline-block;">
-                    ${project.main_image_url ? 
+                    ${project.main_image_url && project.main_image_url.trim() !== '' ? 
                         `<img src="${project.main_image_url}" alt="მთავარი ფოტო" style="max-width: 200px; max-height: 150px; border-radius: 5px; border: 2px solid #ddd;">
                         <button onclick="deleteMainImage(${projectId})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;" title="მთავარი ფოტოს წაშლა">&times;</button>` :
                         `<div style="width: 200px; height: 150px; border: 2px dashed #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #666; background: #f8f9fa;">
@@ -225,7 +250,7 @@ function editCard(projectId) {
                             font-size: 14px;
                         "
                     >
-                        ${project.main_image_url ? 'მთავარი ფოტოს შეცვლა' : 'მთავარი ფოტოს დამატება'}
+                        ${project.main_image_url && project.main_image_url.trim() !== '' ? 'მთავარი ფოტოს შეცვლა' : 'მთავარი ფოტოს დამატება'}
                     </button>
                 </div>
             </div>
@@ -478,27 +503,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ქარდის დამატების ღილაკის ფუნქცია
-function addNewCard() {
-    // გადამისამართოს ადმინ გვერდზე (რადგან ფორმა იქ არის)
-    window.location.href = '/admin';
-}
-
-// ფორმის გასუფთავება
-function clearAddProjectForm() {
-    const form = document.getElementById('add-project-form');
-    if (form) {
-        form.reset();
-        console.log('Form cleared');
-    }
-}
-
-// ახალი პროექტის დამატება
-async function addNewProject(formData) {
+async function addNewCard() {
     try {
-        console.log('Adding new project...');
-        const response = await fetch(API_BASE_URL, {
-            method: 'POST',
-            body: formData
+        console.log('Creating empty project...');
+        const response = await fetch('/api/projects/empty', {
+            method: 'POST'
         });
         
         if (!response.ok) {
@@ -506,26 +515,22 @@ async function addNewProject(formData) {
         }
         
         const data = await response.json();
-        console.log('Add project response:', data);
+        console.log('Create empty project response:', data);
         
         if (data.success) {
-            console.log('Project added successfully');
-            showSuccess(`პროექტი "${data.project.area}" წარმატებით დაემატა`);
-            
-            // გაასუფთავოს ფორმა
-            clearAddProjectForm();
-            
+            console.log('Empty project created successfully');
             // განაახლოს პროექტების სია
             await loadCardsFromAPI();
         } else {
-            console.error('Add project failed:', data.error);
-            showError('შეცდომა პროექტის დამატებისას: ' + data.error);
+            console.error('Create empty project failed:', data.error);
+            showError('შეცდომა ცარიელი პროექტის შექმნისას: ' + data.error);
         }
     } catch (error) {
-        console.error('Error adding project:', error);
+        console.error('Error creating empty project:', error);
         showError('შეცდომა API-თან კავშირისას: ' + error.message);
     }
 }
+
 
 // რედაქტირების მოდალში გალერეის ფოტოების ჩატვირთვა
 function loadEditGalleryPhotos(project) {
@@ -792,7 +797,7 @@ function updateMainImageDisplay(projectId, newImageUrl) {
     project.main_image_url = newImageUrl;
     
     // მთლიანად განაახლოს HTML
-    if (newImageUrl) {
+    if (newImageUrl && newImageUrl.trim() !== '') {
         mainImageContainer.parentElement.innerHTML = `
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">მთავარი ფოტო:</label>
             <div id="mainImageContainer" style="text-align: center; margin-bottom: 10px; position: relative; display: inline-block;">
@@ -846,53 +851,5 @@ function updateMainImageDisplay(projectId, newImageUrl) {
 
 // ფორმის submit event listener
 document.addEventListener('DOMContentLoaded', function() {
-    // ახალი პროექტის ფორმის event listener
-    const addProjectForm = document.getElementById('add-project-form');
-    if (addProjectForm) {
-        addProjectForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            console.log('Form submitted');
-            
-            // შეამოწმოს ვალიდაცია
-            const areaInput = document.getElementById('area');
-            const mainImageInput = document.getElementById('main_image');
-            
-            if (!areaInput.value.trim()) {
-                showError('გთხოვთ შეიყვანოთ ფართობი');
-                return;
-            }
-            
-            if (!mainImageInput.files || mainImageInput.files.length === 0) {
-                showError('გთხოვთ აირჩიოთ მთავარი ფოტო');
-                return;
-            }
-            
-            // შექმნას FormData
-            const formData = new FormData();
-            formData.append('area', areaInput.value.trim());
-            formData.append('main_image', mainImageInput.files[0]);
-            
-            // დაემატოს გალერეის ფოტოები
-            const galleryPhotosInput = document.getElementById('gallery_photos');
-            if (galleryPhotosInput.files && galleryPhotosInput.files.length > 0) {
-                for (let i = 0; i < galleryPhotosInput.files.length; i++) {
-                    formData.append('gallery_photos', galleryPhotosInput.files[i]);
-                }
-            }
-            
-            // გააუქმოს submit ღილაკი დამუშავებისას
-            const submitBtn = addProjectForm.querySelector('.submit-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'მუშავდება...';
-            
-            try {
-                await addNewProject(formData);
-            } finally {
-                // აღადგინოს submit ღილაკი
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }
-        });
-    }
+    // No additional event listeners needed - onclick handlers are used directly in HTML
 });

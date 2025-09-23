@@ -234,6 +234,38 @@ def create_project():
             'error': str(e)
         }), 500
 
+# API route to create empty project
+@app.route('/api/projects/empty', methods=['POST'])
+def create_empty_project():
+    try:
+        # Create new empty project with default area
+        project = Project(
+            area='ახალი პროექტი',
+            main_image_url=''
+        )
+        
+        db.session.add(project)
+        db.session.commit()
+        
+        # Return created project data
+        return jsonify({
+            'success': True,
+            'project': {
+                'id': project.id,
+                'area': project.area,
+                'main_image_url': project.main_image_url,
+                'photos': []
+            },
+            'message': 'Empty project created successfully'
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
 # API route to delete a project
 @app.route('/api/projects/<int:project_id>', methods=['DELETE'])
 def delete_project(project_id):
