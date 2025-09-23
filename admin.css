@@ -181,14 +181,13 @@ body {
 
 /* ===== ქარდების მართვა ===== */
 .cards-management {
-  margin-top: 20px;
+  margin-top: 0;
 }
 
 .cards-grid {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 10px;
 }
 
 .card-item {
@@ -196,7 +195,6 @@ body {
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 15px;
-  margin-bottom: 10px;
   height: 80px;
   display: flex;
   align-items: center;
@@ -267,25 +265,44 @@ body {
 }
 
 .add-card-section {
-  text-align: center;
-  padding: 20px;
-  background: #f8f9fa;
+  background: #ffffff;
   border: 1px solid #ddd;
   border-radius: 4px;
+  padding: 15px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease;
+}
+
+.add-card-section:hover {
+  border-color: #999;
 }
 
 .add-new-card-btn {
-  background: #6c757d;
+  background: linear-gradient(135deg, #663399 0%, #4c2666 100%);
   border: none;
   color: #ffffff;
-  font-size: 14px;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  padding: 10px 20px;
-  border-radius: 3px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 300px;
 }
 
 .add-new-card-btn:hover {
-  background: #5a6268;
+  background: linear-gradient(135deg, #5a2d73 0%, #3f1f5f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 51, 153, 0.3);
+}
+
+.add-new-card-btn:active {
+  transform: translateY(0);
 }
 
 /* ===== Responsive Design ===== */
@@ -296,6 +313,15 @@ body {
     min-height: 80px;
     flex-direction: column;
     align-items: flex-start;
+    padding: 15px;
+  }
+  
+  .add-card-section {
+    width: 95%;
+    height: auto;
+    min-height: 80px;
+    flex-direction: column;
+    align-items: center;
     padding: 15px;
   }
   
@@ -722,13 +748,24 @@ body {
   
   .card-item {
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .add-card-section {
+    flex-direction: column;
+    gap: 10px;
     text-align: center;
   }
   
   .card-preview {
     flex-direction: column;
     gap: 10px;
+  }
+  
+  .add-new-card-btn {
+    font-size: 14px;
+    padding: 10px 20px;
   }
   
   .card-preview img {

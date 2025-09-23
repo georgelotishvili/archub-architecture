@@ -38,7 +38,6 @@ function saveCardsToStorage() {
             try {
                 localStorage.setItem('adminCards', JSON.stringify(projectsCards));
                 console.log('Cards saved after cleanup');
-                alert('ქარდი დაემატა! localStorage გასუფთავდა.');
             } catch (retryError) {
                 console.error('Still failed after cleanup:', retryError);
                 alert('localStorage სრულია. გთხოვთ გასუფთავოთ ბრაუზერის მონაცემები.');
@@ -208,8 +207,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addNewCardBtn) {
         addNewCardBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Add new card button clicked, calling showAddCardModal');
-            showAddCardModal();
+            console.log('Add new card button clicked, creating empty card');
+            createEmptyCard();
         });
         console.log('Add new card event listener added successfully');
     } else {
@@ -237,6 +236,25 @@ function createRandomCards() {
             title: 'მთავარი ფოტო'
         }]
     }));
+}
+
+// ცარიელი ქარდის შექმნა
+function createEmptyCard() {
+    console.log('Creating empty card');
+    
+    const emptyCard = {
+        id: `card-${Date.now()}`,
+        area: 'ცარიელი ქარდი',
+        image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1IiBzdHJva2U9IiNEREQiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIxMDAiIHk9Ijc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPuaXoOazleWbvueJhzwvdGV4dD4KPC9zdmc+',
+        link: `card-detail.html?id=card-${Date.now()}`,
+        photos: []
+    };
+    
+    projectsCards.push(emptyCard);
+    saveCardsToStorage();
+    loadCardsList();
+    
+    console.log('Empty card created:', emptyCard);
 }
 
 // ახალი ქარდის დამატება
@@ -342,7 +360,6 @@ function addNewCard() {
                     loadCardsList();
                     loadGalleryPhotosList(); // გალერიის ფოტოების განახლება
                     clearForm([imageInput, areaInput, additionalFilesInput]);
-                    alert('ქარდი და გალერიის ფოტოები წარმატებით დაემატა!');
                     
                     // ღილაკის განბლოკვა
                     if (addCardBtn) {
@@ -467,10 +484,10 @@ function testFunction() {
             message += 'sessionStorage: ✗';
         }
         
-        alert(message);
+        console.log(message);
     } catch (error) {
         console.error('Storage error:', error);
-        alert('Storage შეცდომა: ' + error.message);
+        console.error('Storage შეცდომა: ' + error.message);
     }
 }
 window.testFunction = testFunction;
@@ -487,11 +504,17 @@ function loadCardsList() {
         return;
     }
     
-    cardsGrid.innerHTML = '';
+    // Clear only the cards, not the add-card-section
+    const existingCards = cardsGrid.querySelectorAll('.card-item');
+    existingCards.forEach(card => card.remove());
+    
     console.log('projectsCards length:', projectsCards.length);
     
     if (projectsCards.length === 0) {
-        cardsGrid.innerHTML = '<div style="text-align: center; color: #666; padding: 40px; font-size: 18px; width: 90%; margin: 0 auto;">ქარდები არ არის დამატებული</div>';
+        const noCardsMessage = document.createElement('div');
+        noCardsMessage.style.cssText = 'text-align: center; color: #666; padding: 40px; font-size: 18px; width: 90%; margin: 0 auto;';
+        noCardsMessage.textContent = 'ქარდები არ არის დამატებული';
+        cardsGrid.insertBefore(noCardsMessage, cardsGrid.querySelector('.add-card-section'));
         return;
     }
     
@@ -511,7 +534,7 @@ function loadCardsList() {
                 <button class="delete-btn" onclick="deleteCard(${index})">წაშლა</button>
             </div>
         `;
-        cardsGrid.appendChild(cardItem);
+        cardsGrid.insertBefore(cardItem, cardsGrid.querySelector('.add-card-section'));
     });
 }
 
@@ -626,10 +649,9 @@ function addGalleryPhotoField() {
     
     const currentCount = container.children.length;
     
-    if (currentCount >= 10) {
-        alert('მაქსიმუმ 10 ფოტო შეიძლება დაემატოს!');
-        return;
-    }
+        if (currentCount >= 10) {
+            return;
+        }
     
     const photoField = document.createElement('div');
     photoField.className = 'gallery-photo-field';
@@ -741,7 +763,6 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
         saveGalleryPhotosToStorage();
         loadCardsList();
         closeEditModal();
-        alert('ქარდი განახლდა!');
         return;
     }
     
@@ -757,7 +778,6 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
         saveGalleryPhotosToStorage();
         loadCardsList();
         closeEditModal();
-        alert('ქარდი განახლდა!');
         return;
     }
     
@@ -783,7 +803,6 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
                     saveGalleryPhotosToStorage();
                     loadCardsList();
                     closeEditModal();
-                    alert('ქარდი და გალერიის ფოტოები განახლდა!');
                 }
             };
             reader.readAsDataURL(input.files[0]);
@@ -796,15 +815,14 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
             });
             processedCount++;
             
-            if (processedCount === totalFields) {
-                // All photos processed
-                galleryPhotos.splice(0, 5, ...newGalleryPhotos);
-                saveCardsToStorage();
-                saveGalleryPhotosToStorage();
-                loadCardsList();
-                closeEditModal();
-                alert('ქარდი და გალერიის ფოტოები განახლდა!');
-            }
+                if (processedCount === totalFields) {
+                    // All photos processed
+                    galleryPhotos.splice(0, 5, ...newGalleryPhotos);
+                    saveCardsToStorage();
+                    saveGalleryPhotosToStorage();
+                    loadCardsList();
+                    closeEditModal();
+                }
         } else {
             // Empty field
             processedCount++;
@@ -815,7 +833,6 @@ function saveCardAndGallery(cardIndex, galleryContainer) {
                 saveGalleryPhotosToStorage();
                 loadCardsList();
                 closeEditModal();
-                alert('ქარდი და გალერიის ფოტოები განახლდა!');
             }
         }
     });
@@ -848,7 +865,6 @@ function deleteCard(index) {
         projectsCards.splice(index, 1);
         saveCardsToStorage(); // შენახვა localStorage-ში
         loadCardsList();
-        alert('ქარდი და გალერიის ფოტოები წაიშალა!');
     }
 }
 
@@ -885,7 +901,6 @@ function importCards() {
         projectsCards = importedCards;
         saveCardsToStorage(); // შენახვა localStorage-ში
         loadCardsList();
-        alert('ქარდები წარმატებით იმპორტირდა!');
                     } else {
                         alert('არასწორი ფაილის ფორმატი!');
                     }
@@ -1034,7 +1049,6 @@ function saveNewCard() {
                 loadCardsList();
                 loadGalleryPhotosList();
                 closeAddCardModal();
-                alert('ქარდი და გალერიის ფოტოები წარმატებით დაემატა!');
             }
         };
         
@@ -1064,3 +1078,4 @@ window.closeAddCardModal = closeAddCardModal;
 window.addGalleryPhotoField = addGalleryPhotoField;
 window.removeGalleryPhotoField = removeGalleryPhotoField;
 window.handleGalleryPhotoChange = handleGalleryPhotoChange;
+window.createEmptyCard = createEmptyCard;
