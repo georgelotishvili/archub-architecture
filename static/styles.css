@@ -63,7 +63,11 @@ body {
   font-family: 'DejaVu Sans', sans-serif;
   line-height: 1.6;
   color: var(--color-black);
-  background-color: var(--color-white);
+  background-image: url(/static/photos/pro\ 1.png);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 /* კონტეინერის ზოგადი სტილები */
@@ -252,7 +256,7 @@ body {
 .carousel {
   width: 100%;
   height: 250px;
-  background-color: var(--color-white);
+  /* background-color: var(--color-white); -------------------------------------- */
   position: relative;
   overflow: hidden;
   padding-bottom: 5px;
@@ -320,9 +324,28 @@ body {
   align-items: center;
   justify-content: space-around;
   flex-wrap: wrap;
-  border-top: 5px solid var(--color-red);
-  border-bottom: 5px solid var(--color-red);
+  /* border-top: 5px solid var(--color-red);
+  border-bottom: 5px solid var(--color-red); ------------------------------*/
   padding: 0 100px;
+  position: relative;
+}
+
+/* სექცია 1-ის გამჭირვალე ფონი */
+.section-1::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+}
+
+/* სექცია 1-ის კონტენტი */
+.section-1 > * {
+  position: relative;
+  z-index: 2;
 }
 
 /* სექცია 1-ის მარცხენა ნაწილი - ფოტოების გალერეა */
@@ -427,7 +450,7 @@ body {
   font-weight: 400;
   line-height: 1.2;
   letter-spacing: 1px;
-  color: var(--color-yellow);
+  color: var(--color-red);
 }
 
 /* ქვესათაური */
@@ -475,7 +498,7 @@ body {
 /* სექცია 2-ის მთავარი კონტეინერი */
 .section-2 {
   width: 100%;
-  background-color: var(--color-white);
+  /* background-color: var(--color-white); -------------------------------------*/
   display: flex;
   justify-content: center;
   align-items: center;
@@ -692,12 +715,30 @@ body {
 .section-3 {
   width: 100%;
   min-height: 500px;
-  background-color: var(--color-white);
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 5px solid var(--color-red);
+  /* border-top: 5px solid var(--color-red); -----------------------------------*/
   padding: 60px 0;
+  position: relative;
+}
+
+/* სექცია 3-ის გამჭირვალე ფონი */
+.section-3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+}
+
+/* სექცია 3-ის კონტენტი */
+.section-3 > * {
+  position: relative;
+  z-index: 2;
 }
 
 /* სექცია 3-ის შინა კონტენტი */
@@ -718,7 +759,7 @@ body {
   font-size: 40px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: var(--color-yellow);
+  color: var(--color-red);
 }
 
 /* გუნდის აღწერა */
@@ -1953,4 +1994,10 @@ body {
     font-size: 16px;
     line-height: 0.7;
   }
+}
+
+/* ===== სექცია 4 ===== */
+.section-4 {
+  width: 100%;
+  height: 5px;
 }
