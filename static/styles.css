@@ -97,35 +97,6 @@ body {
   justify-content: center;
 }
 
-.header-bottom-line {
-  width: 100%;
-  height: 50px;
-  background-color: var(--color-dark-gray);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  bottom: -50px;
-  left: 0;
-  z-index: 1001;
-}
-
-.header-bottom-line-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 85%;
-}
-
-.header-bottom-line h1 {
-  color: var(--color-white);
-  font-size: 24px;
-  font-weight: 300;
-  margin: 0;
-}
-
-
-
 /* ჰედერის შიდა კონტეინერი */
 .header-container {
   display: flex;
@@ -178,9 +149,82 @@ body {
   font-size: 16px;
 }
 
+/* მობილური ბურგერ მენიუ */
+.burger-menu {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 10px;
+}
+
+/* ბურგერ მენიუს იკონი */
+.burger-icon {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2px 0px;
+}
+
+/* ბურგერ მენიუს ხაზები */
+.burger-icon span {
+  width: 100%;
+  height: 3px;
+  background-color: var(--color-black);
+  transition: all 0.3s ease;
+}
+
+/* ბურგერ მენიუს hover ეფექტი */
+.burger-icon:hover span {
+  background-color: #616161;
+}
+
+/* ბურგერ მენიუს ანიმაცია */
+/* აქტიური ბურგერ მენიუს პირველი ხაზი */
+.burger-icon.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+/* აქტიური ბურგერ მენიუს მეორე ხაზი */
+.burger-icon.active span:nth-child(2) {
+  opacity: 0;
+}
+
+/* აქტიური ბურგერ მენიუს მესამე ხაზი */
+.burger-icon.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* ჰედერის ქვედა ხაზი */
+.header-bottom-line {
+  width: 100%;
+  height: 50px;
+  background-color: var(--color-dark-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  z-index: 1001;
+}
+
+.header-bottom-line-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 85%;
+}
+
+.header-bottom-line h1 {
+  color: var(--color-white);
+  font-size: 24px;
+  font-weight: 300;
+  margin: 0;
+}
 
 /* ===== ღილაკების სტილები ===== */
-
 /* ღილაკების კონტეინერი */
 .auth-buttons-container {
   display: flex;
@@ -218,35 +262,219 @@ body {
   overflow: hidden;
 }
 
-/* მობილური ბურგერ მენიუ */
-.burger-menu {
-  display: none;
-  flex-direction: column;
-  cursor: pointer;
-  padding: 10px;
+/* ===== მობილური ნავიგაცია ===== */
+/* მობილური ნავიგაციის პანელი */
+.mobile-nav-panel {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--color-white);
+  z-index: 9999;
+  transition: left 0.3s ease;
+  overflow-y: auto;
 }
 
-/* ბურგერ მენიუს იკონი */
-.burger-icon {
-  width: 25px;
-  height: 25px;
+/* აქტიური მობილური ნავიგაციის პანელი */
+.mobile-nav-panel.active {
+  left: 0;
+}
+
+/* მობილური ნავიგაციის შინა კონტენტი */
+.mobile-nav-content {
+  padding: 80px 20px 20px;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 2px 0px;
+  justify-content: flex-start;
+  position: relative;
 }
 
-/* ბურგერ მენიუს ხაზები */
-.burger-icon span {
-  width: 100%;
-  height: 3px;
-  background-color: var(--color-black);
+/* მობილური ნავიგაციის დახურვის ღილაკი */
+.mobile-nav-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
   transition: all 0.3s ease;
 }
 
-/* ბურგერ მენიუს hover ეფექტი */
-.burger-icon:hover span {
+/* მობილური ნავიგაციის დახურვის ღილაკის hover ეფექტი */
+.mobile-nav-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის ხაზები */
+.mobile-nav-close span {
+  width: 24px;
+  height: 3px;
+  background-color: var(--color-black);
+  position: absolute;
+  transition: all 0.3s ease;
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის პირველი ხაზი */
+.mobile-nav-close span:nth-child(1) {
+  transform: rotate(45deg);
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის მეორე ხაზი */
+.mobile-nav-close span:nth-child(2) {
+  transform: rotate(-45deg);
+}
+
+/* მობილური ნავიგაციის დახურვის ღილაკის hover ეფექტი */
+.mobile-nav-close:hover span {
   background-color: #616161;
+}
+
+/* მობილური ნავიგაციის სია */
+.mobile-nav-list {
+  list-style: none;
+  margin-bottom: 30px;
+}
+
+/* მობილური ნავიგაციის სიის ელემენტები */
+.mobile-nav-list li {
+  margin-bottom: 20px;
+}
+
+/* მობილური ნავიგაციის ბმულები */
+.mobile-nav-link {
+  display: block;
+  padding: 15px 0;
+  color: var(--color-black);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  border-bottom: 1px solid #616161;
+  transition: color 0.3s ease;
+}
+
+/* მობილური ნავიგაციის ბმულების hover ეფექტი */
+.mobile-nav-link:hover {
+  color: #616161;
+}
+
+/* მობილური Authentication ღილაკი */
+.mobile-auth-btn {
+  width: 100%;
+  height: 55px;
+  background: var(--color-yellow);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  border: none;
+  color: var(--color-black);
+  font-size: 16px;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* მობილური Authentication ღილაკის hover ეფექტი */
+.mobile-auth-btn:hover {
+  background: var(--color-yellow);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
+}
+
+/* მობილური Authentication ღილაკის active ეფექტი */
+.mobile-auth-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+}
+
+/* მობილური Authentication ღილაკის shine ეფექტი */
+.mobile-auth-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--color-white);
+  transition: left 0.5s ease;
+}
+
+.mobile-auth-btn:hover::before {
+  left: 100%;
+}
+
+/* მობილური Authentication ღილაკის focus ეფექტი */
+.mobile-auth-btn:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
+}
+
+/* მობილური My Page ღილაკის სტილები */
+.mobile-my-page-btn {
+  width: 100%;
+  height: 55px;
+  background: var(--color-purple);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  border: none;
+  color: var(--color-white);
+  font-size: 16px;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* მობილური My Page ღილაკის hover ეფექტი */
+.mobile-my-page-btn:hover {
+  background: var(--color-purple);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 51, 153, 0.4);
+}
+
+/* მობილური My Page ღილაკის active ეფექტი */
+.mobile-my-page-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3);
+}
+
+/* მობილური My Page ღილაკის shine ეფექტი */
+.mobile-my-page-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--color-white);
+  transition: left 0.5s ease;
+}
+
+.mobile-my-page-btn:hover::before {
+  left: 100%;
+}
+
+/* მობილური My Page ღილაკის focus ეფექტი */
+.mobile-my-page-btn:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3), 0 0 0 3px rgba(102, 51, 153, 0.2);
 }
 
 /* ===== მთავარი კონტენტი ===== */
@@ -256,6 +484,7 @@ body {
   padding-top: 135px;
 }
 
+/* ===== ფოტოების კარუსელი ===== */
 /* ფოტოების კარუსელი */
 .carousel {
   width: 100%;
@@ -502,14 +731,14 @@ body {
 /* სექცია 2-ის მთავარი კონტეინერი */
 .section-2 {
   width: 100%;
-  /* background-color: var(--color-white); -------------------------------------*/
+  background-color: var(--color-white);
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   gap: 5px;
   flex-wrap: wrap;
-  padding: 5px 0;
+  /* padding: 5px 0; */
   position: relative;
 }
 
@@ -722,7 +951,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* border-top: 5px solid var(--color-red); -----------------------------------*/
   padding: 60px 0;
   position: relative;
 }
@@ -940,10 +1168,16 @@ body {
   right: 20px;
 }
 
+/* ===== სექცია 4 ===== */
+.sec-free-space {
+  width: 100%;
+  height: 5px;
+}
+
 /* ===== ფუტერი ===== */
 /* ფუტერის მთავარი კონტეინერი */
 .footer {
-  background-color: var(--color-purple);
+  background-color: var(--color-dark-gray);
   color: var(--color-white);
   padding: 3rem 0 1rem;
   position: relative;
@@ -1029,240 +1263,7 @@ body {
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* ===== მობილური ნავიგაცია ===== */
-/* მობილური ნავიგაციის პანელი */
-.mobile-nav-panel {
-  position: fixed;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100vh;
-  background-color: var(--color-white);
-  z-index: 9999;
-  transition: left 0.3s ease;
-  overflow-y: auto;
-}
-
-/* აქტიური მობილური ნავიგაციის პანელი */
-.mobile-nav-panel.active {
-  left: 0;
-}
-
-/* მობილური ნავიგაციის შინა კონტენტი */
-.mobile-nav-content {
-  padding: 80px 20px 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  position: relative;
-}
-
-/* მობილური ნავიგაციის დახურვის ღილაკი */
-.mobile-nav-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-  transition: all 0.3s ease;
-}
-
-/* მობილური ნავიგაციის დახურვის ღილაკის hover ეფექტი */
-.mobile-nav-close:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-/* მობილური ნავიგაციის დახურვის ღილაკის ხაზები */
-.mobile-nav-close span {
-  width: 24px;
-  height: 3px;
-  background-color: var(--color-black);
-  position: absolute;
-  transition: all 0.3s ease;
-}
-
-/* მობილური ნავიგაციის დახურვის ღილაკის პირველი ხაზი */
-.mobile-nav-close span:nth-child(1) {
-  transform: rotate(45deg);
-}
-
-/* მობილური ნავიგაციის დახურვის ღილაკის მეორე ხაზი */
-.mobile-nav-close span:nth-child(2) {
-  transform: rotate(-45deg);
-}
-
-/* მობილური ნავიგაციის დახურვის ღილაკის hover ეფექტი */
-.mobile-nav-close:hover span {
-  background-color: #616161;
-}
-
-/* მობილური ნავიგაციის სია */
-.mobile-nav-list {
-  list-style: none;
-  margin-bottom: 30px;
-}
-
-/* მობილური ნავიგაციის სიის ელემენტები */
-.mobile-nav-list li {
-  margin-bottom: 20px;
-}
-
-/* მობილური ნავიგაციის ბმულები */
-.mobile-nav-link {
-  display: block;
-  padding: 15px 0;
-  color: var(--color-black);
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  border-bottom: 1px solid #616161;
-  transition: color 0.3s ease;
-}
-
-/* მობილური ნავიგაციის ბმულების hover ეფექტი */
-.mobile-nav-link:hover {
-  color: #616161;
-}
-
-
-/* მობილური Authentication ღილაკი */
-.mobile-auth-btn {
-  width: 100%;
-  height: 55px;
-  background: var(--color-yellow);
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  border: none;
-  color: var(--color-black);
-  font-size: 16px;
-  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-/* მობილური Authentication ღილაკის hover ეფექტი */
-.mobile-auth-btn:hover {
-  background: var(--color-yellow);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
-}
-
-/* მობილური Authentication ღილაკის active ეფექტი */
-.mobile-auth-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
-}
-
-/* მობილური Authentication ღილაკის shine ეფექტი */
-.mobile-auth-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--color-white);
-  transition: left 0.5s ease;
-}
-
-.mobile-auth-btn:hover::before {
-  left: 100%;
-}
-
-/* მობილური Authentication ღილაკის focus ეფექტი */
-.mobile-auth-btn:focus {
-  outline: none;
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
-}
-
-/* მობილური My Page ღილაკის სტილები */
-.mobile-my-page-btn {
-  width: 100%;
-  height: 55px;
-  background: var(--color-purple);
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  border: none;
-  color: var(--color-white);
-  font-size: 16px;
-  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-  position: relative;
-  overflow: hidden;
-  margin-top: 10px;
-}
-
-/* მობილური My Page ღილაკის hover ეფექტი */
-.mobile-my-page-btn:hover {
-  background: var(--color-purple);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 51, 153, 0.4);
-}
-
-/* მობილური My Page ღილაკის active ეფექტი */
-.mobile-my-page-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3);
-}
-
-/* მობილური My Page ღილაკის shine ეფექტი */
-.mobile-my-page-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--color-white);
-  transition: left 0.5s ease;
-}
-
-.mobile-my-page-btn:hover::before {
-  left: 100%;
-}
-
-/* მობილური My Page ღილაკის focus ეფექტი */
-.mobile-my-page-btn:focus {
-  outline: none;
-  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3), 0 0 0 3px rgba(102, 51, 153, 0.2);
-}
-
-/* ===== ბურგერ მენიუს ანიმაცია ===== */
-/* აქტიური ბურგერ მენიუს პირველი ხაზი */
-.burger-icon.active span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-
-/* აქტიური ბურგერ მენიუს მეორე ხაზი */
-.burger-icon.active span:nth-child(2) {
-  opacity: 0;
-}
-
-/* აქტიური ბურგერ მენიუს მესამე ხაზი */
-.burger-icon.active span:nth-child(3) {
-  transform: rotate(-45deg) translate(7px, -6px);
-}
-
 /* ===== ავტორიზაციის მოდალები ===== */
-
 /* Authentication მოდალი */
 .auth-modal {
   display: none;
@@ -1362,67 +1363,6 @@ body {
   padding: 30px;
 }
 
-/* Authentication ფორმის submit ღილაკი */
-.auth-form button[type="submit"] {
-  width: 100%;
-  height: 50px;
-  background: var(--color-yellow);
-  border: none;
-  color: var(--color-black);
-  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Authentication ფორმის submit ღილაკის hover ეფექტი */
-.auth-form button[type="submit"]:hover {
-  background: var(--color-yellow);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 153, 0, 0.3);
-}
-
-/* Authentication ფორმის submit ღილაკის active ეფექტი */
-.auth-form button[type="submit"]:active {
-  transform: translateY(0);
-}
-
-/* Authentication ფორმის submit ღილაკის disabled მდგომარეობა */
-.auth-form button[type="submit"]:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Authentication ფორმის submit ღილაკის shine ეფექტი */
-.auth-form button[type="submit"]::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--color-white);
-  transition: left 0.5s ease;
-}
-
-.auth-form button[type="submit"]:hover::before {
-  left: 100%;
-}
-
-/* Authentication ფორმის submit ღილაკის focus ეფექტი */
-.auth-form button[type="submit"]:focus {
-  outline: none;
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
-}
-
-
 /* ფორმის ჯგუფი */
 .form-group {
   margin-bottom: 24px;
@@ -1483,7 +1423,65 @@ body {
   min-height: 120px;
 }
 
+/* Authentication ფორმის submit ღილაკი */
+.auth-form button[type="submit"] {
+  width: 100%;
+  height: 50px;
+  background: var(--color-yellow);
+  border: none;
+  color: var(--color-black);
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
 
+/* Authentication ფორმის submit ღილაკის hover ეფექტი */
+.auth-form button[type="submit"]:hover {
+  background: var(--color-yellow);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 153, 0, 0.3);
+}
+
+/* Authentication ფორმის submit ღილაკის active ეფექტი */
+.auth-form button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+/* Authentication ფორმის submit ღილაკის disabled მდგომარეობა */
+.auth-form button[type="submit"]:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Authentication ფორმის submit ღილაკის shine ეფექტი */
+.auth-form button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--color-white);
+  transition: left 0.5s ease;
+}
+
+.auth-form button[type="submit"]:hover::before {
+  left: 100%;
+}
+
+/* Authentication ფორმის submit ღილაკის focus ეფექტი */
+.auth-form button[type="submit"]:focus {
+  outline: none;
+  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
+}
 
 /* ავტორიზაციის ფორმების ლინკები */
 .auth-form p a {
@@ -1497,7 +1495,6 @@ body {
   color: #e68a00;
   text-decoration: underline;
 }
-
 
 /* ===== გალერიის მოდალი ===== */
 /* გალერიის მოდალური ფანჯარა */
@@ -1573,7 +1570,6 @@ body {
   height: 100%;
   object-fit: cover;
 }
-
 
 /* დახურვის აიქონი - მარჯვენა ზედა კუთხე */
 .close-icon {
@@ -1746,7 +1742,6 @@ body {
   .form-group textarea {
     min-height: 100px;
   }
-  
   
   /* ავტორიზაციის მოდალები მობილურზე */
   .auth-modal-content {
@@ -1998,10 +1993,4 @@ body {
     font-size: 16px;
     line-height: 0.7;
   }
-}
-
-/* ===== სექცია 4 ===== */
-.section-4 {
-  width: 100%;
-  height: 5px;
 }
