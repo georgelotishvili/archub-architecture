@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""
-Run script for Archub project
-Simple script to start the Flask development server
-"""
+# ===== ARCHUB - გაშვების სკრიპტი =====
+# ეს ფაილი არის Flask განვითარების სერვერის გასაშვებად
+# ამოწმებს მოთხოვნებს და ამუშავებს აპლიკაციას
 
 import os
 import sys
 from pathlib import Path
 
+# ===== მოთხოვნების შემოწმება =====
 def check_requirements():
-    """Check if all requirements are met"""
+    """ყველა მოთხოვნის შემოწმება - ბაზა, საქაღალდეები და ა.შ."""
     print("🔍 Checking requirements...")
     
     # Check if virtual environment is activated
@@ -44,8 +44,9 @@ def check_requirements():
     print("✅ All requirements met")
     return True
 
+# ===== მთავარი გაშვების ფუნქცია =====
 def main():
-    """Main run function"""
+    """მთავარი გაშვების ფუნქცია - ამუშავებს Flask სერვერს"""
     print("🚀 Starting Archub Development Server")
     print("=" * 50)
     

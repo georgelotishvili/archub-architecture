@@ -1,3 +1,7 @@
+# ===== ARCHUB - არქიტექტურული პორტფოლიო ვებ-აპლიკაცია =====
+# ეს არის მთავარი Flask აპლიკაციის ფაილი
+# შეიცავს: API endpoints, routes, file upload ფუნქციები, authentication
+
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -10,48 +14,51 @@ from datetime import datetime
 from email_validator import validate_email, EmailNotValidError
 from config import config
 
-# Create Flask application instance
+# ===== FLASK აპლიკაციის ინიციალიზაცია =====
+# Flask აპლიკაციის შექმნა
 app = Flask(__name__)
 
-# Initialize CORS
+# CORS-ის ინიციალიზაცია (Cross-Origin Resource Sharing)
 CORS(app)
 
-# Configuration selection based on FLASK_ENV
+# კონფიგურაციის არჩევა FLASK_ENV ცვლადის მიხედვით
 config_name = os.getenv('FLASK_ENV', 'default')
 app.config.from_object(config[config_name])
 
-# Create uploads directory if it doesn't exist
+# ატვირთული ფაილების საქაღალდის შექმნა (თუ არ არსებობს)
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Initialize extensions
+# ===== გაფართოებების ინიციალიზაცია =====
+# SQLAlchemy ბაზის ინიციალიზაცია
 from extensions import db
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Initialize LoginManager
+# LoginManager-ის ინიციალიზაცია (მომხმარებლის ავტორიზაციისთვის)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# Import models from models.py
+# მოდელების იმპორტი models.py ფაილიდან
 from models import Project, Photo, User, project_likes
 
-# User loader function for Flask-Login
+# ===== FLASK-LOGIN კონფიგურაცია =====
+# მომხმარებლის ჩატვირთვის ფუნქცია Flask-Login-ისთვის
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Helper functions for file upload
+# ===== ფაილის ატვირთვის დამხმარე ფუნქციები =====
 def allowed_file(filename):
-    """Check if file extension is allowed"""
+    """ფაილის გაფართოების შემოწმება - დაშვებულია თუ არა"""
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def generate_unique_filename(original_filename):
-    """Generate unique filename to avoid conflicts"""
-    # Get file extension
+    """უნიკალური ფაილის სახელის გენერაცია კონფლიქტების თავიდან ასაცილებლად"""
+    # ფაილის გაფართოების მიღება
     file_extension = original_filename.rsplit('.', 1)[1].lower() if '.' in original_filename else ''
     
-    # Generate unique filename with timestamp and UUID
+    # უნიკალური ფაილის სახელის გენერაცია დროის ნიშნით და UUID-ით
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     unique_id = str(uuid.uuid4())[:8]
     
@@ -91,18 +98,19 @@ def delete_uploaded_file(file_url):
         print(f"Error deleting file {file_url}: {e}")
     return False
 
-# Main route
+# ===== მთავარი ROUTES (გვერდები) =====
+# მთავარი გვერდი - პორტფოლიო
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# User profile page route
+# მომხმარებლის პროფილის გვერდი (ავტორიზაცია საჭირო)
 @app.route('/my-page')
 @login_required
 def my_page():
     return render_template('my_page.html')
 
-# Admin route
+# ადმინ პანელი (ავტორიზაცია და ადმინ უფლებები საჭირო)
 @app.route('/admin')
 @login_required
 def admin():
@@ -110,6 +118,7 @@ def admin():
         return "Forbidden", 403
     return render_template('admin.html')
 
+# მომხმარებლების სია ადმინ პანელში
 @app.route('/admin/users')
 @login_required
 def admin_users():
@@ -118,6 +127,7 @@ def admin_users():
     all_users = User.query.all()
     return render_template('admin_users.html', users=all_users)
 
+# კონკრეტული მომხმარებლის ნახვა ადმინ პანელში
 @app.route('/admin/user/<int:user_id>')
 @login_required
 def admin_view_user(user_id):
@@ -127,7 +137,8 @@ def admin_view_user(user_id):
     return render_template('admin_user_view.html', user=target_user)
 
 
-# API route to get all projects
+# ===== API ROUTES (API endpoints) =====
+# ყველა პროექტის მიღება JSON ფორმატში
 @app.route('/api/projects')
 def get_projects():
     try:

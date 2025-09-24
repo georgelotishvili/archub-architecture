@@ -1,5 +1,9 @@
+// ===== ARCHUB - მთავარი JavaScript ფაილი =====
+// ეს ფაილი შეიცავს მთავარი გვერდის ფუნქციონალს
+// ავტორიზაცია, პროექტების ჩატვირთვა, კონტაქტ ფორმა
+
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Element selections ---
+    // ===== ელემენტების არჩევა =====
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
     const loginForm = document.getElementById('loginForm');
@@ -11,7 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const showRegisterModalLink = document.getElementById('showRegisterModal');
     const showLoginModalLink = document.getElementById('showLoginModal');
     
-    // Global variable to track authentication status
+    // ===== გლობალური ცვლადები =====
+    // ავტორიზაციის სტატუსის თვალყურის დევნება
     let userAuthenticated = false;
     let currentUser = null;
     

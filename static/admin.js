@@ -1,11 +1,15 @@
-// ადმინ პანელის ფუნქციონალი - API ვერსია
-let projectsCards = [];
-let galleryPhotos = [];
+// ===== ARCHUB - ადმინ პანელის JavaScript ფაილი =====
+// ეს ფაილი შეიცავს ადმინ პანელის ფუნქციონალს
+// პროექტების CRUD ოპერაციები, ფოტოების ატვირთვა, API კომუნიკაცია
 
-// API ბაზის URL
-const API_BASE_URL = '/api/projects';
+// ===== გლობალური ცვლადები =====
+let projectsCards = [];  // პროექტების მასივი
+let galleryPhotos = [];  // გალერეის ფოტოების მასივი
 
-// ქარდების ჩატვირთვა API-დან
+// ===== API კონფიგურაცია =====
+const API_BASE_URL = '/api/projects';  // API-ის ძირითადი URL
+
+// ===== პროექტების ჩატვირთვა API-დან =====
 async function loadCardsFromAPI() {
     try {
         console.log('Loading cards from API...');

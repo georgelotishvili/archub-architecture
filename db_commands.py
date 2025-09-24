@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""
-Database management commands for the Archub project
-"""
+# ===== ARCHUB - ბაზის მართვის ბრძანებები =====
+# ეს ფაილი შეიცავს ბაზის მართვის ბრძანებებს
+# ტესტირების, მონაცემების შექმნისა და მართვისთვის
 
 from app import app, db
 from models import Project, Photo, User
 
+# ===== ტესტირების მონაცემების შექმნა =====
 def create_sample_data():
-    """Create sample projects and photos for testing"""
+    """ტესტირებისთვის ნიმუშის პროექტებისა და ფოტოების შექმნა"""
     with app.app_context():
         # Check if data already exists
         if Project.query.first():

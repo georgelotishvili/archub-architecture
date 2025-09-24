@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""
-Setup script for Archub project
-This script helps set up the project environment and database
-"""
+# ===== ARCHUB - პროექტის დაყენების სკრიპტი =====
+# ეს სკრიპტი ეხმარება პროექტის გარემოსა და ბაზის დაყენებაში
+# ამოწმებს მოთხოვნებს, ქმნის ვირტუალურ გარემოს, აყენებს დამოკიდებულებებს
 
 import os
 import sys
@@ -87,31 +86,32 @@ def create_sample_data():
         print(f"❌ Sample data creation failed: {e}")
         return False
 
+# ===== მთავარი დაყენების ფუნქცია =====
 def main():
-    """Main setup function"""
+    """მთავარი დაყენების ფუნქცია - აყენებს პროექტს"""
     print("🚀 Archub Project Setup")
     print("=" * 50)
     
-    # Check Python version
+    # Python ვერსიის შემოწმება
     if not check_python_version():
         sys.exit(1)
     
-    # Create virtual environment
+    # ვირტუალური გარემოს შექმნა
     if not create_virtual_environment():
         print("❌ Setup failed at virtual environment creation")
         sys.exit(1)
     
-    # Install requirements
+    # დამოკიდებულებების აყენება
     if not activate_and_install():
         print("❌ Setup failed at package installation")
         sys.exit(1)
     
-    # Setup database
+    # ბაზის დაყენება
     if not setup_database():
         print("❌ Setup failed at database setup")
         sys.exit(1)
     
-    # Create sample data
+    # ნიმუშის მონაცემების შექმნა
     response = input("🤔 Would you like to create sample data? (y/n): ").lower().strip()
     if response in ['y', 'yes']:
         create_sample_data()

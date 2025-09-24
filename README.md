@@ -1,4 +1,8 @@
-# Archub - Architecture Portfolio Website
+# Archub - არქიტექტურული პორტფოლიო ვებ-საიტი
+
+<!-- ===== ARCHUB - არქიტექტურული პორტფოლიო ვებ-აპლიკაცია ===== -->
+<!-- თანამედროვე Flask-ზე დაფუძნებული ვებ-აპლიკაცია არქიტექტურული პროექტების ჩვენებისთვის -->
+<!-- შეიცავს ადმინ პანელს კონტენტის მართვისთვის -->
 
 A modern Flask-based web application for showcasing architectural projects with an admin panel for content management.
 
