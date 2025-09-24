@@ -1,5 +1,23 @@
 @charset "UTF-8";
 
+/* ===== ფონტის დეკლარაცია ===== */
+@font-face {
+    font-family: 'DejaVu Sans';
+    src: url('fonts/dejavu-sans.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BPG Nino Mtavruli Bold';
+    src: url('fonts/bpg-nino-mtavruli-bold-webfont.eot'); /* IE9 Compat Modes */
+    src: url('fonts/bpg-nino-mtavruli-bold-webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('fonts/bpg-nino-mtavruli-bold-webfont.woff2') format('woff2'), /* Super Modern Browsers */
+         url('fonts/bpg-nino-mtavruli-bold-webfont.woff') format('woff'), /* Pretty Modern Browsers */
+         url('fonts/bpg-nino-mtavruli-bold-webfont.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('fonts/bpg-nino-mtavruli-bold-webfont.svg#bpg_nino_mtavrulibold') format('svg'); /* Legacy iOS */
+}
+
 /* ===== ფერის ცვლადები ===== */
 :root {
   --color-black: #000000;           /* შავი */
@@ -19,6 +37,16 @@
   text-decoration: none;
 }
 
+/* ყველა span, p, button, a ელემენტის ფონტის ზომა */
+span, p, button, a {
+  font-size: 16px;
+}
+
+/* ყველა heading ელემენტის ზოგადი სტილი */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+}
+
 /* HTML ელემენტის ზოგადი სტილები */
 html {
   /* scroll-behavior: smooth; - ამოღებულია ავტომატური smooth scroll */
@@ -27,7 +55,7 @@ html {
 
 /* Body ელემენტის ზოგადი სტილები */
 body {
-  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
+  font-family: 'DejaVu Sans', sans-serif;
   line-height: 1.6;
   color: var(--color-black);
   background-color: var(--color-white);
@@ -81,7 +109,6 @@ body {
   font-size: 24px;
   font-weight: 300;
   margin: 0;
-  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
 }
 
 
@@ -135,7 +162,7 @@ body {
   text-decoration: none;
   color: var(--color-black);
   font-weight: 500;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 
@@ -155,8 +182,8 @@ body {
   background: transparent;
   color: var(--color-white);
   border: 1px solid var(--color-white);
-  font-size: 12px;
-  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
+  font-size: 16px;
+  font-family: 'DejaVu Sans', sans-serif;
   font-weight: 600;
   cursor: pointer;
   position: relative;
@@ -170,8 +197,8 @@ body {
   background: transparent;
   color: var(--color-white);
   border: 1px solid var(--color-white);
-  font-size: 12px;
-  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
+  font-size: 16px;
+  font-family: 'DejaVu Sans', sans-serif;
   font-weight: 600;
   cursor: pointer;
   position: relative;
@@ -390,18 +417,16 @@ body {
 
 /* მთავარი სათაური */
 .section-1-right h1 {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
   font-size: 40px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.2;
   letter-spacing: 1px;
   color: var(--color-yellow);
 }
 
 /* ქვესათაური */
-.section-1-right h3 {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
-  font-size: 25px;
+.section-1-right h2 {
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 1px;
@@ -410,7 +435,7 @@ body {
 
 /* აღწერის ტექსტი */
 .section-1-right p {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--color-black);
   margin: 30px 20px 50px 30px;
   text-align: justify;
@@ -616,7 +641,7 @@ body {
 
 /* ბარათის ფართობის ინფორმაცია */
 .card-area {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -684,8 +709,7 @@ body {
 
 /* გუნდის სათაური */
 .section-3-content h2 {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 700;
   margin-bottom: 20px;
   color: var(--color-yellow);
@@ -693,7 +717,7 @@ body {
 
 /* გუნდის აღწერა */
 .section-3-content p {
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 40px;
   color: var(--color-black);
   line-height: 1.6;
@@ -788,7 +812,7 @@ body {
 
 /* გუნდის წევრის სახელი */
 .team-info .name {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-family: 'DejaVu Sans', sans-serif;
   font-size: 26px;
   font-weight: 700;
   color: var(--color-white);
@@ -958,7 +982,7 @@ body {
 .footer-bottom p {
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   transition: color 0.3s ease;
 }
 
@@ -1060,7 +1084,7 @@ body {
   padding: 15px 0;
   color: var(--color-black);
   text-decoration: none;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   border-bottom: 1px solid #616161;
   transition: color 0.3s ease;
@@ -1083,7 +1107,7 @@ body {
   border: none;
   color: var(--color-black);
   font-size: 16px;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: 'DejaVu Sans', sans-serif;
   font-weight: 600;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -1138,7 +1162,7 @@ body {
   border: none;
   color: var(--color-white);
   font-size: 16px;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: 'DejaVu Sans', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1266,7 +1290,7 @@ body {
 
 /* Authentication მოდალის სათაური */
 .auth-modal-header h2 {
-  font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
+  font-family: 'DejaVu Sans', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: var(--color-black);
@@ -1307,7 +1331,7 @@ body {
   background: var(--color-yellow);
   border: none;
   color: var(--color-black);
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: 'DejaVu Sans', sans-serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -1369,8 +1393,8 @@ body {
 /* ფორმის ლეიბლები */
 .form-group label {
   display: block;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
-  font-size: 14px;
+  font-family: 'DejaVu Sans', sans-serif;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-black);
   margin-bottom: 8px;
@@ -1382,7 +1406,7 @@ body {
   width: 100%;
   padding: 14px 18px;
   border: 2px solid #e0e0e0;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-family: 'DejaVu Sans', sans-serif;
   font-size: 16px;
   color: var(--color-black);
   background-color: var(--color-purple);
@@ -1600,7 +1624,7 @@ body {
 }
 
 .no-photos h3 {
-  font-size: 24px;
+  font-size: 16px;
   margin-bottom: 10px;
 }
 
@@ -1672,13 +1696,13 @@ body {
   }
   
   .form-group label {
-    font-size: 13px;
+    font-size: 16px;
   }
   
   .form-group input, 
   .form-group textarea {
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: 16px;
   }
   
   .form-group textarea {
@@ -1708,7 +1732,7 @@ body {
   
   .auth-form button[type="submit"] {
     height: 45px;
-    font-size: 15px;
+    font-size: 16px;
   }
   
   .section-1 {
@@ -1731,7 +1755,7 @@ body {
   }
   
   .section-3-content h2 {
-    font-size: 32px;
+    font-size: 16px;
     margin-bottom: 15px;
   }
   
@@ -1742,7 +1766,7 @@ body {
   }
   
   .team-info .phone {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--color-white);
     margin: 0;
     padding: 0;
@@ -1767,7 +1791,7 @@ body {
   }
   
   .team-info .phone {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--color-white);
     margin: 0;
     padding: 0;
@@ -1834,6 +1858,7 @@ body {
   /* header-bottom-line h1 მცირე ეკრანებზე */
   .header-bottom-line h1 {
     font-size: 18px;
+    font-weight: 300;
   }
   
   /* სექცია 1 მცირე ეკრანებზე */
@@ -1858,10 +1883,11 @@ body {
   /* მთავარი სათაური მცირე ეკრანებზე */
   .section-1-right h1 {
     font-size: 2rem;
+    font-weight: 400;
   }
   
   /* ქვესათაური მცირე ეკრანებზე */
-  .section-1-right h3 {
+  .section-1-right h2 {
     font-size: 1.5rem;
   }
   
@@ -1896,24 +1922,24 @@ body {
   
   /* ოვერლეი ელემენტის ტექსტი მცირე ეკრანებზე */
   .overlay-element p {
-    font-size: 10px;
+    font-size: 16px;
   }
   
   /* გუნდის წევრის სახელი მცირე ეკრანებზე */
   .team-info .name {
-    font-size: 12px;
+    font-size: 16px;
     line-height: 0.7;
   }
   
   /* გუნდის წევრის პოზიცია მცირე ეკრანებზე */
   .team-info .position {
-    font-size: 10px;
+    font-size: 16px;
     line-height: 1.5;
   }
   
   /* გუნდის წევრის ტელეფონი მცირე ეკრანებზე */
   .team-info .phone {
-    font-size: 10px;
+    font-size: 16px;
     line-height: 0.7;
   }
 }

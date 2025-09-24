@@ -101,7 +101,7 @@ function loadCardsList() {
         const hasMainImage = card.main_image_url && card.main_image_url.trim() !== '';
         const imageHtml = hasMainImage 
             ? `<img src="${card.main_image_url}" alt="ქარდი">`
-            : `<div style="width: 100%; height: 200px; background: #f8f9fa; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;">ფოტო არ არის</div>`;
+            : `<div style="width: 100%; height: 200px; background: #f8f9fa; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px;">ფოტო არ არის</div>`;
         
         cardItem.innerHTML = `
             <div class="card-preview">
@@ -231,7 +231,7 @@ function editCard(projectId) {
                 <div id="mainImageContainer" style="text-align: center; margin-bottom: 10px; position: relative; display: inline-block;">
                     ${project.main_image_url && project.main_image_url.trim() !== '' ? 
                         `<img src="${project.main_image_url}" alt="მთავარი ფოტო" style="max-width: 200px; max-height: 150px; border-radius: 5px; border: 2px solid #ddd;">
-                        <button onclick="deleteMainImage(${projectId})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;" title="მთავარი ფოტოს წაშლა">&times;</button>` :
+                        <button onclick="deleteMainImage(${projectId})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;" title="მთავარი ფოტოს წაშლა">&times;</button>` :
                         `<div style="width: 200px; height: 150px; border: 2px dashed #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #666; background: #f8f9fa;">
                             <span>მთავარი ფოტო არ არის</span>
                         </div>`
@@ -247,7 +247,7 @@ function editCard(projectId) {
                             padding: 8px 16px;
                             border-radius: 5px;
                             cursor: pointer;
-                            font-size: 14px;
+                            font-size: 16px;
                         "
                     >
                         ${project.main_image_url && project.main_image_url.trim() !== '' ? 'მთავარი ფოტოს შეცვლა' : 'მთავარი ფოტოს დამატება'}
@@ -270,7 +270,7 @@ function editCard(projectId) {
                             padding: 8px 16px;
                             border-radius: 5px;
                             cursor: pointer;
-                            font-size: 14px;
+                            font-size: 16px;
                             margin-right: 10px;
                         "
                     >
@@ -802,7 +802,7 @@ function updateMainImageDisplay(projectId, newImageUrl) {
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">მთავარი ფოტო:</label>
             <div id="mainImageContainer" style="text-align: center; margin-bottom: 10px; position: relative; display: inline-block;">
                 <img src="${newImageUrl}" alt="მთავარი ფოტო" style="max-width: 200px; max-height: 150px; border-radius: 5px; border: 2px solid #ddd;">
-                <button onclick="deleteMainImage(${projectId})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;" title="მთავარი ფოტოს წაშლა">&times;</button>
+                <button onclick="deleteMainImage(${projectId})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;" title="მთავარი ფოტოს წაშლა">&times;</button>
             </div>
             <div style="text-align: center;">
                 <button 
@@ -814,7 +814,7 @@ function updateMainImageDisplay(projectId, newImageUrl) {
                         padding: 8px 16px;
                         border-radius: 5px;
                         cursor: pointer;
-                        font-size: 14px;
+                        font-size: 16px;
                     "
                 >
                     მთავარი ფოტოს შეცვლა
@@ -839,7 +839,7 @@ function updateMainImageDisplay(projectId, newImageUrl) {
                         padding: 8px 16px;
                         border-radius: 5px;
                         cursor: pointer;
-                        font-size: 14px;
+                        font-size: 16px;
                     "
                 >
                     მთავარი ფოტოს დამატება
