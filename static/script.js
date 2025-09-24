@@ -379,13 +379,24 @@ async function initProjectsCarousel() {
     renderProjectsCards();
     
     // Event listeners
-    prevBtn.addEventListener('click', () => moveCarousel(-1));
-    nextBtn.addEventListener('click', () => moveCarousel(1));
+    prevBtn.addEventListener('click', () => {
+        console.log('Previous button clicked');
+        moveCarousel(-1);
+    });
+    nextBtn.addEventListener('click', () => {
+        console.log('Next button clicked');
+        moveCarousel(1);
+    });
     
     // Recalculate position on window resize
     window.addEventListener('resize', () => {
         updateCarouselPosition();
     });
+    
+    // Initial position update to center the first card
+    setTimeout(() => {
+        updateCarouselPosition();
+    }, 100);
 }
 
     // Load cards from API
@@ -465,6 +476,7 @@ function createRandomCards() {
 function renderProjectsCards() {
         if (!cardsContainer || !projectsCards.length) return;
     
+    console.log(`Rendering ${projectsCards.length} cards, totalCards=${totalCards}`);
     cardsContainer.innerHTML = '';
     
         projectsCards.forEach((card, index) => {
@@ -513,6 +525,11 @@ function renderProjectsCards() {
             
             cardsContainer.appendChild(cardElement);
         });
+        
+        // Update position after rendering all cards
+        setTimeout(() => {
+            updateCarouselPosition();
+        }, 50);
 }
 
 function moveCarousel(direction) {
@@ -520,30 +537,64 @@ function moveCarousel(direction) {
     
     projectsIsTransitioning = true;
     
-        currentCardIndex = (currentCardIndex + direction + totalCards) % totalCards;
-        updateCarouselPosition();
-        
-        setTimeout(() => {
-            projectsIsTransitioning = false;
-        }, 300);
+    // Move to next/previous card
+    currentCardIndex = (currentCardIndex + direction + totalCards) % totalCards;
+    
+    // Debug info
+    console.log(`Moving carousel: direction=${direction}, newIndex=${currentCardIndex}, totalCards=${totalCards}`);
+    
+    updateCarouselPosition();
+    
+    setTimeout(() => {
+        projectsIsTransitioning = false;
+    }, 300);
 }
 
 function updateCarouselPosition() {
     if (!cardsContainer) return;
     
-    // Get carousel container width
-    const carouselContainer = document.querySelector('.section-2 .projects-scroll-1 .carousel-container');
-        const containerWidth = carouselContainer ? carouselContainer.offsetWidth : 1200;
+    // Get carousel container width - use the full viewport width for centering
+    const containerWidth = window.innerWidth;
     
-    // Card width + gap = 310px + 10px = 320px
-    const cardTotalWidth = 320;
+    // Get responsive card dimensions based on screen width
+    let cardWidth, cardGap;
+    
+    if (window.innerWidth <= 600) {
+        // Mobile: 280px + 5px gap
+        cardWidth = 280;
+        cardGap = 5;
+    } else if (window.innerWidth <= 900) {
+        // Tablet: 380px + 5px gap
+        cardWidth = 380;
+        cardGap = 5;
+    } else {
+        // Desktop: 620px + 5px gap
+        cardWidth = 620;
+        cardGap = 5;
+    }
+    
+    // Card width + gap
+    const cardTotalWidth = cardWidth + cardGap;
     
     // Calculate center offset: (container width - card width) / 2
-    const centerOffset = (containerWidth - 310) / 2;
+    // This ensures the current card is always centered horizontally
+    const centerOffset = (containerWidth - cardWidth) / 2;
     
-        const translateX = -currentCardIndex * cardTotalWidth + centerOffset;
-        cardsContainer.style.transition = 'transform 0.3s ease-in-out';
-        cardsContainer.style.transform = `translateX(${translateX}px)`;
+    // Move the entire container so that the current card is centered
+    const translateX = -currentCardIndex * cardTotalWidth + centerOffset;
+    
+    cardsContainer.style.transition = 'transform 0.3s ease-in-out';
+    cardsContainer.style.transform = `translateX(${translateX}px)`;
+    
+    // Debug info (can be removed later)
+    console.log(`Carousel Debug:
+        Container Width: ${containerWidth}px
+        Card Width: ${cardWidth}px
+        Card Gap: ${cardGap}px
+        Card Total Width: ${cardTotalWidth}px
+        Current Index: ${currentCardIndex}
+        Center Offset: ${centerOffset}px
+        Translate X: ${translateX}px`);
 }
 
 function updateCarouselButtons() {
