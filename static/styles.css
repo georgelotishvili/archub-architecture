@@ -1,5 +1,13 @@
 @charset "UTF-8";
 
+/* ===== ფერის ცვლადები ===== */
+:root {
+  --color-black: #000000;           /* შავი */
+  --color-dark-gray: #555555;       /* მუქი რუხი */
+  --color-yellow: #ffbb00;          /* ყვითელი */
+  --color-white: #FFFFFF;           /* თეთრი */
+}
+
 /* ===== ზოგადი სტილები ===== */
 /* ყველა ელემენტის ზოგადი სტილები */
 * {
@@ -19,8 +27,8 @@ html {
 body {
   font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   line-height: 1.6;
-  color: #242424;
-  background-color: #ffffff;
+  color: var(--color-black);
+  background-color: var(--color-white);
 }
 
 /* კონტეინერის ზოგადი სტილები */
@@ -33,7 +41,7 @@ body {
 /* ===== ჰედერი ===== */
 /* ჰედერის მთავარი კონტეინერი */
 .header {
-  background-color: #ffffff;
+  background-color: var(--color-white);
   width: 100%;
   height: 80px;
   position: fixed;
@@ -93,7 +101,7 @@ body {
 /* ნავიგაციის ბმულები */
 .nav-link {
   text-decoration: none;
-  color: #242424;
+  color: var(--color-black);
   font-weight: 500;
   font-size: 14px;
 }
@@ -103,9 +111,9 @@ body {
 .auth-btn {
   width: 120px;
   height: 45px;
-  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
+  background: var(--color-yellow);
   border: none;
-  color: #242424;
+  color: var(--color-black);
   font-size: 16px;
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
   font-weight: 600;
@@ -118,7 +126,7 @@ body {
 
 /* Authentication ღილაკის hover ეფექტი */
 .auth-btn:hover {
-  background: linear-gradient(135deg, #e6b000 0%, #ffc400 100%);
+  background: var(--color-yellow);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
 }
@@ -137,7 +145,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: var(--color-white);
   transition: left 0.5s ease;
 }
 
@@ -155,9 +163,9 @@ body {
 .my-page-btn {
   width: 120px;
   height: 45px;
-  background: linear-gradient(135deg, #663399 0%, #8a4cbf 100%);
+  background: var(--color-dark-gray);
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 16px;
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
   font-weight: 600;
@@ -171,7 +179,7 @@ body {
 
 /* My Page ღილაკის hover ეფექტი */
 .my-page-btn:hover {
-  background: linear-gradient(135deg, #5a2d8a 0%, #7a42a8 100%);
+  background: var(--color-dark-gray);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(102, 51, 153, 0.4);
 }
@@ -190,7 +198,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: var(--color-white);
   transition: left 0.5s ease;
 }
 
@@ -226,7 +234,7 @@ body {
 .burger-icon span {
   width: 100%;
   height: 3px;
-  background-color: #242424;
+  background-color: var(--color-black);
   transition: all 0.3s ease;
 }
 
@@ -246,7 +254,7 @@ body {
 .carousel {
   width: 100%;
   height: 250px;
-  background-color: #f0f0f0;
+  background-color: var(--color-white);
   position: relative;
   overflow: hidden;
   padding-bottom: 5px;
@@ -314,8 +322,8 @@ body {
   align-items: center;
   justify-content: space-around;
   flex-wrap: wrap;
-  border-top: 5px solid #663399;
-  border-bottom: 5px solid #663399;
+  border-top: 5px solid var(--color-dark-gray);
+  border-bottom: 5px solid var(--color-dark-gray);
 }
 
 /* სექცია 1-ის მარცხენა ნაწილი - ფოტოების გალერეა */
@@ -378,7 +386,7 @@ body {
 .overlay-element {
   width: 280px;
   height: 100px;
-  background-color: #ffffff;
+  background-color: var(--color-white);
   padding: 10px;
   display: flex;
   justify-content: center;
@@ -395,14 +403,14 @@ body {
 .overlay-element h3 {
   font-size: 60px;
   font-weight: 600;
-  color: #ffc400;
+  color: var(--color-yellow);
 }
 
 /* ოვერლეი ბლოკის ტექსტი */
 .overlay-element p {
   font-size: 20px;
   font-weight: 400;
-  color: #242424;
+  color: var(--color-black);
 }
 
 /* სექცია 1-ის მარჯვენა ნაწილი - ტექსტური კონტენტი */
@@ -420,7 +428,7 @@ body {
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 1px;
-  color: #ffc400;
+  color: var(--color-yellow);
 }
 
 /* ქვესათაური */
@@ -430,13 +438,13 @@ body {
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 1px;
-  color: #242424;
+  color: var(--color-black);
 }
 
 /* აღწერის ტექსტი */
 .section-1-right p {
   font-size: 14px;
-  color: #242424;
+  color: var(--color-black);
   margin: 30px 20px 50px 30px;
   text-align: justify;
 }
@@ -445,14 +453,14 @@ body {
 .projects-btn {
   width: 150px;
   height: 40px;
-  background: #ffc400;
+  background: var(--color-yellow);
   align-items: center;
   justify-content: center;
   display: flex;
   position: absolute;
   bottom: 0;
   left: 0;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 16px;
   border: none;
   transition: transform 0.3s ease, background-color 0.3s ease;
@@ -469,7 +477,7 @@ body {
 /* სექცია 2-ის მთავარი კონტეინერი */
 .section-2 {
   width: 100%;
-  background-color: #ffffff;
+  background-color: var(--color-white);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -484,13 +492,13 @@ body {
 .section-2-top-bar {
   width: 100%;
   height: 40px;
-  background-color: #555555;
+  background-color: var(--color-dark-gray);
 }
 
 .section-2-bottom-bar {
   width: 100%;
   height: 40px;
-  background-color: #555555;
+  background-color: var(--color-dark-gray);
 }
 
 /* პროექტების სკროლის კონტეინერი */
@@ -595,7 +603,7 @@ body {
   width: 310px;
   height: auto;
   aspect-ratio: 4/3;
-  background: #ffffff;
+  background: var(--color-white);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -607,7 +615,7 @@ body {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  background: #f0f0f0;
+  background: var(--color-dark-gray);
 }
 
 /* ბარათის ინფორმაცია */
@@ -617,7 +625,7 @@ body {
   left: 0;
   right: 0;
   background: rgba(0, 0, 0, 0.53);
-  color: #ffffff;
+  color: var(--color-white);
   padding: 20px 15px 15px;
 }
 
@@ -668,11 +676,11 @@ body {
 .section-3 {
   width: 100%;
   min-height: 500px;
-  background-color: #ffffff;
+  background-color: var(--color-white);
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 5px solid #663399;
+  border-top: 5px solid var(--color-dark-gray);
   padding: 60px 0;
 }
 
@@ -683,7 +691,7 @@ body {
   align-items: center;
   flex-direction: column;
   text-align: center;
-  color: #ffffff;
+  color: var(--color-white);
   /* background-color: #663399; */
   max-width: 900px;
   width: 100%;
@@ -695,14 +703,14 @@ body {
   font-size: 48px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: #ffc400;
+  color: var(--color-yellow);
 }
 
 /* გუნდის აღწერა */
 .section-3-content p {
   font-size: 18px;
   margin-bottom: 40px;
-  color: #242424;
+  color: var(--color-black);
   line-height: 1.6;
 }
 
@@ -712,7 +720,7 @@ body {
   height: auto;
   aspect-ratio: 2/1;
   margin: 0 auto;
-  background-color: #ffffff;
+  background-color: var(--color-white);
   overflow: hidden;
   position: relative;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -740,7 +748,7 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: #242424;
+  color: var(--color-black);
   padding: 0;
   opacity: 0;
   transform: translateX(100%);
@@ -774,7 +782,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.7) 100%);
+  background: var(--color-black);
   z-index: 1;
 }
 
@@ -798,7 +806,7 @@ body {
   font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
   font-size: 26px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-white);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   text-align: left;
   margin: 0;
@@ -809,7 +817,7 @@ body {
 /* გუნდის წევრის პოზიცია */
 .team-info .position {
   font-size: 16px;
-  color: #ffc400;
+  color: var(--color-yellow);
   font-weight: 600;
   text-align: left;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
@@ -821,7 +829,7 @@ body {
 /* გუნდის წევრის ტელეფონი */
 .team-info .phone {
   font-size: 16px;
-  color: #ffffff;
+  color: var(--color-white);
   font-weight: 500;
   text-align: left;
   text-decoration: none;
@@ -887,8 +895,8 @@ body {
 /* ===== ფუტერი ===== */
 /* ფუტერის მთავარი კონტეინერი */
 .footer {
-  background-color: #663399;
-  color: #ffffff;
+  background-color: var(--color-dark-gray);
+  color: var(--color-white);
   padding: 3rem 0 1rem;
   position: relative;
 }
@@ -907,7 +915,7 @@ body {
 .footer-section h3, 
 .footer-section h4 {
   margin-bottom: 1rem;
-  color: #ffffff;
+  color: var(--color-white);
   font-weight: 600;
 }
 
@@ -921,7 +929,7 @@ body {
 
 /* ფუტერის სექციების ტექსტის hover ეფექტი */
 .footer-section p:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 /* ფუტერის სექციების ბმულები */
@@ -949,7 +957,7 @@ body {
 
 /* ფუტერის ნავიგაციის ბმულების hover ეფექტი */
 .footer-links a:hover {
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 /* ფუტერის ქვედა ნაწილი */
@@ -982,7 +990,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--color-white);
   z-index: 9999;
   transition: left 0.3s ease;
   overflow-y: auto;
@@ -1030,7 +1038,7 @@ body {
 .mobile-nav-close span {
   width: 24px;
   height: 3px;
-  background-color: #242424;
+  background-color: var(--color-black);
   position: absolute;
   transition: all 0.3s ease;
 }
@@ -1065,7 +1073,7 @@ body {
 .mobile-nav-link {
   display: block;
   padding: 15px 0;
-  color: #242424;
+  color: var(--color-black);
   text-decoration: none;
   font-size: 18px;
   font-weight: 500;
@@ -1083,12 +1091,12 @@ body {
 .mobile-auth-btn {
   width: 100%;
   height: 55px;
-  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
+  background: var(--color-yellow);
   align-items: center;
   justify-content: center;
   display: flex;
   border: none;
-  color: #242424;
+  color: var(--color-black);
   font-size: 16px;
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
   font-weight: 600;
@@ -1101,7 +1109,7 @@ body {
 
 /* მობილური Authentication ღილაკის hover ეფექტი */
 .mobile-auth-btn:hover {
-  background: linear-gradient(135deg, #e6b000 0%, #ffc400 100%);
+  background: var(--color-yellow);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
 }
@@ -1120,7 +1128,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: var(--color-white);
   transition: left 0.5s ease;
 }
 
@@ -1138,12 +1146,12 @@ body {
 .mobile-my-page-btn {
   width: 100%;
   height: 55px;
-  background: linear-gradient(135deg, #663399 0%, #8a4cbf 100%);
+  background: var(--color-dark-gray);
   align-items: center;
   justify-content: center;
   display: flex;
   border: none;
-  color: #ffffff;
+  color: var(--color-white);
   font-size: 16px;
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
   font-weight: 600;
@@ -1157,7 +1165,7 @@ body {
 
 /* მობილური My Page ღილაკის hover ეფექტი */
 .mobile-my-page-btn:hover {
-  background: linear-gradient(135deg, #5a2d8a 0%, #7a42a8 100%);
+  background: var(--color-dark-gray);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(102, 51, 153, 0.4);
 }
@@ -1176,7 +1184,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: var(--color-white);
   transition: left 0.5s ease;
 }
 
@@ -1241,7 +1249,7 @@ body {
 
 /* Authentication მოდალის შინა კონტენტი */
 .auth-modal-content {
-  background-color: #ffffff;
+  background-color: var(--color-white);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 450px;
@@ -1276,7 +1284,7 @@ body {
   font-family: "Abhaya Libre", "Times New Roman", "Times", serif;
   font-size: 24px;
   font-weight: 700;
-  color: #242424;
+  color: var(--color-black);
   margin: 0;
 }
 
@@ -1298,8 +1306,8 @@ body {
 
 /* Authentication მოდალის დახურვის ღილაკის hover ეფექტი */
 .auth-modal-close:hover {
-  background-color: #f0f0f0;
-  color: #242424;
+  background-color: var(--color-dark-gray);
+  color: var(--color-black);
 }
 
 /* Authentication ფორმა */
@@ -1311,9 +1319,9 @@ body {
 .auth-form button[type="submit"] {
   width: 100%;
   height: 50px;
-  background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
+  background: var(--color-yellow);
   border: none;
-  color: #242424;
+  color: var(--color-black);
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
   font-size: 16px;
   font-weight: 600;
@@ -1327,7 +1335,7 @@ body {
 
 /* Authentication ფორმის submit ღილაკის hover ეფექტი */
 .auth-form button[type="submit"]:hover {
-  background: linear-gradient(135deg, #e68a00 0%, #ffc400 100%);
+  background: var(--color-yellow);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 153, 0, 0.3);
 }
@@ -1353,7 +1361,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: var(--color-white);
   transition: left 0.5s ease;
 }
 
@@ -1379,7 +1387,7 @@ body {
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  color: #242424;
+  color: var(--color-black);
   margin-bottom: 8px;
 }
 
@@ -1391,8 +1399,8 @@ body {
   border: 2px solid #e0e0e0;
   font-family: "Jost", "Arial", "Helvetica", sans-serif;
   font-size: 16px;
-  color: #242424;
-  background-color: #fafafa;
+  color: var(--color-black);
+  background-color: var(--color-dark-gray);
   transition: all 0.3s ease;
   box-sizing: border-box;
 }
@@ -1400,24 +1408,24 @@ body {
 /* ფორმის ინპუტების hover მდგომარეობა */
 .form-group input:hover, 
 .form-group textarea:hover {
-  border-color: #ffc400;
-  background-color: #ffffff;
+  border-color: var(--color-yellow);
+  background-color: var(--color-white);
 }
 
 /* ფორმის ინპუტების focus მდგომარეობა */
 .form-group input:focus, 
 .form-group textarea:focus {
   outline: none;
-  border-color: #ffc400;
+  border-color: var(--color-yellow);
   box-shadow: 0 0 0 3px rgba(255, 196, 0, 0.15);
-  background-color: #ffffff;
+  background-color: var(--color-white);
   transform: translateY(-1px);
 }
 
 /* ფორმის readonly ინპუტები */
 .form-group input[readonly], 
 .form-group textarea[readonly] {
-  background-color: #f8f8f8;
+  background-color: var(--color-dark-gray);
   color: #616161;
   cursor: not-allowed;
 }
@@ -1432,7 +1440,7 @@ body {
 
 /* ავტორიზაციის ფორმების ლინკები */
 .auth-form p a {
-  color: #ffc400;
+  color: var(--color-yellow);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
@@ -1728,7 +1736,7 @@ body {
   
   .team-info .phone {
     font-size: 14px;
-    color: #ffffff;
+    color: var(--color-white);
     margin: 0;
     padding: 0;
   }
@@ -1753,7 +1761,7 @@ body {
   
   .team-info .phone {
     font-size: 14px;
-    color: #ffffff;
+    color: var(--color-white);
     margin: 0;
     padding: 0;
     line-height: 1.2;
