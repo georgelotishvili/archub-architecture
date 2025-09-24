@@ -7,6 +7,7 @@
   --color-yellow: #ffc400;          /* ყვითელი */
   --color-white: #FFFFFF;           /* თეთრი */
   --color-purple: #663399;          /* იასამნისფერი */
+  --color-red: #900000;             /* წითელი */
 }
 
 /* ===== ზოგადი სტილები ===== */
@@ -287,8 +288,9 @@ body {
   align-items: center;
   justify-content: space-around;
   flex-wrap: wrap;
-  border-top: 5px solid var(--color-purple);
-  border-bottom: 5px solid var(--color-purple);
+  border-top: 5px solid var(--color-red);
+  border-bottom: 5px solid var(--color-red);
+  padding: 0 100px;
 }
 
 /* სექცია 1-ის მარცხენა ნაწილი - ფოტოების გალერეა */
@@ -449,7 +451,7 @@ body {
   flex-direction: column;
   gap: 5px;
   flex-wrap: wrap;
-  padding: 5px;
+  padding: 5px 0;
   position: relative;
 }
 
@@ -645,7 +647,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 5px solid var(--color-purple);
+  border-top: 5px solid var(--color-red);
   padding: 60px 0;
 }
 
@@ -1691,6 +1693,10 @@ body {
     font-size: 15px;
   }
   
+  .section-1 {
+    padding: 0;
+  }
+
   /* სექცია 2 მობილურზე */
   .section-2 {
     gap: 5px;
