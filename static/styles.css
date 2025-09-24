@@ -489,7 +489,7 @@ body {
 .carousel {
   width: 100%;
   height: 250px;
-  /* background-color: var(--color-white); -------------------------------------- */
+  background-color: var(--color-white);
   position: relative;
   overflow: hidden;
   padding-bottom: 5px;
@@ -557,8 +557,8 @@ body {
   align-items: center;
   justify-content: space-around;
   flex-wrap: wrap;
-  /* border-top: 5px solid var(--color-red);
-  border-bottom: 5px solid var(--color-red); ------------------------------*/
+  border-top: 5px solid var(--color-purple);
+  border-bottom: 5px solid var(--color-purple);
   padding: 0 100px;
   position: relative;
 }
@@ -571,7 +571,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.8);
   z-index: 1;
 }
 
@@ -731,7 +731,10 @@ body {
 /* სექცია 2-ის მთავარი კონტეინერი */
 .section-2 {
   width: 100%;
-  background-color: var(--color-white);
+  background-image: url(/static/photos/brick.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -746,19 +749,23 @@ body {
 .section-2-top-bar {
   width: 100%;
   height: 40px;
-  background-color: var(--color-dark-gray);
+  /* background-color: var(--color-dark-gray); */
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .section-2-bottom-bar {
   width: 100%;
   height: 40px;
-  background-color: var(--color-dark-gray);
+  /* background-color: var(--color-dark-gray); */
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .section-2-top-bar h3 {
@@ -952,6 +959,8 @@ body {
   justify-content: center;
   align-items: center;
   padding: 60px 0;
+  border-top: 5px solid var(--color-purple);
+  border-bottom: 5px solid var(--color-purple);
   position: relative;
 }
 
@@ -963,7 +972,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.8);
   z-index: 1;
 }
 
@@ -1171,7 +1180,7 @@ body {
 /* ===== სექცია 4 ===== */
 .sec-free-space {
   width: 100%;
-  height: 5px;
+  height: 30px;
 }
 
 /* ===== ფუტერი ===== */
