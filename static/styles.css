@@ -327,8 +327,8 @@ body {
 
 /* სექცია 1-ის მარცხენა ნაწილი - ფოტოების გალერეა */
 .section-1-left {
-  width: 600px;
-  height: 600px;
+  width: 650px;
+  height: 650px;
   position: relative;
   display: flex;
   justify-content: center;
@@ -400,6 +400,7 @@ body {
 
 /* ოვერლეი ბლოკის რიცხვი */
 .overlay-element h3 {
+  font-family: 'DejaVu Sans', sans-serif;
   font-size: 60px;
   font-weight: 600;
   color: var(--color-yellow);
@@ -414,7 +415,7 @@ body {
 
 /* სექცია 1-ის მარჯვენა ნაწილი - ტექსტური კონტენტი */
 .section-1-right {
-  width: 600px;
+  width: 650px;
   height: 650px;
   padding: 10px;
   position: relative;
@@ -914,8 +915,7 @@ body {
 }
 
 /* ფუტერის სექციების სათაურები */
-.footer-section h3, 
-.footer-section h4 {
+.footer-section h3 {
   margin-bottom: 1rem;
   color: var(--color-white);
   font-weight: 600;
@@ -1732,6 +1732,24 @@ body {
     padding: 0;
   }
 
+  /* ოვერლეი ელემენტი საშუალო მობილურზე */
+  .overlay-element {
+    width: 200px;
+    height: 80px;
+    padding: 8px;
+    gap: 1px;
+    bottom: 12%;
+    right: 1%;
+  }
+
+  .overlay-element h3 {
+    font-size: 40px;
+  }
+
+  .overlay-element p {
+    font-size: 16px;
+  }
+
   /* სექცია 2 მობილურზე */
   .section-2 {
     gap: 5px;
@@ -1896,7 +1914,7 @@ body {
   
   /* ოვერლეი ელემენტის რიცხვი მცირე ეკრანებზე */
   .overlay-element h3 {
-    font-size: 30px;
+    font-size: 22px;
   }
   
   /* პროექტების კარუსელი მცირე ეკრანებზე */
@@ -1915,7 +1933,7 @@ body {
   
   /* ოვერლეი ელემენტის ტექსტი მცირე ეკრანებზე */
   .overlay-element p {
-    font-size: 16px;
+    font-size: 10px;
   }
   
   /* გუნდის წევრის სახელი მცირე ეკრანებზე */

@@ -378,6 +378,9 @@ async function initProjectsCarousel() {
     await loadCardsFromAPI();
     renderProjectsCards();
     
+    // Set initial position to start from the middle section (original cards)
+    currentCardIndex = totalCards;
+    
     // Event listeners
     prevBtn.addEventListener('click', () => {
         console.log('Previous button clicked');
@@ -479,50 +482,22 @@ function renderProjectsCards() {
     console.log(`Rendering ${projectsCards.length} cards, totalCards=${totalCards}`);
     cardsContainer.innerHTML = '';
     
+        // Create cards with duplication for infinite loop effect
+        // Add cards at the beginning (for seamless transition from last to first)
         projectsCards.forEach((card, index) => {
-            const cardElement = document.createElement('div');
-            cardElement.className = 'project-card';
-            cardElement.setAttribute('data-original-index', index);
-            cardElement.setAttribute('data-project-id', card.id);
-            
-            // Create like button HTML (only for authenticated users)
-            const likeButtonHtml = (card.is_liked !== undefined && window.userAuthenticated) ? `
-                <button class="like-btn ${card.is_liked ? 'liked' : ''}" data-project-id="${card.id}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="${card.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                </button>
-            ` : '';
-            
-            cardElement.innerHTML = `
-                <img src="${card.image}" class="card-image">
-                <div class="card-info">
-                    <div class="card-area">${card.area}</div>
-                </div>
-                ${likeButtonHtml}
-            `;
-            
-            cardElement.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Store the original index of the card
-                card.originalIndex = index;
-                
-                // Navigate to gallery page with card data
-                openGalleryForCard(card);
-            });
-            
-            // Add like button click event listener
-            const likeBtn = cardElement.querySelector('.like-btn');
-            if (likeBtn) {
-                likeBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleLikeClick(card.id, likeBtn);
-                });
-            }
-            
+            const cardElement = createCardElement(card, index, 'prepend');
+            cardsContainer.appendChild(cardElement);
+        });
+        
+        // Add original cards in the middle
+        projectsCards.forEach((card, index) => {
+            const cardElement = createCardElement(card, index, 'middle');
+            cardsContainer.appendChild(cardElement);
+        });
+        
+        // Add cards at the end (for seamless transition from first to last)
+        projectsCards.forEach((card, index) => {
+            const cardElement = createCardElement(card, index, 'append');
             cardsContainer.appendChild(cardElement);
         });
         
@@ -532,25 +507,94 @@ function renderProjectsCards() {
         }, 50);
 }
 
+function createCardElement(card, index, position) {
+    const cardElement = document.createElement('div');
+    cardElement.className = 'project-card';
+    cardElement.setAttribute('data-original-index', index);
+    cardElement.setAttribute('data-project-id', card.id);
+    cardElement.setAttribute('data-position', position);
+    
+    // Create like button HTML (only for authenticated users)
+    const likeButtonHtml = (card.is_liked !== undefined && window.userAuthenticated) ? `
+        <button class="like-btn ${card.is_liked ? 'liked' : ''}" data-project-id="${card.id}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="${card.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+        </button>
+    ` : '';
+    
+    cardElement.innerHTML = `
+        <img src="${card.image}" class="card-image">
+        <div class="card-info">
+            <div class="card-area">${card.area}</div>
+        </div>
+        ${likeButtonHtml}
+    `;
+    
+    cardElement.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Store the original index of the card
+        card.originalIndex = index;
+        
+        // Navigate to gallery page with card data
+        openGalleryForCard(card);
+    });
+    
+    // Add like button click event listener
+    const likeBtn = cardElement.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleLikeClick(card.id, likeBtn);
+        });
+    }
+    
+    return cardElement;
+}
+
 function moveCarousel(direction) {
     if (projectsIsTransitioning || !projectsCards.length) return;
     
     projectsIsTransitioning = true;
     
     // Move to next/previous card
-    currentCardIndex = (currentCardIndex + direction + totalCards) % totalCards;
+    currentCardIndex += direction;
     
     // Debug info
     console.log(`Moving carousel: direction=${direction}, newIndex=${currentCardIndex}, totalCards=${totalCards}`);
     
     updateCarouselPosition();
     
+    // Check if we need to reset position for infinite loop
     setTimeout(() => {
+        resetCarouselPositionIfNeeded();
         projectsIsTransitioning = false;
     }, 300);
 }
 
-function updateCarouselPosition() {
+function resetCarouselPositionIfNeeded() {
+    if (!cardsContainer) return;
+    
+    const allCards = cardsContainer.querySelectorAll('.project-card');
+    const totalRenderedCards = allCards.length;
+    const originalCardsCount = totalCards;
+    
+    // If we're at the end of the duplicated cards (going forward), reset to middle section
+    if (currentCardIndex >= originalCardsCount * 2) {
+        currentCardIndex = originalCardsCount;
+        updateCarouselPosition(false); // No transition for reset
+    }
+    // If we're at the beginning of the duplicated cards (going backward), reset to middle section
+    else if (currentCardIndex < 0) {
+        currentCardIndex = originalCardsCount - 1;
+        updateCarouselPosition(false); // No transition for reset
+    }
+}
+
+function updateCarouselPosition(useTransition = true) {
     if (!cardsContainer) return;
     
     // Get carousel container width - use the full viewport width for centering
@@ -583,7 +627,11 @@ function updateCarouselPosition() {
     // Move the entire container so that the current card is centered
     const translateX = -currentCardIndex * cardTotalWidth + centerOffset;
     
-    cardsContainer.style.transition = 'transform 0.3s ease-in-out';
+    if (useTransition) {
+        cardsContainer.style.transition = 'transform 0.3s ease-in-out';
+    } else {
+        cardsContainer.style.transition = 'none';
+    }
     cardsContainer.style.transform = `translateX(${translateX}px)`;
     
     // Debug info (can be removed later)
