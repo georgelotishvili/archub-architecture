@@ -42,6 +42,11 @@ span, p, button, a {
   font-size: 16px;
 }
 
+/* ყველა button ელემენტის ფონტი */
+button {
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+}
+
 /* ყველა heading ელემენტის ზოგადი სტილი */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'BPG Nino Mtavruli Bold', sans-serif;
@@ -183,7 +188,7 @@ body {
   color: var(--color-white);
   border: 1px solid var(--color-white);
   font-size: 16px;
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-weight: 600;
   cursor: pointer;
   position: relative;
@@ -198,7 +203,7 @@ body {
   color: var(--color-white);
   border: 1px solid var(--color-white);
   font-size: 16px;
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-weight: 600;
   cursor: pointer;
   position: relative;
@@ -410,7 +415,7 @@ body {
 /* სექცია 1-ის მარჯვენა ნაწილი - ტექსტური კონტენტი */
 .section-1-right {
   width: 600px;
-  height: 600px;
+  height: 650px;
   padding: 10px;
   position: relative;
 }
@@ -783,18 +788,6 @@ body {
   object-position: center;
 }
 
-/* გუნდის წევრის ფოტოს გრადიენტი */
-.team-photo::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--color-black);
-  z-index: 1;
-}
-
 /* გუნდის წევრის ინფორმაცია */
 .team-info {
   position: absolute;
@@ -1107,7 +1100,7 @@ body {
   border: none;
   color: var(--color-black);
   font-size: 16px;
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-weight: 600;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -1162,7 +1155,7 @@ body {
   border: none;
   color: var(--color-white);
   font-size: 16px;
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1290,7 +1283,7 @@ body {
 
 /* Authentication მოდალის სათაური */
 .auth-modal-header h2 {
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: var(--color-black);
@@ -1331,7 +1324,7 @@ body {
   background: var(--color-yellow);
   border: none;
   color: var(--color-black);
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -1393,7 +1386,7 @@ body {
 /* ფორმის ლეიბლები */
 .form-group label {
   display: block;
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: var(--color-black);
@@ -1406,7 +1399,7 @@ body {
   width: 100%;
   padding: 14px 18px;
   border: 2px solid #e0e0e0;
-  font-family: 'DejaVu Sans', sans-serif;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   font-size: 16px;
   color: var(--color-black);
   background-color: var(--color-purple);

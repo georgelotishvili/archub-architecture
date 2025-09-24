@@ -20,7 +20,7 @@
         article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup,
         menu, nav, output, ruby, section, summary, time, mark, audio, video,
         button, input, select, textarea, a.button, .button, .back-btn {
-            font-family: 'DejaVu Sans', sans-serif !important;
+            font-family: 'BPG Nino Mtavruli Bold', sans-serif !important;
         }
         .admin-user-container {
             max-width: 1200px;
@@ -247,7 +247,7 @@
     </style>
 </head>
 <body>
-    <div class="admin-user-container">
+    <div class="admin-user-container" data-user-id="{{ user.id }}">
         <div class="admin-user-header">
             <h1 class="admin-user-title">{{ user.username }} - მომხმარებლის გვერდი</h1>
             <a href="/admin/users" class="back-btn">← უკან</a>
@@ -312,7 +312,7 @@
             const loadingState = document.getElementById('loadingState');
             const noProjectsState = document.getElementById('noProjectsState');
             const projectsGrid = document.getElementById('projectsGrid');
-            const userId = {{ user.id }};
+            const userId = document.querySelector('.admin-user-container').getAttribute('data-user-id');
             
             // Load user's liked projects
             async function loadUserLikedProjects() {
@@ -347,7 +347,7 @@
                     // Remove onclick event - admin should only view, not interact
                     
                     projectCard.innerHTML = `
-                        <img src="/${project.main_image_url}" alt="${project.area}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ფოტო არ არის</text+Cjwvc3ZnPg=='">
+                        <img src="/${project.main_image_url}" alt="${project.area}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5pbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg=='">
                         <div class="card-info">
                             <div class="card-area">${project.area}</div>
                         </div>
