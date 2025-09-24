@@ -54,6 +54,29 @@ body {
   justify-content: center;
 }
 
+.header-bottom-line {
+  width: 100%;
+  height: 50px;
+  background-color: var(--color-dark-gray);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  z-index: 1001;
+  /* padding: 0 20px; */
+}
+
+.header-bottom-line h1 {
+  color: var(--color-white);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
+}
+
+
 /* ჰედერის შიდა კონტეინერი */
 .header-container {
   display: flex;
@@ -107,109 +130,38 @@ body {
 }
 
 
-/* Authentication ღილაკი */
+/* ===== ღილაკების სტილები ===== */
+
+/* Authentication ღილაკი (შესვლა) */
 .auth-btn {
   width: 120px;
-  height: 45px;
-  background: var(--color-yellow);
+  height: 35px;
+  background: var(--color-white);
   border: none;
   color: var(--color-black);
-  font-size: 16px;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  font-size: 12px;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
 
-/* Authentication ღილაკის hover ეფექტი */
-.auth-btn:hover {
-  background: var(--color-yellow);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
-}
-
-/* Authentication ღილაკის active ეფექტი */
-.auth-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3);
-}
-
-/* Authentication ღილაკის shine ეფექტი */
-.auth-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--color-white);
-  transition: left 0.5s ease;
-}
-
-.auth-btn:hover::before {
-  left: 100%;
-}
-
-/* Authentication ღილაკის focus ეფექტი */
-.auth-btn:focus {
-  outline: none;
-  box-shadow: 0 4px 15px rgba(255, 196, 0, 0.3), 0 0 0 3px rgba(255, 196, 0, 0.2);
-}
-
-/* My Page ღილაკის სტილები */
+/* My Page ღილაკი (ჩემი გვერდი) */
 .my-page-btn {
   width: 120px;
-  height: 45px;
-  background: var(--color-dark-gray);
+  height: 35px;
+  background: var(--color-white);
   border: none;
-  color: var(--color-white);
-  font-size: 16px;
-  font-family: "Jost", "Arial", "Helvetica", sans-serif;
+  color: var(--color-black);
+  font-size: 12px;
+  font-family: "Noto Serif Georgian", "Times New Roman", "Times", serif;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   position: relative;
   overflow: hidden;
-  margin-left: 10px;
-}
-
-/* My Page ღილაკის hover ეფექტი */
-.my-page-btn:hover {
-  background: var(--color-dark-gray);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 51, 153, 0.4);
-}
-
-/* My Page ღილაკის active ეფექტი */
-.my-page-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3);
-}
-
-/* My Page ღილაკის shine ეფექტი */
-.my-page-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--color-white);
-  transition: left 0.5s ease;
-}
-
-.my-page-btn:hover::before {
-  left: 100%;
-}
-
-/* My Page ღილაკის focus ეფექტი */
-.my-page-btn:focus {
-  outline: none;
-  box-shadow: 0 4px 15px rgba(102, 51, 153, 0.3), 0 0 0 3px rgba(102, 51, 153, 0.2);
+  /* margin-left: 10px; */
 }
 
 /* მობილური ბურგერ მენიუ */
@@ -247,7 +199,7 @@ body {
 /* მთავარი კონტენტის კონტეინერი */
 .main {
   width: 100%;
-  padding-top: 80px;
+  padding-top: 135px;
 }
 
 /* ფოტოების კარუსელი */
