@@ -451,6 +451,8 @@ async function loadCardsFromAPI() {
                 
                 return {
                     id: project.id,
+                    title: project.title || '',
+                    description: project.description || '',
                     area: project.area,
                     image: project.main_image_url,
                     link: `card-detail.html?id=${project.id}`,
@@ -459,6 +461,9 @@ async function loadCardsFromAPI() {
                     photos: allPhotos
                 };
             });
+            
+            // ძებნისთვის ყველა პროექტის შენახვა
+            allProjects = [...projectsCards];
             
             totalCards = projectsCards.length;
         } else {
@@ -481,6 +486,8 @@ function createRandomCards() {
     
     projectsCards = sampleCards.map((card, index) => ({
         id: `card-${index}`,
+        title: `პროექტი ${index + 1}`,
+        description: `ეს არის ${index + 1}-ე პროექტის აღწერა`,
         area: card.area,
         image: card.image,
         link: `card-detail.html?id=card-${index}`,
@@ -489,6 +496,9 @@ function createRandomCards() {
             title: 'მთავარი ფოტო'
         }]
     }));
+    
+    // ძებნისთვის ყველა პროექტის შენახვა
+    allProjects = [...projectsCards];
     
     totalCards = projectsCards.length;
 }
@@ -544,6 +554,8 @@ function createCardElement(card, index, position) {
         <img src="${card.image}" class="card-image">
         <div class="card-info">
             <div class="card-area">${card.area}</div>
+            ${card.title ? `<div class="card-title" style="display: none;">${card.title}</div>` : ''}
+            ${card.description ? `<div class="card-description" style="display: none;">${card.description}</div>` : ''}
         </div>
         ${likeButtonHtml}
     `;
@@ -577,19 +589,52 @@ function moveCarousel(direction) {
     
     projectsIsTransitioning = true;
     
-    // Move to next/previous card
-    currentCardIndex += direction;
+    if (searchMode && filteredProjects.length > 0) {
+        // ძებნის რეჟიმში - მხოლოდ ნაპოვნ პროექტებზე გადავიდეს
+        moveToNextFoundProject(direction);
+    } else {
+        // ჩვეულებრივი რეჟიმი
+        currentCardIndex += direction;
+        updateCarouselPosition();
+        
+        // Check if we need to reset position for infinite loop
+        setTimeout(() => {
+            resetCarouselPositionIfNeeded();
+            projectsIsTransitioning = false;
+        }, 300);
+    }
+}
+
+// ძებნის რეჟიმში შემდეგ/წინა ნაპოვნ პროექტზე გადასვლა
+function moveToNextFoundProject(direction) {
+    if (filteredProjects.length === 0) return;
     
-    // Debug info
-    console.log(`Moving carousel: direction=${direction}, newIndex=${currentCardIndex}, totalCards=${totalCards}`);
+    // მიმდინარე ნაპოვნი პროექტის ინდექსის განახლება
+    searchCurrentIndex += direction;
     
-    updateCarouselPosition();
+    // ციკლური ნავიგაცია
+    if (searchCurrentIndex >= filteredProjects.length) {
+        searchCurrentIndex = 0;
+    } else if (searchCurrentIndex < 0) {
+        searchCurrentIndex = filteredProjects.length - 1;
+    }
     
-    // Check if we need to reset position for infinite loop
+    // შემდეგი ნაპოვნი პროექტის ქარდის პოვნა
+    const targetProject = filteredProjects[searchCurrentIndex];
+    const cardsContainer = document.querySelector('.cards-container');
+    const projectCards = cardsContainer.querySelectorAll('.project-card');
+    
+    const targetCard = Array.from(projectCards).find(card => 
+        card.dataset.projectId == targetProject.id
+    );
+    
+    if (targetCard) {
+        scrollToCard(targetCard);
+    }
+    
     setTimeout(() => {
-        resetCarouselPositionIfNeeded();
         projectsIsTransitioning = false;
-    }, 300);
+    }, 500);
 }
 
 function resetCarouselPositionIfNeeded() {
@@ -996,6 +1041,9 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
         console.error('Error initializing projects carousel:', error);
     });
     initGalleryModal();
+    
+    // ძებნის ფუნქციონალის ინიციალიზაცია
+    initSearchFunctionality();
 });
 
 // ===== კარუსელის ფოტოების ჩატვირთვის ფუნქცია =====
@@ -1110,4 +1158,188 @@ function initMainCarousel() {
     
     // კარუსელის ავტომატური გაშვება (5 წამში ერთხელ)
     setInterval(nextSlide, 5000);
+}
+
+// ===== ძებნის ფუნქციონალი =====
+let allProjects = []; // ყველა პროექტი
+let filteredProjects = []; // ფილტრირებული პროექტები
+let currentSearchTerm = ''; // მიმდინარე ძებნის ტერმინი
+let searchMode = false; // ძებნის რეჟიმი
+let searchCurrentIndex = 0; // მიმდინარე ნაპოვნი პროექტის ინდექსი
+
+// ძებნის ფუნქციონალის ინიციალიზაცია
+function initSearchFunctionality() {
+    const searchInput = document.getElementById('projectSearchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
+    const searchResultsCount = document.getElementById('searchResultsCount');
+    
+    if (!searchInput || !searchBtn || !clearSearchBtn) return;
+    
+    // ძებნის ღილაკის event listener
+    searchBtn.addEventListener('click', performSearch);
+    
+    // წმენდის ღილაკის event listener
+    clearSearchBtn.addEventListener('click', clearSearch);
+    
+    // Enter ღილაკის event listener
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+    
+    // რეალ-ტაიმ ძებნა
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        if (searchTerm.length >= 2) {
+            performSearch();
+        } else if (searchTerm.length === 0) {
+            clearSearch();
+        }
+    });
+    
+    // ძებნის შესრულება
+    function performSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        currentSearchTerm = searchTerm;
+        
+        if (searchTerm.length < 2) {
+            clearSearch();
+            return;
+        }
+        
+        // პროექტების ფილტრაცია
+        filteredProjects = allProjects.filter(project => {
+            const title = (project.title || '').toLowerCase();
+            const description = (project.description || '').toLowerCase();
+            const area = (project.area || '').toLowerCase();
+            
+            return title.includes(searchTerm) || 
+                   description.includes(searchTerm) || 
+                   area.includes(searchTerm);
+        });
+        
+        console.log(`Search term: "${searchTerm}"`);
+        console.log(`Found ${filteredProjects.length} projects:`, filteredProjects.map(p => p.title));
+        
+        // ძებნის რეჟიმის განახლება
+        searchMode = filteredProjects.length > 0;
+        searchCurrentIndex = 0;
+        
+        // შედეგების ჩვენება
+        updateSearchResults();
+        updateCarouselDisplay();
+        
+        // ძებნის ღილაკების განახლება
+        searchBtn.style.display = 'none';
+        clearSearchBtn.style.display = 'flex';
+    }
+    
+    // ძებნის წმენდა
+    function clearSearch() {
+        searchInput.value = '';
+        currentSearchTerm = '';
+        filteredProjects = [];
+        searchMode = false;
+        searchCurrentIndex = 0;
+        
+        // ყველა პროექტის ჩვენება
+        updateSearchResults();
+        updateCarouselDisplay();
+        
+        // ძებნის ღილაკების განახლება
+        searchBtn.style.display = 'flex';
+        clearSearchBtn.style.display = 'none';
+    }
+    
+    // ძებნის შედეგების განახლება
+    function updateSearchResults() {
+        if (currentSearchTerm) {
+            searchResultsCount.textContent = filteredProjects.length;
+            searchResultsInfo.style.display = 'block';
+        } else {
+            searchResultsInfo.style.display = 'none';
+        }
+    }
+    
+    // კარუსელის ჩვენების განახლება
+    function updateCarouselDisplay() {
+        const cardsContainer = document.querySelector('.cards-container');
+        if (!cardsContainer) return;
+        
+        const projectCards = cardsContainer.querySelectorAll('.project-card');
+        
+        if (searchMode && filteredProjects.length > 0) {
+            // ძებნის რეჟიმი - ყველა პროექტი ჩანს, ნაპოვნი ხაზგასმულია
+            
+            projectCards.forEach((card) => {
+                const projectId = card.dataset.projectId;
+                const isFound = filteredProjects.some(project => project.id == projectId);
+                
+                // ყველა ქარდი ჩანს
+                card.style.display = 'block';
+                card.style.opacity = '1';
+                
+                // ნაპოვნი ქარდები ხაზგასმულია
+                if (isFound) {
+                    card.classList.add('search-highlighted');
+                } else {
+                    card.classList.remove('search-highlighted');
+                }
+            });
+            
+            // პირველი ნაპოვნი პროექტისკენ სქროლვა
+            const firstFoundCard = cardsContainer.querySelector('.project-card.search-highlighted');
+            if (firstFoundCard) {
+                scrollToCard(firstFoundCard);
+            }
+        } else {
+            // ჩვეულებრივი რეჟიმი - ყველა პროექტი ჩანს
+            
+            projectCards.forEach(card => {
+                card.style.display = 'block';
+                card.style.opacity = '1';
+                card.classList.remove('search-highlighted');
+            });
+            
+            // კარუსელის საწყის პოზიციაზე დაბრუნება
+            cardsContainer.style.transform = 'translateX(0px)';
+        }
+    }
+    
+}
+
+// კონკრეტულ ქარდზე სქროლვის ფუნქცია (გლობალური)
+function scrollToCard(targetCard) {
+    const cardsContainer = document.querySelector('.cards-container');
+    if (!cardsContainer || !targetCard) return;
+    
+    const projectCards = cardsContainer.querySelectorAll('.project-card');
+    const cardIndex = Array.from(projectCards).indexOf(targetCard);
+    
+    if (cardIndex === -1) return;
+    
+    // Get responsive card dimensions based on screen width
+    let cardWidth, cardGap;
+    
+    if (window.innerWidth <= 600) {
+        cardWidth = 280;
+        cardGap = 40;
+    } else if (window.innerWidth <= 900) {
+        cardWidth = 380;
+        cardGap = 40;
+    } else {
+        cardWidth = 620;
+        cardGap = 40;
+    }
+    
+    const cardTotalWidth = cardWidth + cardGap;
+    const containerWidth = window.innerWidth;
+    const centerOffset = (containerWidth - cardWidth) / 2;
+    const translateX = -cardIndex * cardTotalWidth + centerOffset;
+    
+    cardsContainer.style.transition = 'transform 0.5s ease-in-out';
+    cardsContainer.style.transform = `translateX(${translateX}px)`;
 }

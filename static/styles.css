@@ -52,7 +52,7 @@ html {
 body {
   line-height: 1.6;
   color: var(--color-black);
-  background-image: url(/static/photos/brick.jpg);
+  background-image: url(/static/photos/brick\ 3.jpg);
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -689,7 +689,7 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 5px;
+  gap: 0;
   flex-wrap: wrap;
   position: relative;
 }
@@ -698,7 +698,6 @@ body {
 .section-2-top-bar {
   width: 100%;
   height: 40px;
-  /* background-color: var(--color-dark-gray); */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -713,8 +712,106 @@ body {
 }
 
 .section-2-top-bar h3 {
-  font-size: 20px;
+  font-size: 26px;
   color: var(--color-white);
+}
+
+/* ===== ძებნის ველის სტილები ===== */
+.search-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 480px;
+  height: 40px;
+  justify-content: center;
+  position: relative;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 6px 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--color-black);
+  padding: 6px 8px;
+  font-family: 'DejaVu Sans', sans-serif;
+  height: 20px;
+}
+
+.search-input::placeholder {
+  color: #666;
+  font-style: italic;
+}
+
+.search-btn, .clear-search-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: var(--color-purple);
+  width: 24px;
+  height: 24px;
+}
+
+.search-btn:hover, .clear-search-btn:hover {
+  background: rgba(102, 51, 153, 0.1);
+  transform: scale(1.1);
+}
+
+.clear-search-btn {
+  color: #666;
+}
+
+.clear-search-btn:hover {
+  color: var(--color-red);
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.search-results-info {
+  color: var(--color-white);
+  font-size: 12px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  height: 20px;
+  line-height: 20px;
+  position: absolute;
+  top: 100%;
+  margin-top: 2px;
+}
+
+.search-results-info span {
+  font-weight: bold;
+  color: var(--color-yellow);
 }
 
 
@@ -825,6 +922,37 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+}
+
+/* ნაპოვნი პროექტის ბარათი (ძებნის დროს) */
+.project-card.search-highlighted {
+  border: 3px solid var(--color-yellow);
+  box-shadow: 0 0 20px rgba(255, 196, 0, 0.6);
+  transform: scale(1.02);
+}
+
+/* ნაპოვნი პროექტის ბარათის ანიმაცია */
+.project-card.search-highlighted::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: linear-gradient(45deg, var(--color-yellow), var(--color-purple), var(--color-yellow));
+  border-radius: 8px;
+  z-index: -1;
+  animation: searchGlow 2s ease-in-out infinite alternate;
+}
+
+/* ნაპოვნი პროექტის ბარათის გლოუ ანიმაცია */
+@keyframes searchGlow {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 196, 0, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(255, 196, 0, 0.9);
+  }
 }
 
 /* ბარათის სურათი */
@@ -1687,13 +1815,20 @@ body {
     height: auto;
   }
   
+  /* ნაპოვნი პროექტის ბარათი მობილურზე */
+  .project-card.search-highlighted {
+    border: 2px solid var(--color-yellow);
+    box-shadow: 0 0 15px rgba(255, 196, 0, 0.5);
+    transform: scale(1.01);
+  }
+  
   .cards-container {
     gap: 40px;
   }
   
   /* სექცია 2 საშუალო ეკრანებზე */
   .section-2 {
-    gap: 5px;
+    gap: 0;
   }
   
   .form-group {
@@ -1763,7 +1898,43 @@ body {
 
   /* სექცია 2 მობილურზე */
   .section-2 {
-    gap: 5px;
+    gap: 0;
+  }
+  
+  /* ძებნის ველი მობილურზე */
+  .search-container {
+    max-width: 90%;
+    height: 40px;
+  }
+  
+  .search-box {
+    max-width: 100%;
+    height: 32px;
+    padding: 6px 10px;
+  }
+  
+  .search-input {
+    font-size: 13px;
+    padding: 6px 6px;
+    height: 20px;
+  }
+  
+  .search-btn, .clear-search-btn {
+    padding: 6px;
+    width: 22px;
+    height: 22px;
+  }
+  
+  .search-btn svg, .clear-search-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .search-results-info {
+    font-size: 11px;
+    padding: 4px 6px;
+    height: 18px;
+    line-height: 18px;
   }
   
   /* სექცია 3 მობილურზე */
@@ -1949,6 +2120,13 @@ body {
     height: auto;
   }
   
+  /* ნაპოვნი პროექტის ბარათი მცირე ეკრანებზე */
+  .project-card.search-highlighted {
+    border: 2px solid var(--color-yellow);
+    box-shadow: 0 0 10px rgba(255, 196, 0, 0.4);
+    transform: scale(1.01);
+  }
+  
   .cards-container {
     gap: 40px;
   }
@@ -1987,5 +2165,40 @@ body {
   .team-info .phone {
     font-size: 16px;
     line-height: 0.7;
+  }
+  
+  /* ძებნის ველი მცირე ეკრანებზე */
+  .search-container {
+    max-width: 95%;
+    height: 40px;
+  }
+  
+  .search-box {
+    height: 32px;
+    padding: 6px 8px;
+  }
+  
+  .search-input {
+    font-size: 12px;
+    padding: 6px 6px;
+    height: 20px;
+  }
+  
+  .search-btn, .clear-search-btn {
+    padding: 6px;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .search-btn svg, .clear-search-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .search-results-info {
+    font-size: 10px;
+    padding: 4px 6px;
+    height: 18px;
+    line-height: 18px;
   }
 }

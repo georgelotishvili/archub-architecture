@@ -194,7 +194,29 @@
             </div>
 
             <!-- ქვედა ჰორიზონტალური ზოლი -->
-            <div class="section-2-bottom-bar"></div>
+            <div class="section-2-bottom-bar">
+                <!-- ძებნის ველი -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="projectSearchInput" placeholder="ძებნა პროექტებში..." class="search-input">
+                        <button class="search-btn" id="searchBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="M21 21l-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                        <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="search-results-info" id="searchResultsInfo" style="display: none;">
+                        <span id="searchResultsCount">0</span> პროექტი ნაპოვნია
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- სექცია 3 - ჩვენი გუნდი -->
