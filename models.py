@@ -4,6 +4,7 @@
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 from extensions import db
 
 # ===== მრავალ-მრავალ კავშირის ცხრილი =====
@@ -59,3 +60,15 @@ class Photo(db.Model):
     
     def __repr__(self):
         return f'<Photo {self.id}: {self.url}>'
+
+# ===== კარუსელის ფოტოს მოდელი =====
+class CarouselImage(db.Model):
+    """კარუსელის ფოტოს მოდელი - შეიცავს მთავარი გვერდის კარუსელის ფოტოების ინფორმაციას"""
+    id = db.Column(db.Integer, primary_key=True)  # უნიკალური ID
+    url = db.Column(db.String(200), nullable=False)  # ფოტოს URL
+    order = db.Column(db.Integer, default=0)  # ფოტოს რიგითობა კარუსელში
+    is_active = db.Column(db.Boolean, default=True)  # არის თუ არა ფოტო აქტიური
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # შექმნის თარიღი
+    
+    def __repr__(self):
+        return f'<CarouselImage {self.id}: {self.url}>'

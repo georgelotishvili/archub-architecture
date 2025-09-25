@@ -39,7 +39,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # მოდელების იმპორტი models.py ფაილიდან
-from models import Project, Photo, User, project_likes
+from models import Project, Photo, User, CarouselImage, project_likes
 
 # ===== FLASK-LOGIN კონფიგურაცია =====
 # მომხმარებლის ჩატვირთვის ფუნქცია Flask-Login-ისთვის
@@ -921,6 +921,256 @@ def contact_form():
         return jsonify({
             'success': False,
             'error': 'Internal server error'
+        }), 500
+
+# ===== CAROUSEL MANAGEMENT API ENDPOINTS =====
+
+# API route to get all carousel images
+@app.route('/api/carousel')
+def get_carousel_images():
+    try:
+        # Query all active carousel images ordered by order field
+        carousel_images = CarouselImage.query.filter_by(is_active=True).order_by(CarouselImage.order.asc()).all()
+        
+        # Create JSON response
+        images_data = []
+        for image in carousel_images:
+            image_data = {
+                'id': image.id,
+                'url': image.url,
+                'order': image.order,
+                'is_active': image.is_active,
+                'created_at': image.created_at.isoformat() if image.created_at else None
+            }
+            images_data.append(image_data)
+        
+        return jsonify({
+            'success': True,
+            'images': images_data,
+            'count': len(images_data)
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to add new carousel image
+@app.route('/api/carousel', methods=['POST'])
+@login_required
+def add_carousel_image():
+    try:
+        # Check if current user is admin
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+        
+        # Check if request has file
+        if 'image' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'Image file is required'
+            }), 400
+        
+        # Get uploaded image
+        image_file = request.files['image']
+        if image_file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'Image file is required'
+            }), 400
+        
+        # Save image file
+        image_url = save_uploaded_file(image_file, 'carousel')
+        if not image_url:
+            return jsonify({
+                'success': False,
+                'error': 'Invalid image file format'
+            }), 400
+        
+        # Get order from form data (optional)
+        order = request.form.get('order', 0)
+        try:
+            order = int(order)
+        except (ValueError, TypeError):
+            order = 0
+        
+        # Create new carousel image
+        carousel_image = CarouselImage(
+            url=image_url,
+            order=order,
+            is_active=True
+        )
+        
+        db.session.add(carousel_image)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Carousel image added successfully',
+            'image': {
+                'id': carousel_image.id,
+                'url': carousel_image.url,
+                'order': carousel_image.order,
+                'is_active': carousel_image.is_active,
+                'created_at': carousel_image.created_at.isoformat() if carousel_image.created_at else None
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to update carousel image order
+@app.route('/api/carousel/<int:image_id>/order', methods=['PUT'])
+@login_required
+def update_carousel_image_order(image_id):
+    try:
+        # Check if current user is admin
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+        
+        # Find the carousel image
+        carousel_image = CarouselImage.query.get(image_id)
+        if not carousel_image:
+            return jsonify({
+                'success': False,
+                'error': f'Carousel image with ID {image_id} not found'
+            }), 404
+        
+        # Get new order from request
+        data = request.get_json()
+        new_order = data.get('order')
+        
+        if new_order is None:
+            return jsonify({
+                'success': False,
+                'error': 'Order field is required'
+            }), 400
+        
+        try:
+            new_order = int(new_order)
+        except (ValueError, TypeError):
+            return jsonify({
+                'success': False,
+                'error': 'Order must be a valid integer'
+            }), 400
+        
+        # Update order
+        carousel_image.order = new_order
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Carousel image order updated successfully',
+            'image': {
+                'id': carousel_image.id,
+                'url': carousel_image.url,
+                'order': carousel_image.order,
+                'is_active': carousel_image.is_active
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to toggle carousel image active status
+@app.route('/api/carousel/<int:image_id>/toggle', methods=['PUT'])
+@login_required
+def toggle_carousel_image_status(image_id):
+    try:
+        # Check if current user is admin
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+        
+        # Find the carousel image
+        carousel_image = CarouselImage.query.get(image_id)
+        if not carousel_image:
+            return jsonify({
+                'success': False,
+                'error': f'Carousel image with ID {image_id} not found'
+            }), 404
+        
+        # Toggle active status
+        carousel_image.is_active = not carousel_image.is_active
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Carousel image {"activated" if carousel_image.is_active else "deactivated"} successfully',
+            'image': {
+                'id': carousel_image.id,
+                'url': carousel_image.url,
+                'order': carousel_image.order,
+                'is_active': carousel_image.is_active
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# API route to delete carousel image
+@app.route('/api/carousel/<int:image_id>', methods=['DELETE'])
+@login_required
+def delete_carousel_image(image_id):
+    try:
+        # Check if current user is admin
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+        
+        # Find the carousel image
+        carousel_image = CarouselImage.query.get(image_id)
+        if not carousel_image:
+            return jsonify({
+                'success': False,
+                'error': f'Carousel image with ID {image_id} not found'
+            }), 404
+        
+        # Delete image file from filesystem
+        file_deleted = delete_uploaded_file(carousel_image.url)
+        
+        # Delete from database
+        db.session.delete(carousel_image)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Carousel image deleted successfully',
+            'deleted_image': {
+                'id': image_id,
+                'url': carousel_image.url,
+                'file_deleted': file_deleted
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
         }), 500
 
 # Run the server in debug mode when app.py is run directly

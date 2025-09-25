@@ -3,6 +3,9 @@
 // ავტორიზაცია, პროექტების ჩატვირთვა, კონტაქტ ფორმა
 
 document.addEventListener('DOMContentLoaded', function() {
+    // ===== კარუსელის ფოტოების ჩატვირთვა =====
+    loadCarouselImages();
+    
     // ===== ელემენტების არჩევა =====
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
@@ -994,3 +997,117 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
     });
     initGalleryModal();
 });
+
+// ===== კარუსელის ფოტოების ჩატვირთვის ფუნქცია =====
+async function loadCarouselImages() {
+    try {
+        console.log('Loading carousel images from API...');
+        const response = await fetch('/api/carousel');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Carousel API response:', data);
+        
+        if (data.success && data.images && data.images.length > 0) {
+            renderCarouselImages(data.images);
+        } else {
+            console.log('No carousel images found, using default images');
+            renderDefaultCarouselImages();
+        }
+    } catch (error) {
+        console.error('Error loading carousel images from API:', error);
+        console.log('Falling back to default carousel images');
+        renderDefaultCarouselImages();
+    }
+}
+
+// კარუსელის ფოტოების რენდერი API-დან
+function renderCarouselImages(images) {
+    const carouselContainer = document.getElementById('carouselContainer');
+    if (!carouselContainer) return;
+    
+    // დალაგება რიგის მიხედვით
+    const sortedImages = images.sort((a, b) => a.order - b.order);
+    
+    carouselContainer.innerHTML = sortedImages.map((image, index) => `
+        <div class="carousel-slide ${index === 0 ? 'active' : ''}">
+            <img src="${image.url}" alt="კარუსელის ფოტო">
+        </div>
+    `).join('');
+    
+    // კარუსელის ინიციალიზაცია
+    initMainCarousel();
+}
+
+// ნაგულისხმები კარუსელის ფოტოების რენდერი
+function renderDefaultCarouselImages() {
+    const carouselContainer = document.getElementById('carouselContainer');
+    if (!carouselContainer) return;
+    
+    carouselContainer.innerHTML = `
+        <!-- კარუსელის პირველი სლაიდი (აქტიური) -->
+        <div class="carousel-slide active">
+            <img src="/static/photos/car (1).jpg">
+        </div>
+        <!-- კარუსელის მეორე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (2).jpg">
+        </div>
+        <!-- კარუსელის მესამე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (3).jpg">
+        </div>
+        <!-- კარუსელის მეოთხე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (4).jpg">
+        </div>
+        <!-- კარუსელის მეხუთე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (5).jpg">
+        </div>
+        <!-- კარუსელის მეექვსე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (6).jpg">
+        </div>
+        <!-- კარუსელის მეშვიდე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (7).jpg">
+        </div>
+        <!-- კარუსელის მერვე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (8).jpg">
+        </div>
+        <!-- კარუსელის მეცხრე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (9).jpg">
+        </div>
+        <!-- კარუსელის მეათე სლაიდი -->
+        <div class="carousel-slide">
+            <img src="/static/photos/car (10).jpg">
+        </div>
+    `;
+    
+    // კარუსელის ინიციალიზაცია
+    initMainCarousel();
+}
+
+// მთავარი კარუსელის ინიციალიზაცია
+function initMainCarousel() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    let currentSlide = 0;
+    
+    if (slides.length === 0) return;
+    
+    // ავტომატური სლაიდების შეცვლა
+    function nextSlide() {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+    }
+    
+    // კარუსელის ავტომატური გაშვება (5 წამში ერთხელ)
+    setInterval(nextSlide, 5000);
+}

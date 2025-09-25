@@ -853,7 +853,388 @@ function updateMainImageDisplay(projectId, newImageUrl) {
     }
 }
 
+// ===== კარუსელის მართვის ფუნქციები =====
+let carouselImages = [];  // კარუსელის ფოტოების მასივი
+
+// კარუსელის ფოტოების ჩატვირთვა API-დან
+async function loadCarouselImages() {
+    try {
+        console.log('Loading carousel images from API...');
+        const response = await fetch('/api/carousel');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Carousel API response:', data);
+        
+        if (data.success) {
+            carouselImages = data.images || [];
+            console.log('Carousel images loaded successfully:', carouselImages);
+            renderCarouselImages();
+        } else {
+            console.error('Carousel API returned error:', data.error);
+            carouselImages = [];
+            showCarouselError('შეცდომა კარუსელის ფოტოების ჩატვირთვისას: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error loading carousel images from API:', error);
+        carouselImages = [];
+        showCarouselError('შეცდომა API-თან კავშირისას: ' + error.message);
+    }
+}
+
+// კარუსელის ფოტოების რენდერი
+function renderCarouselImages() {
+    const carouselGrid = document.getElementById('carouselGrid');
+    if (!carouselGrid) return;
+    
+    if (carouselImages.length === 0) {
+        carouselGrid.innerHTML = `
+            <div class="carousel-no-images">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21,15 16,10 5,21"></polyline>
+                </svg>
+                <h4>კარუსელის ფოტოები არ არის</h4>
+                <p>დაამატეთ პირველი ფოტო ქვემოთ მოცემული ღილაკის გამოყენებით</p>
+            </div>
+            <div class="carousel-add-card" onclick="showCarouselUploadModal()">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <h3>ახალი ფოტოს დამატება</h3>
+                <p>დააჭირეთ აქ კარუსელში ახალი ფოტოს დასამატებლად</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // დალაგება რიგის მიხედვით
+    const sortedImages = carouselImages.sort((a, b) => a.order - b.order);
+    
+    carouselGrid.innerHTML = sortedImages.map(image => `
+        <div class="carousel-card" data-image-id="${image.id}">
+            <img src="${image.url}" alt="კარუსელის ფოტო" class="carousel-card-preview">
+            <div class="carousel-card-info">
+                <div class="carousel-card-title">
+                    <span class="carousel-card-order">რიგი: ${image.order}</span>
+                    <span class="carousel-card-status ${image.is_active ? 'active' : 'inactive'}">
+                        ${image.is_active ? 'აქტიური' : 'არააქტიური'}
+                    </span>
+                </div>
+                <div class="carousel-card-details">
+                    ID: ${image.id}<br>
+                    შექმნილი: ${new Date(image.created_at).toLocaleDateString('ka-GE')}
+                </div>
+                <div class="carousel-card-actions">
+                    <button class="edit-order-btn" onclick="editCarouselImageOrder(${image.id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        რიგის რედაქტირება
+                    </button>
+                    <button class="toggle-status-btn" onclick="toggleCarouselImageStatus(${image.id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4"></path>
+                            <path d="M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"></path>
+                            <path d="M3 12c-.552 0-1-.448-1-1s.448-1 1-1 1 .448 1 1-.448 1-1 1z"></path>
+                        </svg>
+                        ${image.is_active ? 'გათიშვა' : 'ჩართვა'}
+                    </button>
+                    <button class="delete-btn" onclick="deleteCarouselImage(${image.id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"></polyline>
+                            <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                        </svg>
+                        წაშლა
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('') + `
+        <div class="carousel-add-card" onclick="showCarouselUploadModal()">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <h3>ახალი ფოტოს დამატება</h3>
+            <p>დააჭირეთ აქ კარუსელში ახალი ფოტოს დასამატებლად</p>
+        </div>
+    `;
+}
+
+// კარუსელის ფოტოს დამატება
+async function addCarouselImage() {
+    const form = document.getElementById('carouselUploadForm');
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('/api/carousel', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showCarouselSuccess('ფოტო წარმატებით დაემატა კარუსელში');
+            form.reset();
+            loadCarouselImages(); // განაახლოს სია
+            closeCarouselUploadModal(); // დახუროს მოდალური ფანჯარა
+        } else {
+            showCarouselError('შეცდომა ფოტოს დამატებისას: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error adding carousel image:', error);
+        showCarouselError('შეცდომა ფოტოს დამატებისას: ' + error.message);
+    }
+}
+
+// კარუსელის ფოტოს რიგის რედაქტირება
+function editCarouselImageOrder(imageId) {
+    const imageCard = document.querySelector(`[data-image-id="${imageId}"]`);
+    const actionsDiv = imageCard.querySelector('.carousel-card-actions');
+    
+    // შექმნას input ველი რიგისთვის
+    const orderInput = document.createElement('input');
+    orderInput.type = 'number';
+    orderInput.className = 'carousel-order-input';
+    orderInput.value = carouselImages.find(img => img.id === imageId)?.order || 0;
+    orderInput.min = '0';
+    
+    // შექმნას ღილაკები
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'save-order-btn';
+    saveBtn.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+        შენახვა
+    `;
+    saveBtn.onclick = () => saveCarouselImageOrder(imageId, orderInput.value);
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cancel-order-btn';
+    cancelBtn.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        გაუქმება
+    `;
+    cancelBtn.onclick = () => loadCarouselImages(); // განაახლოს ორიგინალური ვერსია
+    
+    // შეცვალოს actions div
+    actionsDiv.innerHTML = '';
+    actionsDiv.appendChild(orderInput);
+    actionsDiv.appendChild(saveBtn);
+    actionsDiv.appendChild(cancelBtn);
+}
+
+// კარუსელის ფოტოს რიგის შენახვა
+async function saveCarouselImageOrder(imageId, newOrder) {
+    try {
+        const response = await fetch(`/api/carousel/${imageId}/order`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ order: parseInt(newOrder) })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showCarouselSuccess('რიგი წარმატებით განახლდა');
+            loadCarouselImages(); // განაახლოს სია
+        } else {
+            showCarouselError('შეცდომა რიგის განახლებისას: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error updating carousel image order:', error);
+        showCarouselError('შეცდომა რიგის განახლებისას: ' + error.message);
+    }
+}
+
+// კარუსელის ფოტოს სტატუსის შეცვლა
+async function toggleCarouselImageStatus(imageId) {
+    try {
+        const response = await fetch(`/api/carousel/${imageId}/toggle`, {
+            method: 'PUT'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showCarouselSuccess(data.message);
+            loadCarouselImages(); // განაახლოს სია
+        } else {
+            showCarouselError('შეცდომა სტატუსის შეცვლისას: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error toggling carousel image status:', error);
+        showCarouselError('შეცდომა სტატუსის შეცვლისას: ' + error.message);
+    }
+}
+
+// კარუსელის ფოტოს წაშლა
+async function deleteCarouselImage(imageId) {
+    if (!confirm('ნამდვილად გსურთ ამ ფოტოს წაშლა კარუსელიდან?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/carousel/${imageId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showCarouselSuccess('ფოტო წარმატებით წაიშალა');
+            loadCarouselImages(); // განაახლოს სია
+        } else {
+            showCarouselError('შეცდომა ფოტოს წაშლისას: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error deleting carousel image:', error);
+        showCarouselError('შეცდომა ფოტოს წაშლისას: ' + error.message);
+    }
+}
+
+// კარუსელის შეცდომის ჩვენება
+function showCarouselError(message) {
+    const carouselGrid = document.getElementById('carouselGrid');
+    if (carouselGrid) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'text-align: center; color: #dc3545; padding: 20px; font-size: 16px; width: 90%; margin: 0 auto; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px;';
+        errorDiv.textContent = message;
+        carouselGrid.innerHTML = '';
+        carouselGrid.appendChild(errorDiv);
+    }
+}
+
+// კარუსელის წარმატების შეტყობინება
+function showCarouselSuccess(message) {
+    // შექმნას წარმატების შეტყობინება
+    const successDiv = document.createElement('div');
+    successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #d4edda; color: #155724; padding: 15px 20px; border-radius: 5px; border: 1px solid #c3e6cb; z-index: 9999; font-weight: bold;';
+    successDiv.textContent = message;
+    document.body.appendChild(successDiv);
+    
+    // ავტომატურად წაიშალოს 3 წამის შემდეგ
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 3000);
+}
+
+// კარუსელის ფოტოს ატვირთვის მოდალური ფანჯრის ჩვენება
+function showCarouselUploadModal() {
+    const modal = document.createElement('div');
+    modal.className = 'carousel-upload-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    `;
+    
+    modal.innerHTML = `
+        <div class="carousel-upload-modal-content" style="
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #663399;">ახალი ფოტოს დამატება</h3>
+                <button onclick="closeCarouselUploadModal()" style="
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #6c757d;
+                ">×</button>
+            </div>
+            <form id="carouselUploadForm" enctype="multipart/form-data">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #495057;">ფოტოს არჩევა:</label>
+                    <input type="file" id="carouselImage" name="image" accept="image/*" required style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 2px dashed #dee2e6;
+                        border-radius: 8px;
+                        background: #f8f9fa;
+                        font-size: 14px;
+                        cursor: pointer;
+                    ">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #495057;">რიგითობა:</label>
+                    <input type="number" id="carouselOrder" name="order" value="0" min="0" style="
+                        width: 100%;
+                        padding: 12px;
+                        border: 1px solid #dee2e6;
+                        border-radius: 8px;
+                        font-size: 14px;
+                    ">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeCarouselUploadModal()" style="
+                        padding: 10px 20px;
+                        border: 1px solid #dee2e6;
+                        background: white;
+                        border-radius: 6px;
+                        cursor: pointer;
+                    ">გაუქმება</button>
+                    <button type="submit" style="
+                        padding: 10px 20px;
+                        border: none;
+                        background: #663399;
+                        color: white;
+                        border-radius: 6px;
+                        cursor: pointer;
+                    ">დამატება</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // ფორმის submit event listener
+    const form = modal.querySelector('#carouselUploadForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        addCarouselImage();
+    });
+}
+
+// კარუსელის ფოტოს ატვირთვის მოდალური ფანჯრის დახურვა
+function closeCarouselUploadModal() {
+    const modal = document.querySelector('.carousel-upload-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 // ფორმის submit event listener
 document.addEventListener('DOMContentLoaded', function() {
-    // No additional event listeners needed - onclick handlers are used directly in HTML
+    // კარუსელის ფოტოების ჩატვირთვა
+    loadCarouselImages();
 });
