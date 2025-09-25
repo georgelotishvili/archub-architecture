@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let userAuthenticated = false;
     let currentUser = null;
     
-    // --- Authentication Status Check ---
+    // --- ავტორიზაციის სტატუსის შემოწმება ---
     async function checkAuthStatus() {
         try {
             const response = await fetch('/api/status');
@@ -36,8 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateAuthButtons('login');
             }
             
-            // Make authentication status available globally
+            // ავტორიზაციის სტატუსის გლობალურად ხელმისაწვდომად გაკეთება
             window.userAuthenticated = userAuthenticated;
+            
+            // ლაიქების ღილაკების ხელახალი რენდერი ავტორიზაციის სტატუსის შემოწმების შემდეგ
+            if (typeof renderProjectsCards === 'function') {
+                renderProjectsCards();
+            }
         } catch (error) {
             console.error('Error checking auth status:', error);
             userAuthenticated = false;
@@ -47,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // --- Update Authentication Buttons ---
+    // --- ავტორიზაციის ღილაკების განახლება ---
     function updateAuthButtons(state) {
         if (state === 'logout') {
             if (authBtn) {
@@ -58,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileAuthBtn.textContent = 'გასვლა';
                 mobileAuthBtn.onclick = handleLogout;
             }
-            // Show My Page buttons when logged in
+            // ჩემი გვერდის ღილაკების ჩვენება შესვლისას
             if (myPageBtn) {
                 myPageBtn.style.display = 'block';
                 myPageBtn.onclick = () => window.location.href = '/my-page';
@@ -76,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileAuthBtn.textContent = 'შესვლა';
                 mobileAuthBtn.onclick = () => openModal('loginModal');
             }
-            // Hide My Page buttons when not logged in
+            // ჩემი გვერდის ღილაკების დამალვა გამოსვლისას
             if (myPageBtn) {
                 myPageBtn.style.display = 'none';
             }
@@ -86,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // --- Logout Handler ---
+    // --- გასვლის დამუშავება ---
     async function handleLogout() {
         try {
             const response = await fetch('/api/logout', {
@@ -101,6 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentUser = null;
                 window.userAuthenticated = false;
                 updateAuthButtons('login');
+                // ლაიქების ღილაკების ხელახალი რენდერი გამოსვლის შემდეგ
+                renderProjectsCards();
                 alert('წარმატებით გამოხვედით სისტემიდან!');
                 // Reload the page to update the UI state
                 window.location.reload();
@@ -113,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // --- Modal Management ---
+    // --- მოდალური ფანჯრების მართვა ---
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -130,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add close listeners to all close buttons
+    // ყველა დახურვის ღილაკზე მოსმენის დამატება
     document.querySelectorAll('.auth-modal-close').forEach(btn => {
         btn.addEventListener('click', () => {
             const modal = btn.closest('.auth-modal');
@@ -140,10 +147,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // --- Authentication Button Events ---
-    // These will be set by updateAuthButtons function based on auth status
+    // --- ავტორიზაციის ღილაკების მოვლენები ---
+    // ეს განისაზღვრება updateAuthButtons ფუნქციით ავტორიზაციის სტატუსის მიხედვით
 
-    // --- Modal Switching ---
+    // --- მოდალური ფანჯრების გადართვა ---
     if (showRegisterModalLink) {
         showRegisterModalLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -160,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // --- Login Form Submission ---
+    // --- შესვლის ფორმის გაგზავნა ---
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -184,6 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentUser = result.user;
                     window.userAuthenticated = true;
                     updateAuthButtons('logout');
+                    // ლაიქების ღილაკების ხელახალი რენდერი ავტორიზაციის შემდეგ
+                    renderProjectsCards();
                     alert('წარმატებით შეხვედით სისტემაში!');
                     closeModal('loginModal');
                 } else {
@@ -199,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Registration Form Submission ---
+    // --- რეგისტრაციის ფორმის გაგზავნა ---
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -237,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    // --- Mobile Menu ---
+    // --- მობილური მენიუ ---
     const burger = document.querySelector('.burger-menu');
     const panel = document.getElementById('mobileNavPanel');
     const icon = document.querySelector('.burger-icon');
@@ -263,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', closeMobileMenu);
     });
 
-    // --- Projects Button ---
+    // --- პროექტების ღილაკი ---
     const projectsBtn = document.querySelector('.projects-btn');
     if (projectsBtn) {
         projectsBtn.addEventListener('click', () => {
@@ -276,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.innerWidth > 900) closeMobileMenu();
     });
 
-    // --- Team Carousel ---
+    // --- გუნდის კარუსელი ---
 let teamCurrentSlide = 0;
 let teamIsTransitioning = false;
 
@@ -288,7 +297,7 @@ function initTeamCarousel() {
     
     if (!teamCarousel || !teamSlides.length) return;
     
-        // Initialize slides
+        // სლაიდების ინიციალიზაცია
     teamSlides.forEach(slide => {
         slide.style.opacity = '0';
         slide.style.transform = 'translateX(100%)';
@@ -300,11 +309,11 @@ function initTeamCarousel() {
         teamSlides[0].style.transform = 'translateX(0)';
     }
     
-    // Event listeners
+    // მოვლენების მოსმენები
         if (nextBtn) nextBtn.addEventListener('click', () => moveTeamSlide(1));
         if (prevBtn) prevBtn.addEventListener('click', () => moveTeamSlide(-1));
     
-        // Keyboard navigation
+        // კლავიატურის ნავიგაცია
     document.addEventListener('keydown', (e) => {
         if (teamCarousel && isTeamCarouselVisible(teamCarousel)) {
             if (e.key === 'ArrowLeft') {
@@ -331,7 +340,7 @@ function moveTeamSlide(direction) {
     
     teamIsTransitioning = true;
     
-        // Hide current slide
+        // მიმდინარე სლაიდის დამალვა
     const currentSlide = teamSlides[teamCurrentSlide];
     if (currentSlide) {
         currentSlide.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -339,7 +348,7 @@ function moveTeamSlide(direction) {
         currentSlide.style.transform = direction === 1 ? 'translateX(-100%)' : 'translateX(100%)';
     }
     
-        // Show next/previous slide
+        // შემდეგი/წინა სლაიდის ჩვენება
     teamCurrentSlide = (teamCurrentSlide + direction + totalSlides) % totalSlides;
     const nextSlide = teamSlides[teamCurrentSlide];
     
@@ -360,7 +369,7 @@ function moveTeamSlide(direction) {
     }
 }
 
-    // --- Projects Carousel ---
+    // --- პროექტების კარუსელი ---
 let projectsCards = [];
 let currentCardIndex = 0;
 let projectsIsTransitioning = false;
@@ -374,19 +383,19 @@ async function initProjectsCarousel() {
     
     if (!cardsWrapper || !prevBtn || !nextBtn) return;
     
-        // Create cards container
+        // ქარდების კონტეინერის შექმნა
     cardsContainer = document.createElement('div');
     cardsContainer.className = 'cards-container';
     cardsWrapper.appendChild(cardsContainer);
     
-        // Initialize
+        // ინიციალიზაცია
     await loadCardsFromAPI();
     renderProjectsCards();
     
-    // Set initial position to start from the middle section (original cards)
+    // საწყისი პოზიციის დაყენება შუა სექციიდან (ორიგინალური ქარდები)
     currentCardIndex = totalCards;
     
-    // Event listeners
+    // მოვლენების მოსმენები
     prevBtn.addEventListener('click', () => {
         console.log('Previous button clicked');
         moveCarousel(-1);
@@ -396,18 +405,18 @@ async function initProjectsCarousel() {
         moveCarousel(1);
     });
     
-    // Recalculate position on window resize
+    // ფანჯრის ზომის შეცვლისას პოზიციის გადათვლა
     window.addEventListener('resize', () => {
         updateCarouselPosition();
     });
     
-    // Initial position update to center the first card
+    // პირველი ქარდის ცენტრირებისთვის საწყისი პოზიციის განახლება
     setTimeout(() => {
         updateCarouselPosition();
     }, 100);
 }
 
-    // Load cards from API
+    // ქარდების ჩატვირთვა API-დან
 async function loadCardsFromAPI() {
     try {
         const response = await fetch('/api/projects');
@@ -506,7 +515,7 @@ function renderProjectsCards() {
             cardsContainer.appendChild(cardElement);
         });
         
-        // Update position after rendering all cards
+        // ყველა ქარდის რენდერის შემდეგ პოზიციის განახლება
         setTimeout(() => {
             updateCarouselPosition();
         }, 50);
@@ -609,17 +618,17 @@ function updateCarouselPosition(useTransition = true) {
     let cardWidth, cardGap;
     
     if (window.innerWidth <= 600) {
-        // Mobile: 280px + 5px gap
+        // Mobile: 280px + 40px gap
         cardWidth = 280;
-        cardGap = 5;
+        cardGap = 40;
     } else if (window.innerWidth <= 900) {
-        // Tablet: 380px + 5px gap
+        // Tablet: 380px + 40px gap
         cardWidth = 380;
-        cardGap = 5;
+        cardGap = 40;
     } else {
-        // Desktop: 620px + 5px gap
+        // Desktop: 620px + 40px gap
         cardWidth = 620;
-        cardGap = 5;
+        cardGap = 40;
     }
     
     // Card width + gap
@@ -660,7 +669,7 @@ function updateCarouselButtons() {
     }
 }
 
-    // --- Gallery functionality ---
+    // --- გალერიის ფუნქციონალი ---
 function openGalleryForCard(card) {
     // Store card data for gallery modal
     window.selectedCard = card;
@@ -669,7 +678,7 @@ function openGalleryForCard(card) {
     openGalleryModal(card);
 }
 
-    // --- Gallery Modal functionality ---
+    // --- გალერიის მოდალური ფანჯრის ფუნქციონალი ---
 let galleryCurrentSlide = 0;
 let gallerySlides = [];
 let galleryDots = [];
@@ -779,7 +788,20 @@ function displayGalleryPhotos(photos) {
         slide.className = `slide ${index === 0 ? 'active' : ''}`;
         
         const photoUrl = typeof photo === 'string' ? photo : photo.url;
-        slide.innerHTML = `<img src="${photoUrl}" alt="Photo ${index + 1}">`;
+        
+        // Create like button HTML for gallery (only for authenticated users)
+        const likeButtonHtml = (window.selectedCard && window.selectedCard.is_liked !== undefined && window.userAuthenticated) ? `
+            <button class="gallery-like-btn ${window.selectedCard.is_liked ? 'liked' : ''}" data-project-id="${window.selectedCard.id}">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="${window.selectedCard.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+            </button>
+        ` : '';
+        
+        slide.innerHTML = `
+            <img src="${photoUrl}" alt="Photo ${index + 1}">
+            ${likeButtonHtml}
+        `;
         carouselContainer.appendChild(slide);
         
         // Create dot
@@ -789,7 +811,19 @@ function displayGalleryPhotos(photos) {
         dotsContainer.appendChild(dot);
     });
     
-    // Update variables
+    // Add like button click event listener for gallery (for all slides)
+    const galleryLikeBtns = document.querySelectorAll('.gallery-like-btn');
+    galleryLikeBtns.forEach(galleryLikeBtn => {
+        if (galleryLikeBtn && window.selectedCard) {
+            galleryLikeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLikeClick(window.selectedCard.id, galleryLikeBtn);
+            });
+        }
+    });
+    
+    // ცვლადების განახლება
     gallerySlides = document.querySelectorAll('#galleryCarouselContainer .slide');
     galleryDots = document.querySelectorAll('#galleryDots .dot');
     galleryTotalSlides = photos.length;
@@ -833,7 +867,7 @@ function goToGallerySlide(index) {
     }
 }
 
-    // --- Like functionality ---
+    // --- მოწონების ფუნქციონალი ---
 async function handleLikeClick(projectId, likeButton) {
     try {
         const response = await fetch(`/api/projects/${projectId}/like`, {
@@ -844,10 +878,10 @@ async function handleLikeClick(projectId, likeButton) {
         const data = await response.json();
         
         if (response.ok && data.success) {
-            // Update button visual state
+            // ღილაკის ვიზუალური მდგომარეობის განახლება
             updateLikeButton(likeButton, data.liked, data.likes_count);
             
-            // Update the project card data
+            // პროექტის ქარდის მონაცემების განახლება
             updateProjectCardData(projectId, data.liked, data.likes_count);
         } else {
             // Error handling
@@ -865,22 +899,76 @@ async function handleLikeClick(projectId, likeButton) {
     }
 }
 
-// Update like button visual state
+// მოწონების ღილაკის ვიზუალური მდგომარეობის განახლება
 function updateLikeButton(likeButton, isLiked, likesCount) {
     const svg = likeButton.querySelector('svg');
     
-    if (isLiked) {
-        likeButton.classList.add('liked');
-        svg.setAttribute('fill', '#ffffff');
-        svg.setAttribute('stroke', '#ffffff');
-    } else {
-        likeButton.classList.remove('liked');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', '#ffffff');
+    console.log('updateLikeButton called:', {
+        buttonClass: likeButton.className,
+        projectId: likeButton.getAttribute('data-project-id'),
+        isLiked: isLiked,
+        svgExists: !!svg
+    });
+    
+    if (svg) {
+        if (isLiked) {
+            likeButton.classList.add('liked');
+            svg.setAttribute('fill', '#ffffff');
+            svg.setAttribute('stroke', '#ffffff');
+            console.log('Set to LIKED - filled white heart');
+        } else {
+            likeButton.classList.remove('liked');
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', '#ffffff');
+            console.log('Set to UNLIKED - outline heart');
+        }
+    }
+    
+    // ასევე განაახლოს გალერიის ლაიქების ღილაკი (თუ არსებობს)
+    const galleryLikeBtns = document.querySelectorAll('.gallery-like-btn');
+    if (galleryLikeBtns.length > 0 && likeButton.classList.contains('like-btn')) {
+        console.log('Syncing to gallery buttons');
+        galleryLikeBtns.forEach(galleryLikeBtn => {
+            const gallerySvg = galleryLikeBtn.querySelector('svg');
+            if (gallerySvg) {
+                if (isLiked) {
+                    galleryLikeBtn.classList.add('liked');
+                    gallerySvg.setAttribute('fill', '#ffffff');
+                    gallerySvg.setAttribute('stroke', '#ffffff');
+                } else {
+                    galleryLikeBtn.classList.remove('liked');
+                    gallerySvg.setAttribute('fill', 'none');
+                    gallerySvg.setAttribute('stroke', '#ffffff');
+                }
+            }
+        });
+        console.log('Gallery buttons updated');
+    }
+    
+    // ასევე განაახლოს ქარდის ლაიქების ღილაკი (თუ გალერიაში ლაიქს აჭერენ)
+    if (likeButton.classList.contains('gallery-like-btn')) {
+        console.log('Syncing to card button');
+        const projectId = likeButton.getAttribute('data-project-id');
+        const cardLikeBtns = document.querySelectorAll(`.like-btn[data-project-id="${projectId}"]`);
+        cardLikeBtns.forEach(cardLikeBtn => {
+            const cardSvg = cardLikeBtn.querySelector('svg');
+            if (cardSvg) {
+                if (isLiked) {
+                    cardLikeBtn.classList.add('liked');
+                    cardSvg.setAttribute('fill', '#ffffff');
+                    cardSvg.setAttribute('stroke', '#ffffff');
+                } else {
+                    cardLikeBtn.classList.remove('liked');
+                    cardSvg.setAttribute('fill', 'none');
+                    cardSvg.setAttribute('stroke', '#ffffff');
+                }
+            }
+        });
+        console.log('Card buttons updated');
     }
 }
 
-// Update project card data in the projectsCards array
+// პროექტის ქარდის მონაცემების განახლება projectsCards მასივში
 function updateProjectCardData(projectId, isLiked, likesCount) {
     projectsCards.forEach(card => {
         if (card.id == projectId) {
@@ -888,15 +976,21 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
             card.likes_count = likesCount;
         }
     });
+    
+    // ასევე განაახლოს window.selectedCard (თუ ეს იგივე პროექტია)
+    if (window.selectedCard && window.selectedCard.id == projectId) {
+        window.selectedCard.is_liked = isLiked;
+        window.selectedCard.likes_count = likesCount;
+    }
 }
 
-    // --- Initialize everything ---
+    // --- ყველაფრის ინიციალიზაცია ---
+    // Check authentication status on page load first
+    checkAuthStatus();
+    
     initTeamCarousel();
     initProjectsCarousel().catch(error => {
         console.error('Error initializing projects carousel:', error);
     });
     initGalleryModal();
-    
-    // Check authentication status on page load
-    checkAuthStatus();
 });
