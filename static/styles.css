@@ -1065,7 +1065,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 60px 0;
   position: relative;
 }
 
@@ -1095,186 +1094,98 @@ body {
   flex-direction: column;
   text-align: center;
   color: var(--color-white);
-  max-width: 900px;
+  max-width: 1400px;
   width: 100%;
+  padding: 20px;
 }
 
-/* გუნდის სათაური */
-.section-3-content h2 {
-  font-size: 40px;
-  margin-bottom: 20px;
-  color: var(--color-red);
-}
-
-/* გუნდის აღწერა */
-.section-3-content p {
-  font-size: 16px;
-  margin-bottom: 40px;
-  color: var(--color-black);
-  line-height: 1.6;
-}
-
-/* გუნდის კარუსელი */
-.team-carousel {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 2/1;
-  margin: 0 auto;
-  background-color: var(--color-white);
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-/* გუნდის კარუსელის კონტეინერი */
-.team-carousel-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
+/* სექცია 3-ის პროექტების გრიდი */
+.projects-grid {
   display: flex;
-  align-items: center;
-  overflow: hidden;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 20px;
+  width: 100%;
 }
 
-/* გუნდის წევრის სლაიდი */
-.team-slide {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: var(--color-black);
-  padding: 0;
-  opacity: 0;
-  transform: translateX(100%);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-/* გუნდის წევრის ფოტო */
-.team-photo {
-  width: 100%;
-  height: 100%;
+/* სექცია 3-ის პროექტის ქარდი */
+.projects-grid .project-card {
+  width: 310px;
+  height: 233px; /* 4:3 პროპორცია (310/4*3 = 232.5) */
+  background: var(--color-white);
   overflow: hidden;
-  margin-bottom: 0;
-  border: none;
-  box-shadow: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
   position: relative;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* გუნდის წევრის ფოტოს სურათი */
-.team-photo img {
+.projects-grid .project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* სექცია 3-ის ქარდის სურათი */
+.projects-grid .card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  background: var(--color-purple);
 }
 
-/* გუნდის წევრის ინფორმაცია */
-.team-info {
+/* სექცია 3-ის ქარდის ინფორმაცია */
+.projects-grid .card-info {
   position: absolute;
-  bottom: 0px;
-  left: 0px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  width: 100%;
-  height: 30%;
-  padding: 20px;
-  gap: 0px;
-  z-index: 2;
-}
-
-/* გუნდის წევრის სახელი */
-.team-info .name {
-  font-size: 26px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.53);
   color: var(--color-white);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  text-align: left;
-  margin: 0;
-  padding: 0;
-  line-height: 1.2;
+  padding: 16px 15px 12px;
 }
 
-/* გუნდის წევრის პოზიცია */
-.team-info .position {
-  font-size: 16px;
-  color: var(--color-yellow);
-  text-align: left;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  margin: 0;
-  padding: 0;
-  line-height: 1.5;
+/* სექცია 3-ის ქარდის ფართობის ინფორმაცია */
+.projects-grid .card-area {
+  font-size: 12px;
 }
 
-/* გუნდის წევრის ტელეფონი */
-.team-info .phone {
-  font-size: 16px;
-  color: var(--color-white);
-  text-align: left;
-  text-decoration: none;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  margin: 0;
-  padding: 0;
-  line-height: 1.5;
-}
-
-/* გუნდის კარუსელის ისრები */
-.team-carousel .carousel-prev,
-.team-carousel .carousel-next {
+/* სექცია 3-ის მოწონების ღილაკი */
+.projects-grid .like-btn {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  border: 2px solid var(--color-white-80);
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
 }
 
-/* გუნდის კარუსელის ისრების hover ეფექტი */
-.team-carousel .carousel-prev:hover,
-.team-carousel .carousel-next:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-  border-color: rgb(255, 255, 255);
-  transform: translateY(-50%) scale(1.1);
+.projects-grid .like-btn:hover {
+  transform: scale(1.1);
 }
 
-/* გუნდის კარუსელის ისრების active მდგომარეობა */
-.team-carousel .carousel-prev:active,
-.team-carousel .carousel-next:active {
-  transform: translateY(-50%) scale(0.95);
+.projects-grid .like-btn.liked {
+  background: none;
+  border: none;
 }
 
-/* გუნდის კარუსელის ისრების disabled მდგომარეობა */
-.team-carousel .carousel-prev:disabled,
-.team-carousel .carousel-next:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  transform: translateY(-50%);
+.projects-grid .like-btn.liked:hover {
+  background: none;
+  border: none;
 }
 
-/* გუნდის კარუსელის წინა ისარი */
-.team-carousel .carousel-prev {
-  left: 20px;
+.projects-grid .like-btn svg {
+  transition: all 0.3s ease;
 }
 
-/* გუნდის კარუსელის შემდეგი ისარი */
-.team-carousel .carousel-next {
-  right: 20px;
-}
 
 /* ===== სექცია 4 ===== */
 .sec-free-space {
@@ -1944,23 +1855,38 @@ body {
   
   /* სექცია 3 მობილურზე */
   .section-3 {
-    padding: 40px 0;
+    padding: 20px 0;
   }
   
   .section-3-content {
     width: 95%;
     height: auto;
+    padding: 15px;
   }
-  
-  .section-3-content h2 {
-    font-size: 16px;
-    margin-bottom: 15px;
-  }
-  
-  .section-3-content p {
-    font-size: 16px;
-    margin-bottom: 30px;
+
+  /* სექცია 3-ის პროექტების გრიდი მობილურზე */
+  .projects-grid {
+    gap: 15px;
     padding: 0 10px;
+  }
+
+  /* სექცია 3-ის ქარდები მობილურზე */
+  .projects-grid .project-card {
+    width: 280px;
+    height: 210px; /* 4:3 პროპორცია (280/4*3 = 210) */
+  }
+
+  /* სექცია 3-ის მოწონების ღილაკი მობილურზე */
+  .projects-grid .like-btn {
+    width: 35px;
+    height: 35px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .projects-grid .like-btn svg {
+    width: 16px;
+    height: 16px;
   }
   
   .team-info .phone {
@@ -1996,20 +1922,6 @@ body {
     line-height: 1.2;
   }
   
-  .team-carousel .carousel-prev,
-  .team-carousel .carousel-next {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-  
-  .team-carousel .carousel-prev {
-    left: 10px;
-  }
-  
-  .team-carousel .carousel-next {
-    right: 10px;
-  }
   
   /* სექცია 2 კარუსელის ისრები მობილურზე */
   .carousel-arrow {

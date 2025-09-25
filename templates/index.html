@@ -219,116 +219,12 @@
             </div>
         </div>
 
-        <!-- სექცია 3 - ჩვენი გუნდი -->
+        <!-- სექცია 3 - პროექტების გამოფენა -->
         <div class="section-3" id="section3">
-
             <div class="section-3-content">
-                <h2>ჩვენი გუნდი</h2>
-                <p>პროფესიონალ არქიტექტორთა გუნდი, რომლის მრავალწლიანი გამოცდილება თქვენი იდეის წარმატებით განხორციელების გარანტიაა</p>
-                <!-- გუნდის წევრების კარუსელი -->
-                <div class="team-carousel">
-                    <div class="team-carousel-container">
-                        <!-- პირველი გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 1.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">გიორგი ლოთიშვილი</span>
-                                <span class="position">მთავარი არქიტექტორი, არქიტექტურის დოქტორი, პროფესორი, 
-                                    სამშენებლო დარგის ექსპერტი</span>
-                                <span class="phone">593 222 033</span>
-                            </div>
-                        </div>
-                        <!-- მეორე გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 7.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">ნათია ფოფხაძე</span>
-                                <span class="position">პროექტის მენეჯერი</span>
-                                <span class="phone">598 922 033</span>
-                            </div>
-                        </div>
-                        <!-- მესამე გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 3.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">ლაშა ფოფხაძე</span>
-                                <span class="position">ინტერიერის დიზაინერი</span>
-                                <span class="phone">593 222 033</span>
-                            </div>
-                        </div>
-                        <!-- მეოთხე გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 8.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">თამარ ლოთიშვილი</span>
-                                <span class="position">3D ვიზუალისტი</span>
-                                <span class="phone">593 222 033</span>
-                            </div>
-                        </div>
-                        <!-- მეხუთე გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 2.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">დავით თუთბერიძე</span>
-                                <span class="position">სტრუქტურული ინჟინერი</span>
-                                <span class="phone">593 222 033</span>
-                            </div>
-                        </div>
-                        <!-- მეექვსე გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 5.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">ანი ლოლაძე</span>
-                                <span class="position">ლანდშაფტის არქიტექტორი</span>
-                                <span class="phone">593 222 033</span>
-                            </div>
-                        </div>
-                        <!-- მეშვიდე გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 4.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">ირაკლი ღონღაძე</span>
-                                <span class="position">ტექნიკური პროექტის მენეჯერი</span>
-                                <span class="phone">593 222 033</span>
-                            </div>
-                        </div>
-                        <!-- მერვე გუნდის წევრი -->
-                        <div class="team-slide">
-                            <div class="team-photo">
-                                <img src="{{ url_for('static', filename='photos/fot 6.jpg') }}">
-                            </div>
-                            <div class="team-info">
-                                <span class="name">მარიამ ჯაფარიძე</span>
-                                <span class="position">კლიენტთან ურთიერთობის მენეჯერი</span>
-                                <span class="phone">593 222 033</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- გუნდის კარუსელის კონტროლები -->
-                    <button class="carousel-prev" id="teamCarouselPrev" aria-label="Previous team member">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M15 18l-6-6 6-6"/>
-                        </svg>
-                    </button>
-                    <button class="carousel-next" id="teamCarouselNext" aria-label="Next team member">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M9 18l6-6-6-6"/>
-                        </svg>
-                    </button>
+                <!-- პროექტების ქარდების კონტეინერი -->
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- პროექტების ქარდები დინამიურად დაემატება აქ -->
                 </div>
             </div>
         </div>
@@ -365,7 +261,7 @@
             </div>
             <!-- ფუტერის ქვედა ნაწილი -->
             <div class="footer-bottom">
-                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია. | <a href="{{ url_for('admin') }}" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
+                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
             </div>
         </div>
     </footer>

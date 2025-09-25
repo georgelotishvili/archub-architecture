@@ -163,6 +163,8 @@ async function deleteCard(projectId) {
                 
                 // განაახლოს ქარდების სია
                 await loadCardsFromAPI();
+                // განაახლოს მთავარი გვერდი (თუ ის ღიაა)
+                refreshMainPageIfOpen();
             } else {
                 console.error('Delete failed:', data.error);
                 showError('შეცდომა ქარდის წაშლისას: ' + data.error);
@@ -385,6 +387,8 @@ async function saveProjectUpdate(projectId) {
             
             // განაახლოს ქარდების სია
             await loadCardsFromAPI();
+            // განაახლოს მთავარი გვერდი (თუ ის ღიაა)
+            refreshMainPageIfOpen();
         } else {
             console.error('Update failed:', data.error);
             showError('შეცდომა პროექტის განახლებისას: ' + data.error);
@@ -506,6 +510,29 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin page initialization complete');
 });
 
+// მთავარი გვერდის განახლება (თუ ის ღიაა)
+function refreshMainPageIfOpen() {
+    // შეამოწმოს არის თუ არა მთავარი გვერდი ღია
+    const mainPageWindow = window.opener;
+    if (mainPageWindow && !mainPageWindow.closed) {
+        try {
+            // განაახლოს სექცია 2-ის კარუსელი
+            if (typeof mainPageWindow.initProjectsCarousel === 'function') {
+                mainPageWindow.initProjectsCarousel();
+            }
+            // განაახლოს სექცია 3-ის პროექტები
+            if (typeof mainPageWindow.initSection3Projects === 'function') {
+                mainPageWindow.initSection3Projects();
+            }
+            console.log('Main page refreshed successfully');
+        } catch (error) {
+            console.error('Error refreshing main page:', error);
+        }
+    } else {
+        console.log('Main page window not found or closed');
+    }
+}
+
 // ქარდის დამატების ღილაკის ფუნქცია
 async function addNewCard() {
     try {
@@ -525,6 +552,8 @@ async function addNewCard() {
             console.log('Empty project created successfully');
             // განაახლოს პროექტების სია
             await loadCardsFromAPI();
+            // განაახლოს მთავარი გვერდი (თუ ის ღიაა)
+            refreshMainPageIfOpen();
         } else {
             console.error('Create empty project failed:', data.error);
             showError('შეცდომა ცარიელი პროექტის შექმნისას: ' + data.error);
@@ -630,6 +659,8 @@ function addPhotosToProject(projectId) {
                 
                 // განაახლოს მთავარი ქარდების სია
                 await loadCardsFromAPI();
+                // განაახლოს მთავარი გვერდი (თუ ის ღიაა)
+                refreshMainPageIfOpen();
             } else {
                 console.error('Add photos failed:', data.error);
                 showError('შეცდომა ფოტოების დამატებისას: ' + data.error);

@@ -288,89 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.innerWidth > 900) closeMobileMenu();
     });
 
-    // --- გუნდის კარუსელი ---
-let teamCurrentSlide = 0;
-let teamIsTransitioning = false;
-
-function initTeamCarousel() {
-    const teamCarousel = document.querySelector('.team-carousel-container');
-    const teamSlides = document.querySelectorAll('.team-slide');
-    const prevBtn = document.getElementById('teamCarouselPrev');
-    const nextBtn = document.getElementById('teamCarouselNext');
-    
-    if (!teamCarousel || !teamSlides.length) return;
-    
-        // სლაიდების ინიციალიზაცია
-    teamSlides.forEach(slide => {
-        slide.style.opacity = '0';
-        slide.style.transform = 'translateX(100%)';
-        slide.style.transition = 'none';
-    });
-    
-    if (teamSlides[0]) {
-        teamSlides[0].style.opacity = '1';
-        teamSlides[0].style.transform = 'translateX(0)';
-    }
-    
-    // მოვლენების მოსმენები
-        if (nextBtn) nextBtn.addEventListener('click', () => moveTeamSlide(1));
-        if (prevBtn) prevBtn.addEventListener('click', () => moveTeamSlide(-1));
-    
-        // კლავიატურის ნავიგაცია
-    document.addEventListener('keydown', (e) => {
-        if (teamCarousel && isTeamCarouselVisible(teamCarousel)) {
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                moveTeamSlide(-1);
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                moveTeamSlide(1);
-            }
-        }
-    });
-}
-
-function isTeamCarouselVisible(carousel) {
-    const rect = carousel.closest('.section-3').getBoundingClientRect();
-    return rect.top < window.innerHeight && rect.bottom > 0;
-}
-
-function moveTeamSlide(direction) {
-    if (teamIsTransitioning) return;
-    
-    const teamSlides = document.querySelectorAll('.team-slide');
-    const totalSlides = teamSlides.length;
-    
-    teamIsTransitioning = true;
-    
-        // მიმდინარე სლაიდის დამალვა
-    const currentSlide = teamSlides[teamCurrentSlide];
-    if (currentSlide) {
-        currentSlide.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        currentSlide.style.opacity = '0';
-        currentSlide.style.transform = direction === 1 ? 'translateX(-100%)' : 'translateX(100%)';
-    }
-    
-        // შემდეგი/წინა სლაიდის ჩვენება
-    teamCurrentSlide = (teamCurrentSlide + direction + totalSlides) % totalSlides;
-    const nextSlide = teamSlides[teamCurrentSlide];
-    
-    if (nextSlide) {
-        nextSlide.style.transition = 'none';
-        nextSlide.style.opacity = '0';
-        nextSlide.style.transform = direction === 1 ? 'translateX(100%)' : 'translateX(-100%)';
-        
-        setTimeout(() => {
-            nextSlide.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            nextSlide.style.opacity = '1';
-            nextSlide.style.transform = 'translateX(0)';
-            
-            setTimeout(() => {
-                teamIsTransitioning = false;
-            }, 300);
-        }, 50);
-    }
-}
 
     // --- პროექტების კარუსელი ---
 let projectsCards = [];
@@ -379,7 +296,7 @@ let projectsIsTransitioning = false;
 let cardsContainer = null;
     let totalCards = 0;
 
-async function initProjectsCarousel() {
+window.initProjectsCarousel = async function initProjectsCarousel() {
     const cardsWrapper = document.getElementById('cardsWrapper');
     const prevBtn = document.getElementById('carouselPrev');
     const nextBtn = document.getElementById('carouselNext');
@@ -417,6 +334,101 @@ async function initProjectsCarousel() {
     setTimeout(() => {
         updateCarouselPosition();
     }, 100);
+}
+
+// ===== სექცია 3 - პროექტების გრიდი =====
+window.initSection3Projects = async function initSection3Projects() {
+    const projectsGrid = document.getElementById('projectsGrid');
+    
+    if (!projectsGrid) {
+        console.log('Projects grid not found');
+        return;
+    }
+    
+    try {
+        // Load projects from API (same data as section 2)
+        const response = await fetch('/api/projects');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.projects) {
+            // Clear existing content
+            projectsGrid.innerHTML = '';
+            
+            // Create project cards
+            data.projects.forEach(project => {
+                const cardElement = createSection3CardElement(project);
+                projectsGrid.appendChild(cardElement);
+            });
+            
+            console.log(`Section 3: Loaded ${data.projects.length} projects`);
+        } else {
+            console.error('Failed to load projects for section 3:', data.error);
+            projectsGrid.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">პროექტები ვერ ჩაიტვირთა</div>';
+        }
+    } catch (error) {
+        console.error('Error loading projects for section 3:', error);
+        projectsGrid.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">შეცდომა პროექტების ჩატვირთვისას</div>';
+    }
+}
+
+// Create card element for section 3
+function createSection3CardElement(project) {
+    const cardElement = document.createElement('div');
+    cardElement.className = 'project-card';
+    cardElement.setAttribute('data-project-id', project.id);
+    
+    // Create like button HTML (only for authenticated users)
+    const likeButtonHtml = (project.is_liked !== undefined && window.userAuthenticated) ? `
+        <button class="like-btn ${project.is_liked ? 'liked' : ''}" data-project-id="${project.id}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="${project.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+        </button>
+    ` : '';
+    
+    cardElement.innerHTML = `
+        <img src="${project.main_image_url}" class="card-image" alt="${project.area}">
+        <div class="card-info">
+            <div class="card-area">${project.area}</div>
+        </div>
+        ${likeButtonHtml}
+    `;
+    
+    // Add click event to open gallery
+    cardElement.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Create project object with photos array
+        const projectWithPhotos = {
+            id: project.id,
+            area: project.area,
+            main_image_url: project.main_image_url,
+            photos: project.photos || [],
+            is_liked: project.is_liked,
+            likes_count: project.likes_count
+        };
+        
+        // Open gallery modal (same as section 2)
+        openGalleryForCard(projectWithPhotos);
+    });
+    
+    // Add like button click event listener
+    const likeBtn = cardElement.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleLikeClick(project.id, likeBtn);
+        });
+    }
+    
+    return cardElement;
 }
 
     // ქარდების ჩატვირთვა API-დან
@@ -947,73 +959,44 @@ async function handleLikeClick(projectId, likeButton) {
     }
 }
 
+// ყველა ლაიქის ღილაკის განახლება იგივე პროექტისთვის
+function updateAllLikeButtonsForProject(projectId, isLiked) {
+    // განაახლოს ყველა ღილაკი იგივე პროექტისთვის ორივე სექციაში და გალერეაში
+    const allLikeButtons = document.querySelectorAll(`[data-project-id="${projectId}"]`);
+    
+    allLikeButtons.forEach(button => {
+        // შეამოწმოს არის თუ არა ეს ლაიქის ღილაკი (ორივე კლასი)
+        if (button.classList.contains('like-btn') || button.classList.contains('gallery-like-btn')) {
+            const svg = button.querySelector('svg');
+            if (svg) {
+                if (isLiked) {
+                    button.classList.add('liked');
+                    svg.setAttribute('fill', '#ffffff');
+                    svg.setAttribute('stroke', '#ffffff');
+                } else {
+                    button.classList.remove('liked');
+                    svg.setAttribute('fill', 'none');
+                    svg.setAttribute('stroke', '#ffffff');
+                }
+            }
+        }
+    });
+    
+    console.log(`Updated all like buttons for project ${projectId} to ${isLiked ? 'liked' : 'unliked'}`);
+}
+
 // მოწონების ღილაკის ვიზუალური მდგომარეობის განახლება
 function updateLikeButton(likeButton, isLiked, likesCount) {
-    const svg = likeButton.querySelector('svg');
+    const projectId = likeButton.getAttribute('data-project-id');
     
     console.log('updateLikeButton called:', {
         buttonClass: likeButton.className,
-        projectId: likeButton.getAttribute('data-project-id'),
-        isLiked: isLiked,
-        svgExists: !!svg
+        projectId: projectId,
+        isLiked: isLiked
     });
     
-    if (svg) {
-        if (isLiked) {
-            likeButton.classList.add('liked');
-            svg.setAttribute('fill', '#ffffff');
-            svg.setAttribute('stroke', '#ffffff');
-            console.log('Set to LIKED - filled white heart');
-        } else {
-            likeButton.classList.remove('liked');
-            svg.setAttribute('fill', 'none');
-            svg.setAttribute('stroke', '#ffffff');
-            console.log('Set to UNLIKED - outline heart');
-        }
-    }
-    
-    // ასევე განაახლოს გალერიის ლაიქების ღილაკი (თუ არსებობს)
-    const galleryLikeBtns = document.querySelectorAll('.gallery-like-btn');
-    if (galleryLikeBtns.length > 0 && likeButton.classList.contains('like-btn')) {
-        console.log('Syncing to gallery buttons');
-        galleryLikeBtns.forEach(galleryLikeBtn => {
-            const gallerySvg = galleryLikeBtn.querySelector('svg');
-            if (gallerySvg) {
-                if (isLiked) {
-                    galleryLikeBtn.classList.add('liked');
-                    gallerySvg.setAttribute('fill', '#ffffff');
-                    gallerySvg.setAttribute('stroke', '#ffffff');
-                } else {
-                    galleryLikeBtn.classList.remove('liked');
-                    gallerySvg.setAttribute('fill', 'none');
-                    gallerySvg.setAttribute('stroke', '#ffffff');
-                }
-            }
-        });
-        console.log('Gallery buttons updated');
-    }
-    
-    // ასევე განაახლოს ქარდის ლაიქების ღილაკი (თუ გალერიაში ლაიქს აჭერენ)
-    if (likeButton.classList.contains('gallery-like-btn')) {
-        console.log('Syncing to card button');
-        const projectId = likeButton.getAttribute('data-project-id');
-        const cardLikeBtns = document.querySelectorAll(`.like-btn[data-project-id="${projectId}"]`);
-        cardLikeBtns.forEach(cardLikeBtn => {
-            const cardSvg = cardLikeBtn.querySelector('svg');
-            if (cardSvg) {
-                if (isLiked) {
-                    cardLikeBtn.classList.add('liked');
-                    cardSvg.setAttribute('fill', '#ffffff');
-                    cardSvg.setAttribute('stroke', '#ffffff');
-                } else {
-                    cardLikeBtn.classList.remove('liked');
-                    cardSvg.setAttribute('fill', 'none');
-                    cardSvg.setAttribute('stroke', '#ffffff');
-                }
-            }
-        });
-        console.log('Card buttons updated');
-    }
+    // განაახლოს ყველა ღილაკი იგივე პროექტისთვის ორივე სექციაში და გალერეაში
+    updateAllLikeButtonsForProject(projectId, isLiked);
 }
 
 // პროექტის ქარდის მონაცემების განახლება projectsCards მასივში
@@ -1030,21 +1013,35 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
         window.selectedCard.is_liked = isLiked;
         window.selectedCard.likes_count = likesCount;
     }
+    
+    // სინქრონიზაცია ახლა updateLikeButton ფუნქციით ხდება
 }
+
 
     // --- ყველაფრის ინიციალიზაცია ---
     // Check authentication status on page load first
     checkAuthStatus();
     
-    initTeamCarousel();
     initProjectsCarousel().catch(error => {
         console.error('Error initializing projects carousel:', error);
+    });
+    initSection3Projects().catch(error => {
+        console.error('Error initializing section 3 projects:', error);
     });
     initGalleryModal();
     
     // ძებნის ფუნქციონალის ინიციალიზაცია
     initSearchFunctionality();
 });
+
+// ადმინის პანელის გახსნა
+function openAdminPanel() {
+    // გახსნას ადმინის გვერდი ახალ ფანჯარაში (არა _blank-ით, რომ window.opener მუშაობდეს)
+    const adminWindow = window.open('/admin', 'admin', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    
+    // შეინახოს რეფერენსი ადმინის ფანჯარაზე
+    window.adminWindow = adminWindow;
+}
 
 // ===== კარუსელის ფოტოების ჩატვირთვის ფუნქცია =====
 async function loadCarouselImages() {
