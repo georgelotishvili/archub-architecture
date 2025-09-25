@@ -690,7 +690,7 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 5px 0px;
+  background-color: var(--color-white-80);
   gap: 0;
   flex-wrap: wrap;
   position: relative;
@@ -700,21 +700,21 @@ body {
 .section-2-top-bar {
   width: 100%;
   height: 50px;
-  background-color: var(--color-white);
+  /* background-color: var(--color-white); */
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 40px;
+  /* margin-bottom: 40px; */
 }
 
 .section-2-bottom-bar {
   width: 100%;
   height: 50px;
-  background-color: var(--color-white);
+  /* background-color: var(--color-white); */
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 40px;
+  /* margin-top: 40px; */
 }
 
 .section-2-top-bar h3 {
@@ -908,7 +908,7 @@ body {
   overflow: hidden;
 }
 
-/* ბარათების კონტეინერი */
+/* ბარათების კონტეინერი ----------------------------------------------------------------*/
 .cards-container {
   display: flex;
   gap: 40px;
@@ -916,18 +916,19 @@ body {
   width: max-content;
   height: 100%;
   align-items: center;
+  border-radius: 10px;
 }
 
-/* პროექტის ბარათი */
+/* პროექტის ბარათი ----------------------------------------------------------------*/
 .project-card {
   width: 620px;
   height: auto;  
   aspect-ratio: 4/3;
   background: var(--color-white);
-  overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  border-radius: 10px;
 }
 
 /* ნაპოვნი პროექტის ბარათი (ძებნის დროს) */
@@ -961,12 +962,13 @@ body {
   }
 }
 
-/* ბარათის სურათი */
+/* ბარათის სურათი ----------------------------------------------------------------*/
 .card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   background: var(--color-purple);
+  border-radius: 10px;
 }
 
 /* ბარათის ინფორმაცია */
