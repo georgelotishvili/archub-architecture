@@ -76,7 +76,7 @@ body {
   background-color: var(--color-white-80);
   width: 100%;
   height: 80px;
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
@@ -634,6 +634,7 @@ body {
   flex-wrap: wrap;
   overflow-x: hidden;
   position: relative;
+  --s2-card-w: 450px; /* desktop default */
 }
 
 /* ===== 2. Z-INDEX მართვა ===== */
@@ -648,15 +649,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 30px 0px 30px 0px;
 }
 
 .section-2-top-bar{
-  margin: 5px 0px 35px 0px;
+  margin: 5px 0px 0px 0px;
 }
 
 .section-2-bottom-bar{
-  margin: 35px 0px 5px 0px;
+  margin: 0px 0px 5px 0px;
 }
 
 .section-2-top-bar h3 {
@@ -689,6 +689,7 @@ body {
   padding: 6px 12px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
+
 }
 
 .search-box:focus-within {
@@ -770,10 +771,11 @@ body {
 .projects-scroll-1 .carousel-container {
   position: relative;
   width: 100%;
-  min-height: 360px;
+  /* match card height exactly; vertical margin handled by .cards-container gap logic */
+  min-height: calc(var(--s2-card-w) * 3 / 4);
   height: auto;
-  padding: 16px 0; /* extra headroom for hover scale */
-  overflow: visible;
+  padding: 30px 0 30px 0; /* 30px top/bottom transparent band around cards */
+  overflow: visible; 
 }
 
 /* ===== 6. კარუსელის ნავიგაციის ისრები ===== */
@@ -839,6 +841,8 @@ body {
   position: relative;
   overflow-x: hidden;
   overflow-y: visible;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .cards-container {
@@ -849,7 +853,7 @@ body {
   overflow-y: visible;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  padding: 16px 64px;
+  padding: 0 64px;
   -webkit-overflow-scrolling: touch;
   width: 100%;
   /* hide scrollbar while keeping scroll functionality */
@@ -984,9 +988,12 @@ body {
 /* ===== 11. კარუსელის რესპონსივი სტილები ===== */
 /* საშუალო ეკრანები (900px-მდე) */
 @media (max-width: 900px) {
+  /* adjust card width variable for tablet */
+  .section-2 { --s2-card-w: 380px; }
   /* კარუსელის კონტეინერი */
   .projects-scroll-1 .carousel-container {
-    min-height: 310px;
+    /* recompute from variable */
+    min-height: calc((var(--s2-card-w) * 3 / 4) + 60px);
     height: auto;
   }
   
@@ -1043,9 +1050,11 @@ body {
 
 /* მცირე ეკრანები (600px-მდე) */
 @media (max-width: 600px) {
+  /* adjust card width variable for mobile */
+  .section-2 { --s2-card-w: 280px; }
   /* კარუსელის კონტეინერი */
   .projects-scroll-1 .carousel-container {
-    min-height: 230px;
+    min-height: calc((var(--s2-card-w) * 3 / 4) + 60px);
     height: auto;
   }
   
