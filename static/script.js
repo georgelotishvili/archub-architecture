@@ -26,21 +26,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- ავტორიზაციის სტატუსის შემოწმება ---
     async function checkAuthStatus() {
         try {
+            console.log('Checking auth status...');
             const response = await fetch('/api/status');
             const data = await response.json();
+            console.log('Auth status response:', data);
             
             if (data.logged_in) {
                 userAuthenticated = true;
                 currentUser = data.user;
                 updateAuthButtons('logout');
+                console.log('User is authenticated:', currentUser);
             } else {
                 userAuthenticated = false;
                 currentUser = null;
                 updateAuthButtons('login');
+                console.log('User is not authenticated');
             }
             
             // ავტორიზაციის სტატუსის გლობალურად ხელმისაწვდომად გაკეთება
             window.userAuthenticated = userAuthenticated;
+            console.log('window.userAuthenticated set to:', window.userAuthenticated);
             
             // ლაიქების ღილაკების ხელახალი რენდერი ავტორიზაციის სტატუსის შემოწმების შემდეგ
             if (typeof renderProjectsCards === 'function') {
@@ -383,7 +388,7 @@ function createSection3CardElement(project) {
     cardElement.setAttribute('data-project-id', project.id);
     
     // Create like button HTML (only for authenticated users)
-    const likeButtonHtml = (project.is_liked !== undefined && window.userAuthenticated) ? `
+    const likeButtonHtml = (window.userAuthenticated) ? `
         <button class="like-btn ${project.is_liked ? 'liked' : ''}" data-project-id="${project.id}">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="${project.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -554,7 +559,7 @@ function createCardElement(card, index, position) {
     cardElement.setAttribute('data-position', position);
     
     // Create like button HTML (only for authenticated users)
-    const likeButtonHtml = (card.is_liked !== undefined && window.userAuthenticated) ? `
+    const likeButtonHtml = (window.userAuthenticated) ? `
         <button class="like-btn ${card.is_liked ? 'liked' : ''}" data-project-id="${card.id}">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="${card.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -850,7 +855,7 @@ function displayGalleryPhotos(photos) {
         const photoUrl = typeof photo === 'string' ? photo : photo.url;
         
         // Create like button HTML for gallery (only for authenticated users)
-        const likeButtonHtml = (window.selectedCard && window.selectedCard.is_liked !== undefined && window.userAuthenticated) ? `
+        const likeButtonHtml = (window.userAuthenticated) ? `
             <button class="gallery-like-btn ${window.selectedCard.is_liked ? 'liked' : ''}" data-project-id="${window.selectedCard.id}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="${window.selectedCard.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -929,13 +934,24 @@ function goToGallerySlide(index) {
 
     // --- მოწონების ფუნქციონალი ---
 async function handleLikeClick(projectId, likeButton) {
+    console.log('handleLikeClick called with projectId:', projectId);
+    console.log('userAuthenticated:', window.userAuthenticated);
+    
+    if (!window.userAuthenticated) {
+        alert('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
+        return;
+    }
+    
     try {
+        console.log('Sending like request to:', `/api/projects/${projectId}/like`);
         const response = await fetch(`/api/projects/${projectId}/like`, {
             method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' }
         });
         
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (response.ok && data.success) {
             // ღილაკის ვიზუალური მდგომარეობის განახლება
