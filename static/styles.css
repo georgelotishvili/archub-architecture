@@ -844,11 +844,23 @@ body {
 .cards-container {
   display: flex;
   gap: 30px;
-  transition: transform 0.5s ease;
-  width: max-content;
-  height: 100%;
   align-items: center;
-  will-change: transform;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 16px 64px;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  /* hide scrollbar while keeping scroll functionality */
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE 10+ */
+}
+
+/* WebKit scrollbar hide for carousel track */
+.cards-container::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 /* ===== 8. პროექტის ბარათები ===== */
@@ -872,6 +884,8 @@ body {
   will-change: transform, box-shadow;
   position: relative;
   transform-origin: center;
+  scroll-snap-align: center;
+  flex: 0 0 auto; /* prevent shrinking in flex row */
 }
 
 .projects-scroll-1 .card-image {

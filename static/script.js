@@ -312,7 +312,7 @@ let projectsCards = [];
 let currentCardIndex = 0;
 let projectsIsTransitioning = false;
 let cardsContainer = null;
-    let totalCards = 0;
+let totalCards = 0;
 
 window.initProjectsCarousel = async function initProjectsCarousel() {
     const cardsWrapper = document.getElementById('cardsWrapper');
@@ -330,7 +330,7 @@ window.initProjectsCarousel = async function initProjectsCarousel() {
     await loadCardsFromAPI();
     renderProjectsCards();
     
-    // საწყისი პოზიციის დაყენება შუა სექციიდან (ორიგინალური ქარდები)
+    // საწყისი ინდექსი შუა სექციაზე (ინფინიტ ციკლისთვის)
     currentCardIndex = totalCards;
     
     // მოვლენების მოსმენები
@@ -352,6 +352,13 @@ window.initProjectsCarousel = async function initProjectsCarousel() {
     setTimeout(() => {
         updateCarouselPosition();
     }, 100);
+
+    // scroll-ის დასრულების შემდეგ უხილავი გადაყვანა შუა სექციაში
+    const onCardsScroll = debounce(() => {
+        snapNearestIndexToCurrent();
+        resetCarouselPositionIfNeeded();
+    }, 160);
+    cardsContainer.addEventListener('scroll', onCardsScroll);
 }
 
 // ===== სექცია 3 - პროექტების გრიდი =====
@@ -558,10 +565,10 @@ function renderProjectsCards() {
             cardsContainer.appendChild(cardElement);
         });
         
-        // ყველა ქარდის რენდერის შემდეგ პოზიციის განახლება
-        setTimeout(() => {
-            updateCarouselPosition();
-        }, 50);
+    // scroll-snap იყენებს ბრაუზერი; ცენტრირებისთვის ერთი ბარათის დაყოვნებით გასქროლვა
+    setTimeout(() => {
+        scrollToCard(cardsContainer.querySelector('.project-card'));
+    }, 50);
 }
 
 function createCardElement(card, index, position) {
@@ -615,24 +622,19 @@ function createCardElement(card, index, position) {
 }
 
 function moveCarousel(direction) {
-    if (projectsIsTransitioning || !projectsCards.length) return;
+    if (!cardsContainer) return;
+    const projectCards = cardsContainer.querySelectorAll('.project-card');
+    if (!projectCards.length) return;
     
-    projectsIsTransitioning = true;
-    
-    if (searchMode && filteredProjects.length > 0) {
-        // ძებნის რეჟიმში - მხოლოდ ნაპოვნ პროექტებზე გადავიდეს
-        moveToNextFoundProject(direction);
-    } else {
-        // ჩვეულებრივი რეჟიმი
-        currentCardIndex += direction;
-        updateCarouselPosition();
-        
-        // Check if we need to reset position for infinite loop
-        setTimeout(() => {
-            resetCarouselPositionIfNeeded();
-            projectsIsTransitioning = false;
-        }, 300);
-    }
+    // infinite: allow index to move, but clamp the element index we scroll to
+    currentCardIndex += direction;
+    const clampedIndex = Math.max(0, Math.min(projectCards.length - 1, currentCardIndex));
+    projectCards[clampedIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+    // After scroll animation, snap back to middle clone range
+    setTimeout(() => {
+        resetCarouselPositionIfNeeded();
+    }, 360);
 }
 
 // ძებნის რეჟიმში შემდეგ/წინა ნაპოვნ პროექტზე გადასვლა
@@ -669,72 +671,47 @@ function moveToNextFoundProject(direction) {
 
 function resetCarouselPositionIfNeeded() {
     if (!cardsContainer) return;
-    
-    const allCards = cardsContainer.querySelectorAll('.project-card');
-    const totalRenderedCards = allCards.length;
-    const originalCardsCount = totalCards;
-    
-    // If we're at the end of the duplicated cards (going forward), reset to middle section
-    if (currentCardIndex >= originalCardsCount * 2) {
-        currentCardIndex = originalCardsCount;
-        updateCarouselPosition(false); // No transition for reset
-    }
-    // If we're at the beginning of the duplicated cards (going backward), reset to middle section
-    else if (currentCardIndex < 0) {
-        currentCardIndex = originalCardsCount - 1;
-        updateCarouselPosition(false); // No transition for reset
+    const projectCards = cardsContainer.querySelectorAll('.project-card');
+    const original = totalCards;
+    if (original === 0 || projectCards.length === 0) return;
+
+    const minMiddle = original; // first index of the middle set
+    const maxMiddle = original * 2 - 1; // last index of the middle set
+
+    // helper: compute total width (card + gap)
+    const getCardStep = () => {
+        if (projectCards.length < 2) {
+            // fallback to measured width or default gap 30
+            const w = projectCards[0]?.getBoundingClientRect().width || 450;
+            return w + 30;
+        }
+        const r1 = projectCards[0].getBoundingClientRect();
+        const r2 = projectCards[1].getBoundingClientRect();
+        return Math.round(r2.left - r1.left);
+    };
+
+    const segmentWidth = getCardStep() * original;
+
+    if (currentCardIndex > maxMiddle) {
+        // move the scroll by exactly one segment to keep the same visual card
+        currentCardIndex = currentCardIndex - original;
+        cardsContainer.scrollLeft -= segmentWidth;
+    } else if (currentCardIndex < minMiddle) {
+        currentCardIndex = currentCardIndex + original;
+        cardsContainer.scrollLeft += segmentWidth;
     }
 }
 
-function updateCarouselPosition(useTransition = true) {
+function updateCarouselPosition() {
     if (!cardsContainer) return;
-    
-    // Get carousel container width - use the full viewport width for centering
-    const containerWidth = window.innerWidth;
-    
-    // Get responsive card dimensions based on screen width
-    let cardWidth, cardGap;
-    
-    if (window.innerWidth <= 600) {
-        // Mobile: 280px + 30px gap
-        cardWidth = 280;
-        cardGap = 30;
-    } else if (window.innerWidth <= 900) {
-        // Tablet: 380px + 30px gap
-        cardWidth = 380;
-        cardGap = 30;
-    } else {
-        // Desktop: 450px + 30px gap
-        cardWidth = 450;
-        cardGap = 30;
-    }
-    
-    // Card width + gap
-    const cardTotalWidth = cardWidth + cardGap;
-    
-    // Calculate center offset: (container width - card width) / 2
-    // This ensures the current card is always centered horizontally
-    const centerOffset = (containerWidth - cardWidth) / 2;
-    
-    // Move the entire container so that the current card is centered
-    const translateX = -currentCardIndex * cardTotalWidth + centerOffset;
-    
-    if (useTransition) {
-        cardsContainer.style.transition = 'transform 0.3s ease-in-out';
-    } else {
-        cardsContainer.style.transition = 'none';
-    }
-    cardsContainer.style.transform = `translateX(${translateX}px)`;
-    
-    // Debug info (can be removed later)
-    console.log(`Carousel Debug:
-        Container Width: ${containerWidth}px
-        Card Width: ${cardWidth}px
-        Card Gap: ${cardGap}px
-        Card Total Width: ${cardTotalWidth}px
-        Current Index: ${currentCardIndex}
-        Center Offset: ${centerOffset}px
-        Translate X: ${translateX}px`);
+    const cards = cardsContainer.querySelectorAll('.project-card');
+    if (!cards.length) return;
+    // center by direct scrollLeft math to avoid unexpected snapping
+    const card = cards[currentCardIndex];
+    const cardRect = card.getBoundingClientRect();
+    const containerRect = cardsContainer.getBoundingClientRect();
+    const delta = (cardRect.left + cardRect.width / 2) - (containerRect.left + containerRect.width / 2);
+    cardsContainer.scrollLeft += delta;
 }
 
 function updateCarouselButtons() {
@@ -1393,31 +1370,18 @@ function initSearchFunctionality() {
 function scrollToCard(targetCard) {
     const cardsContainer = document.querySelector('.cards-container');
     if (!cardsContainer || !targetCard) return;
-    
-    const projectCards = cardsContainer.querySelectorAll('.project-card');
-    const cardIndex = Array.from(projectCards).indexOf(targetCard);
-    
-    if (cardIndex === -1) return;
-    
-    // Get responsive card dimensions based on screen width
-    let cardWidth, cardGap;
-    
-    if (window.innerWidth <= 600) {
-        cardWidth = 280;
-        cardGap = 30;
-    } else if (window.innerWidth <= 900) {
-        cardWidth = 380;
-        cardGap = 30;
-    } else {
-        cardWidth = 450;
-        cardGap = 30;
-    }
-    
-    const cardTotalWidth = cardWidth + cardGap;
-    const containerWidth = window.innerWidth;
-    const centerOffset = (containerWidth - cardWidth) / 2;
-    const translateX = -cardIndex * cardTotalWidth + centerOffset;
-    
-    cardsContainer.style.transition = 'transform 0.5s ease-in-out';
-    cardsContainer.style.transform = `translateX(${translateX}px)`;
+    const projectCards = Array.from(cardsContainer.querySelectorAll('.project-card'));
+    const clonesForSameProject = projectCards
+        .map((el, idx) => ({ el, idx }))
+        .filter(({ el }) => el.dataset.projectId === targetCard.dataset.projectId);
+    if (clonesForSameProject.length === 0) return;
+    // pick the clone closest to current index for smoother loop
+    const nearest = clonesForSameProject.reduce((best, cur) => {
+        const dBest = Math.abs(best.idx - currentCardIndex);
+        const dCur = Math.abs(cur.idx - currentCardIndex);
+        return dCur < dBest ? cur : best;
+    });
+    currentCardIndex = nearest.idx;
+    nearest.el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    setTimeout(() => resetCarouselPositionIfNeeded(), 360);
 }
