@@ -683,17 +683,17 @@ function updateCarouselPosition(useTransition = true) {
     let cardWidth, cardGap;
     
     if (window.innerWidth <= 600) {
-        // Mobile: 280px + 40px gap
+        // Mobile: 280px + 30px gap
         cardWidth = 280;
-        cardGap = 40;
+        cardGap = 30;
     } else if (window.innerWidth <= 900) {
-        // Tablet: 380px + 40px gap
+        // Tablet: 380px + 30px gap
         cardWidth = 380;
-        cardGap = 40;
+        cardGap = 30;
     } else {
-        // Desktop: 620px + 40px gap
-        cardWidth = 620;
-        cardGap = 40;
+        // Desktop: 450px + 30px gap
+        cardWidth = 450;
+        cardGap = 30;
     }
     
     // Card width + gap
@@ -1336,13 +1336,13 @@ function scrollToCard(targetCard) {
     
     if (window.innerWidth <= 600) {
         cardWidth = 280;
-        cardGap = 40;
+        cardGap = 30;
     } else if (window.innerWidth <= 900) {
         cardWidth = 380;
-        cardGap = 40;
+        cardGap = 30;
     } else {
-        cardWidth = 620;
-        cardGap = 40;
+        cardWidth = 450;
+        cardGap = 30;
     }
     
     const cardTotalWidth = cardWidth + cardGap;
