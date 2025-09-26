@@ -219,7 +219,7 @@ function editCard(projectId) {
                 <input 
                     type="text" 
                     id="editArea" 
-                    value="${project.area}" 
+                    value="" 
                     style="
                         width: 100%;
                         padding: 12px;
@@ -324,6 +324,10 @@ function editCard(projectId) {
     // დაემატოს მოდალი DOM-ში
     document.body.appendChild(modal);
     
+    // უსაფრთხოების გაუმჯობესება: XSS-ისგან დაცვა
+    const editAreaInput = document.getElementById('editArea');
+    if (editAreaInput) editAreaInput.value = project.area;
+
     // ჩატვირთოს გალერეის ფოტოები
     loadEditGalleryPhotos(project);
     

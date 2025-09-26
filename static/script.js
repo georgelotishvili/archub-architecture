@@ -117,8 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // ლაიქების ღილაკების ხელახალი რენდერი გამოსვლის შემდეგ
                 renderProjectsCards();
                 alert('წარმატებით გამოხვედით სისტემიდან!');
-                // Reload the page to update the UI state
-                window.location.reload();
+                // გადამისამართება მთავარ გვერდზე, რათა თავიდან ავიცილოთ შეცდომები დაცულ გვერდებზე
+                window.location.href = '/';
             } else {
                 alert('შეცდომა გასვლისას: ' + (data.error || 'უცნობი შეცდომა'));
             }
@@ -971,6 +971,27 @@ async function handleLikeClick(projectId, likeButton) {
             
             // პროექტის ქარდის მონაცემების განახლება
             updateProjectCardData(projectId, data.liked, data.likes_count);
+            
+            // რეალ-ტაიმ განახლება my_page-ისთვის
+            if (data.liked) {
+                // პროექტი ლაიქდა
+                localStorage.setItem('projectLiked', JSON.stringify({
+                    projectId: projectId,
+                    timestamp: Date.now()
+                }));
+                window.dispatchEvent(new CustomEvent('projectLiked', {
+                    detail: { projectId: projectId }
+                }));
+            } else {
+                // პროექტი ანლაიქდა
+                localStorage.setItem('projectUnliked', JSON.stringify({
+                    projectId: projectId,
+                    timestamp: Date.now()
+                }));
+                window.dispatchEvent(new CustomEvent('projectUnliked', {
+                    detail: { projectId: projectId }
+                }));
+            }
         } else {
             // Error handling
             const errorMessage = data.error || 'შეცდომა მოწონებისას';
@@ -1046,6 +1067,30 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
 }
 
 
+    // --- რეალ-ტაიმ განახლების ფუნქციონალი ---
+    function setupRealtimeUpdates() {
+        // მოსმენა localStorage ცვლილებების
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'projectLiked' || e.key === 'projectUnliked') {
+                console.log('Project like status changed, updating UI...');
+                // განაახლოს ყველა ლაიქის ღილაკი
+                const data = JSON.parse(e.newValue);
+                updateAllLikeButtonsForProject(data.projectId, e.key === 'projectLiked');
+            }
+        });
+        
+        // მოსმენა custom events-ების
+        window.addEventListener('projectLiked', function(e) {
+            console.log('Project liked event received:', e.detail);
+            updateAllLikeButtonsForProject(e.detail.projectId, true);
+        });
+        
+        window.addEventListener('projectUnliked', function(e) {
+            console.log('Project unliked event received:', e.detail);
+            updateAllLikeButtonsForProject(e.detail.projectId, false);
+        });
+    }
+
     // --- ყველაფრის ინიციალიზაცია ---
     // Check authentication status on page load first
     checkAuthStatus();
@@ -1057,6 +1102,7 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
         console.error('Error initializing section 3 projects:', error);
     });
     initGalleryModal();
+    setupRealtimeUpdates();
     
     // ძებნის ფუნქციონალის ინიციალიზაცია
     initSearchFunctionality();
@@ -1299,16 +1345,14 @@ function initSearchFunctionality() {
             projectCards.forEach((card) => {
                 const projectId = card.dataset.projectId;
                 const isFound = filteredProjects.some(project => project.id == projectId);
-                
-                // ყველა ქარდი ჩანს
-                card.style.display = 'block';
-                card.style.opacity = '1';
-                
-                // ნაპოვნი ქარდები ხაზგასმულია
+
                 if (isFound) {
+                    // ვაჩვენებთ და ვანიჭებთ კლასს
+                    card.style.display = 'block';
                     card.classList.add('search-highlighted');
                 } else {
-                    card.classList.remove('search-highlighted');
+                    // ვმალავთ არანაპოვნ ქარდებს
+                    card.style.display = 'none';
                 }
             });
             

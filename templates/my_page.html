@@ -240,7 +240,7 @@
                     <!-- Loading State -->
                     <div class="loading" id="loadingState">
                         <h3>იტვირთება...</h3>
-                        <p>მოწონებული პროექტების ჩატვირთვა</p>
+                        <p>ავტორიზაციის შემოწმება და მოწონებული პროექტების ჩატვირთვა</p>
                     </div>
                     
                     <!-- No Projects State -->
@@ -317,6 +317,30 @@
                 currentUser = null;
                 window.userAuthenticated = false;
             }
+            return userAuthenticated;
+        }
+        
+        // ===== რეალ-ტაიმ განახლების ფუნქციონალი =====
+        // ლაიქების მოსმენა localStorage-იდან
+        function setupRealtimeUpdates() {
+            // მოსმენა localStorage ცვლილებების
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'projectLiked' || e.key === 'projectUnliked') {
+                    console.log('Project like status changed, reloading liked projects...');
+                    loadLikedProjects();
+                }
+            });
+            
+            // მოსმენა custom events-ების
+            window.addEventListener('projectLiked', function(e) {
+                console.log('Project liked event received:', e.detail);
+                loadLikedProjects();
+            });
+            
+            window.addEventListener('projectUnliked', function(e) {
+                console.log('Project unliked event received:', e.detail);
+                loadLikedProjects();
+            });
         }
         
         // ===== გალერიის მოდალური ფანჯრის ფუნქციონალი (copied from main script.js) =====
@@ -399,8 +423,18 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuthStatus();
+            checkAuthStatus().then(() => {
+                if (!userAuthenticated) {
+                    // Redirect to main page if not authenticated
+                    alert('პირადი გვერდის ნახვისთვის აუცილებელია შესვლა');
+                    window.location.href = '/';
+                    return;
+                }
+                // Load liked projects only if authenticated (defer to ensure functions are defined)
+                setTimeout(() => { if (typeof window.loadLikedProjects === 'function') { window.loadLikedProjects(); } }, 0);
+            });
             initGalleryModal();
+            setupRealtimeUpdates();
         });
     </script>
     
@@ -432,6 +466,8 @@
                     noProjectsState.style.display = 'block';
                 }
             }
+            // Expose for other scripts
+            window.loadLikedProjects = loadLikedProjects;
             
             // Display projects in grid
             function displayProjects(projects) {
@@ -495,6 +531,15 @@
                     if (response.ok && data.success) {
                         // Remove the card from the grid
                         projectCard.remove();
+                        
+                        // რეალ-ტაიმ განახლება მთავარი გვერდისთვის
+                        localStorage.setItem('projectUnliked', JSON.stringify({
+                            projectId: projectId,
+                            timestamp: Date.now()
+                        }));
+                        window.dispatchEvent(new CustomEvent('projectUnliked', {
+                            detail: { projectId: projectId }
+                        }));
                         
                         // Check if there are any remaining projects
                         const remainingProjects = document.querySelectorAll('.project-card');
@@ -656,8 +701,7 @@
                 }
             });
             
-            // Load liked projects on page load
-            loadLikedProjects();
+            // Liked projects are now loaded conditionally in the auth check above
         });
     </script>
 </body>

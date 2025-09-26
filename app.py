@@ -1,6 +1,7 @@
 # ===== ARCHUB - არქიტექტურული პორტფოლიო ვებ-აპლიკაცია =====
 # ეს არის მთავარი Flask აპლიკაციის ფაილი
 # შეიცავს: API endpoints, routes, file upload ფუნქციები, authentication
+from sqlalchemy import func
 
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
@@ -89,10 +90,19 @@ def delete_uploaded_file(file_url):
     """Delete uploaded file from filesystem"""
     try:
         if file_url and file_url.startswith('static/uploads/'):
-            basedir = os.path.abspath(os.path.dirname(__file__))
-            file_path = os.path.join(basedir, file_url)
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            # უსაფრთხოების კრიტიკული ფიქსი: Path Traversal შეტევისგან დაცვა
+            upload_folder_abs = os.path.abspath(app.config['UPLOAD_FOLDER'])
+            
+            # ფაილის მისამართის ნორმალიზება (მაგ. ../../ აღმოფხვრა) და უსაფრთხო შეერთება
+            file_path_abs = os.path.abspath(os.path.join(upload_folder_abs, os.path.basename(file_url)))
+            
+            # შემოწმება, რომ ფაილი ნამდვილად uploads საქაღალდეშია
+            if not file_path_abs.startswith(upload_folder_abs):
+                print(f"SECURITY WARNING: Attempted to delete file outside of upload folder: {file_url}")
+                return False
+            
+            if os.path.exists(file_path_abs):
+                os.remove(file_path_abs)
                 return True
     except Exception as e:
         print(f"Error deleting file {file_url}: {e}")
@@ -142,27 +152,40 @@ def admin_view_user(user_id):
 @app.route('/api/projects')
 def get_projects():
     try:
-        # Query all projects from database
-        projects = Project.query.all()
+        # N+1 პრობლემის გადაჭრა: Subquery მოწონებების დასათვლელად
+        likes_count_subquery = db.session.query(
+            project_likes.c.project_id,
+            func.count(project_likes.c.user_id).label('likes_count')
+        ).group_by(project_likes.c.project_id).subquery()
+
+        # მთავარი მოთხოვნა პროექტების და მოწონებების რაოდენობის მისაღებად
+        query = db.session.query(
+            Project,
+            likes_count_subquery.c.likes_count
+        ).outerjoin(
+            likes_count_subquery, Project.id == likes_count_subquery.c.project_id
+        )
+
+        projects_with_counts = query.all()
         
         # Create JSON response
         projects_data = []
-        for project in projects:
+        for project, likes_count in projects_with_counts:
             # Get all photo URLs for this project
             photo_urls = [photo.url for photo in project.photos]
-            
+
             # Check if current user has liked this project
             is_liked = False
             if current_user.is_authenticated:
                 is_liked = project in current_user.liked_projects
-            
+
             project_data = {
                 'id': project.id,
                 'area': project.area,
                 'main_image_url': project.main_image_url,
                 'photos': photo_urls,
                 'is_liked': is_liked,
-                'likes_count': project.liked_by_users.count()
+                'likes_count': likes_count or 0
             }
             projects_data.append(project_data)
         
@@ -264,8 +287,16 @@ def create_project():
 
 # API route to create empty project
 @app.route('/api/projects/empty', methods=['POST'])
+@login_required
 def create_empty_project():
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია პროექტის შექმნა
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Create new empty project with default area
         project = Project(
             area='ახალი პროექტი',
@@ -786,31 +817,46 @@ def like_project(project_id):
 @login_required
 def get_user_liked_projects():
     try:
-        # Get all liked projects for current user
-        liked_projects = current_user.liked_projects.all()
-        
+        # N+1 პრობლემის გადაჭრა: Subquery მოწონებების დასათვლელად
+        likes_count_subquery = db.session.query(
+            project_likes.c.project_id,
+            func.count(project_likes.c.user_id).label('likes_count')
+        ).group_by(project_likes.c.project_id).subquery()
+
+        # მომხმარებლის მიერ მოწონებული პროექტები: join project_likes ტაბლოზე და ფილტრი მიმდინარე მომხმარებელზე
+        liked_projects_with_counts = db.session.query(
+            Project,
+            likes_count_subquery.c.likes_count
+        ).join(
+            project_likes, Project.id == project_likes.c.project_id
+        ).filter(
+            project_likes.c.user_id == current_user.id
+        ).outerjoin(
+            likes_count_subquery, Project.id == likes_count_subquery.c.project_id
+        ).all()
+
         # Create JSON response
         projects_data = []
-        for project in liked_projects:
+        for project, likes_count in liked_projects_with_counts:
             # Get all photo URLs for this project
             photo_urls = [photo.url for photo in project.photos]
-            
+
             project_data = {
                 'id': project.id,
                 'area': project.area,
                 'main_image_url': project.main_image_url,
                 'photos': photo_urls,
                 'is_liked': True,  # Always true for liked projects
-                'likes_count': project.liked_by_users.count()
+                'likes_count': likes_count or 0
             }
             projects_data.append(project_data)
-        
+
         return jsonify({
             'success': True,
             'projects': projects_data,
             'count': len(projects_data)
         })
-    
+
     except Exception as e:
         return jsonify({
             'success': False,
