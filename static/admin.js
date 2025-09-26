@@ -512,25 +512,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // მთავარი გვერდის განახლება (თუ ის ღიაა)
 function refreshMainPageIfOpen() {
-    // შეამოწმოს არის თუ არა მთავარი გვერდი ღია
-    const mainPageWindow = window.opener;
-    if (mainPageWindow && !mainPageWindow.closed) {
-        try {
-            // განაახლოს სექცია 2-ის კარუსელი
-            if (typeof mainPageWindow.initProjectsCarousel === 'function') {
-                mainPageWindow.initProjectsCarousel();
-            }
-            // განაახლოს სექცია 3-ის პროექტები
-            if (typeof mainPageWindow.initSection3Projects === 'function') {
-                mainPageWindow.initSection3Projects();
-            }
-            console.log('Main page refreshed successfully');
-        } catch (error) {
-            console.error('Error refreshing main page:', error);
-        }
-    } else {
-        console.log('Main page window not found or closed');
-    }
+    // ახლა ადმინისტრატორის გვერდი იგივე ფანჯარაში იხსნება
+    // ამიტომ არ არის საჭირო მთავარი გვერდის განახლება
+    console.log('Admin panel is in the same window, no need to refresh main page');
+}
+
+// მთავარ გვერდზე გადასვლა
+function goToMainPage(event) {
+    event.preventDefault();
+    window.location.href = '/';
 }
 
 // ქარდის დამატების ღილაკის ფუნქცია

@@ -1036,11 +1036,8 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
 
 // ადმინის პანელის გახსნა
 function openAdminPanel() {
-    // გახსნას ადმინის გვერდი ახალ ფანჯარაში (არა _blank-ით, რომ window.opener მუშაობდეს)
-    const adminWindow = window.open('/admin', 'admin', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-    
-    // შეინახოს რეფერენსი ადმინის ფანჯარაზე
-    window.adminWindow = adminWindow;
+    // გახსნას ადმინის გვერდი იგივე ფანჯარაში
+    window.location.href = '/admin';
 }
 
 // ===== კარუსელის ფოტოების ჩატვირთვის ფუნქცია =====
