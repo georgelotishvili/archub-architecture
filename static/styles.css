@@ -978,7 +978,7 @@ body {
 /* სექცია 3-ის მთავარი კონტეინერი */
 .section-3 {
   width: 100%;
-  min-height: 500px;
+  /* min-height: 500px; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -992,8 +992,9 @@ body {
   align-items: center;
   flex-direction: column;
   text-align: center;
-  color: var(--color-white);
-  max-width: 1400px;
+  /* background-color: var(--color-black); */
+  /* color: var(--color-white); */
+  max-width: 1340px;
   width: 100%;
   padding: 20px;
 }
@@ -1436,6 +1437,7 @@ body {
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+  display: block;
 }
 
 /* სლაიდების კონტეინერი */
@@ -1622,6 +1624,54 @@ body {
   
   .cards-container {
     gap: 30px;
+  }
+  
+  /* გალერიის მოდალი მობილურზე */
+  .gallery-modal-content {
+    width: 95vw;
+    height: 85vh;
+    max-width: none;
+    max-height: none;
+    margin: 10px;
+  }
+  
+  .gallery-like-btn {
+    width: 40px;
+    height: 40px;
+    top: 15px;
+    left: 15px;
+  }
+  
+  .gallery-like-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .nav-icon {
+    font-size: 60px;
+    padding: 15px;
+  }
+  
+  .prev {
+    left: -5px;
+  }
+  
+  .next {
+    right: -5px;
+  }
+  
+  .close-icon {
+    font-size: 24px;
+    padding: 8px;
+  }
+  
+  .dots {
+    bottom: 15px;
+  }
+  
+  .dot {
+    width: 6px;
+    height: 6px;
   }
   
   /* სექცია 2 საშუალო ეკრანებზე */
@@ -1930,7 +1980,15 @@ body {
     gap: 30px;
   }
   
-  /* გალერიის ლაიქების ღილაკი მცირე ეკრანებზე */
+  /* გალერიის მოდალი მცირე ეკრანებზე */
+  .gallery-modal-content {
+    width: 98vw;
+    height: 90vh;
+    max-width: none;
+    max-height: none;
+    margin: 5px;
+  }
+  
   .gallery-like-btn {
     width: 35px;
     height: 35px;
@@ -1941,6 +1999,33 @@ body {
   .gallery-like-btn svg {
     width: 18px;
     height: 18px;
+  }
+  
+  .nav-icon {
+    font-size: 50px;
+    padding: 10px;
+  }
+  
+  .prev {
+    left: -2px;
+  }
+  
+  .next {
+    right: -2px;
+  }
+  
+  .close-icon {
+    font-size: 20px;
+    padding: 6px;
+  }
+  
+  .dots {
+    bottom: 10px;
+  }
+  
+  .dot {
+    width: 5px;
+    height: 5px;
   }
   
   /* ოვერლეი ელემენტის ტექსტი მცირე ეკრანებზე */

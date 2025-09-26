@@ -805,15 +805,20 @@ function loadGalleryPhotosForModal() {
     const gallery = document.getElementById('gallery');
     const noPhotos = document.getElementById('galleryNoPhotos');
     
+    console.log('loadGalleryPhotosForModal called');
+    console.log('window.selectedCard:', window.selectedCard);
+    
     try {
             // Use photos from the selected card
         if (window.selectedCard && window.selectedCard.photos && window.selectedCard.photos.length > 0) {
+            console.log('Photos found:', window.selectedCard.photos.length);
             displayGalleryPhotos(window.selectedCard.photos);
             gallery.style.display = 'block';
             noPhotos.style.display = 'none';
             return;
         }
         
+        console.log('No photos found, showing no photos message');
         // If no selected card photos, show no photos message
         gallery.style.display = 'none';
         noPhotos.style.display = 'block';
@@ -841,7 +846,14 @@ function displayGalleryPhotos(photos) {
     const carouselContainer = document.getElementById('galleryCarouselContainer');
     const dotsContainer = document.getElementById('galleryDots');
     
-    if (!carouselContainer || !dotsContainer) return;
+    console.log('displayGalleryPhotos called with:', photos);
+    console.log('carouselContainer:', carouselContainer);
+    console.log('dotsContainer:', dotsContainer);
+    
+    if (!carouselContainer || !dotsContainer) {
+        console.error('Gallery containers not found!');
+        return;
+    }
     
     // Clear existing content
     carouselContainer.innerHTML = '';
