@@ -29,6 +29,17 @@ app.config.from_object(config[config_name])
 # ატვირთული ფაილების საქაღალდის შექმნა (თუ არ არსებობს)
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+# Serve a simple favicon to avoid 404 noise in logs
+@app.route('/favicon.ico')
+def favicon():
+    # 1x1 transparent PNG
+    transparent_png = (
+        b"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAA" 
+        b"AAC0lEQVR42mP8zwAAAgMBAQEA8RsAAAAASUVORK5CYII="
+    )
+    from base64 import b64decode
+    return app.response_class(b64decode(transparent_png), mimetype='image/png')
+
 # ===== გაფართოებების ინიციალიზაცია =====
 # SQLAlchemy ბაზის ინიციალიზაცია
 from extensions import db
@@ -87,23 +98,32 @@ def save_uploaded_file(file, folder=''):
     return None
 
 def delete_uploaded_file(file_url):
-    """Delete uploaded file from filesystem"""
+    """Delete uploaded file from filesystem safely, preserving subfolders"""
     try:
-        if file_url and file_url.startswith('static/uploads/'):
-            # უსაფრთხოების კრიტიკული ფიქსი: Path Traversal შეტევისგან დაცვა
-            upload_folder_abs = os.path.abspath(app.config['UPLOAD_FOLDER'])
-            
-            # ფაილის მისამართის ნორმალიზება (მაგ. ../../ აღმოფხვრა) და უსაფრთხო შეერთება
-            file_path_abs = os.path.abspath(os.path.join(upload_folder_abs, os.path.basename(file_url)))
-            
-            # შემოწმება, რომ ფაილი ნამდვილად uploads საქაღალდეშია
-            if not file_path_abs.startswith(upload_folder_abs):
-                print(f"SECURITY WARNING: Attempted to delete file outside of upload folder: {file_url}")
-                return False
-            
-            if os.path.exists(file_path_abs):
-                os.remove(file_path_abs)
-                return True
+        if not file_url:
+            return False
+
+        # Normalize and strip leading slash
+        normalized = file_url.replace('\\', '/').lstrip('/')
+
+        # Only allow deletions inside static/uploads/
+        prefix = 'static/uploads/'
+        if not normalized.startswith(prefix):
+            return False
+
+        # Compute absolute paths safely
+        upload_folder_abs = os.path.abspath(app.config['UPLOAD_FOLDER'])
+        relative_subpath = os.path.normpath(normalized[len(prefix):])
+        file_path_abs = os.path.abspath(os.path.join(upload_folder_abs, relative_subpath))
+
+        # Ensure final path is still within uploads dir
+        if not file_path_abs.startswith(upload_folder_abs):
+            print(f"SECURITY WARNING: Attempted to delete file outside of upload folder: {file_url}")
+            return False
+
+        if os.path.exists(file_path_abs):
+            os.remove(file_path_abs)
+            return True
     except Exception as e:
         print(f"Error deleting file {file_url}: {e}")
     return False
@@ -167,6 +187,12 @@ def get_projects():
         )
 
         projects_with_counts = query.all()
+
+        # Preload liked project ids for current user to avoid per-row membership checks
+        liked_ids = set()
+        if current_user.is_authenticated:
+            rows = db.session.query(project_likes.c.project_id).filter(project_likes.c.user_id == current_user.id).all()
+            liked_ids = {pid for (pid,) in rows}
         
         # Create JSON response
         projects_data = []
@@ -175,9 +201,7 @@ def get_projects():
             photo_urls = [photo.url for photo in project.photos]
 
             # Check if current user has liked this project
-            is_liked = False
-            if current_user.is_authenticated:
-                is_liked = project in current_user.liked_projects
+            is_liked = project.id in liked_ids if current_user.is_authenticated else False
 
             project_data = {
                 'id': project.id,
