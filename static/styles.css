@@ -978,7 +978,7 @@ body {
 /* სექცია 3-ის მთავარი კონტეინერი */
 .section-3 {
   width: 100%;
-  min-height: 500px;
+  /* min-height: 500px; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -992,8 +992,9 @@ body {
   align-items: center;
   flex-direction: column;
   text-align: center;
-  color: var(--color-white);
-  max-width: 1400px;
+  /* background-color: var(--color-black); */
+  /* color: var(--color-white); */
+  max-width: 1340px;
   width: 100%;
   padding: 20px;
 }
