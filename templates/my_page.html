@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ჩემი გვერდი - Archub</title>
     
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -293,6 +294,19 @@
 
     <!-- Authentication and Gallery Modal JavaScript (custom for my-page) -->
     <script>
+        // ===== CSRF Token-ის წამოღება =====
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        // ===== უსაფრთხო fetch ფუნქცია =====
+        const secureFetch = async (url, options = {}) => {
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                ...options.headers,
+            };
+            return fetch(url, { ...options, headers });
+        };
+
         // ===== ავტორიზაციის ფუნქციონალი (copied from main script.js) =====
         let userAuthenticated = false;
         let currentUser = null;
@@ -521,9 +535,8 @@
                 }
                 
                 try {
-                    const response = await fetch(`/api/projects/${projectId}/like`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
+                    const response = await secureFetch(`/api/projects/${projectId}/like`, {
+                        method: 'POST'
                     });
                     
                     const data = await response.json();

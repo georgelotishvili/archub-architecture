@@ -2,12 +2,14 @@
 # ეს არის მთავარი Flask აპლიკაციის ფაილი
 # შეიცავს: API endpoints, routes, file upload ფუნქციები, authentication
 from sqlalchemy import func
+from sqlalchemy.orm import selectinload
 
 from flask import Flask, render_template, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -21,6 +23,7 @@ app = Flask(__name__)
 
 # CORS-ის ინიციალიზაცია (Cross-Origin Resource Sharing)
 CORS(app)
+csrf = CSRFProtect(app)
 
 # კონფიგურაციის არჩევა FLASK_ENV ცვლადის მიხედვით
 config_name = os.getenv('FLASK_ENV', 'default')
@@ -51,7 +54,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # მოდელების იმპორტი models.py ფაილიდან
-from models import Project, Photo, User, CarouselImage, project_likes
+from models import Project, Photo, User, CarouselImage, project_likes, ContactSubmission
 
 # ===== FLASK-LOGIN კონფიგურაცია =====
 # მომხმარებლის ჩატვირთვის ფუნქცია Flask-Login-ისთვის
@@ -184,7 +187,7 @@ def get_projects():
             likes_count_subquery.c.likes_count
         ).outerjoin(
             likes_count_subquery, Project.id == likes_count_subquery.c.project_id
-        )
+        ).options(selectinload(Project.photos))
 
         projects_with_counts = query.all()
 
@@ -227,8 +230,16 @@ def get_projects():
 
 # API route to create new project with file uploads
 @app.route('/api/projects', methods=['POST'])
+@login_required
 def create_project():
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია პროექტის შექმნა
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Check if request has files
         if 'main_image' not in request.files:
             return jsonify({
@@ -351,8 +362,16 @@ def create_empty_project():
 
 # API route to delete a project
 @app.route('/api/projects/<int:project_id>', methods=['DELETE'])
+@login_required
 def delete_project(project_id):
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია პროექტის წაშლა
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Find the project
         project = Project.query.get(project_id)
         if not project:
@@ -414,10 +433,18 @@ def delete_project(project_id):
 
 # API route to update a project
 @app.route('/api/projects/<int:project_id>', methods=['PUT'])
+@login_required
 def update_project(project_id):
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია პროექტის რედაქტირება
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Find the project in the database
-        project = Project.query.get(project_id)
+        project = Project.query.options(selectinload(Project.photos)).get(project_id)
         if not project:
             return jsonify({
                 'success': False,
@@ -462,10 +489,18 @@ def update_project(project_id):
 
 # API route to add photos to an existing project
 @app.route('/api/projects/<int:project_id>/photos', methods=['POST'])
+@login_required
 def add_project_photos(project_id):
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია ფოტოების დამატება
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Find the project in the database
-        project = Project.query.get(project_id)
+        project = Project.query.options(selectinload(Project.photos)).get(project_id)
         if not project:
             return jsonify({
                 'success': False,
@@ -528,10 +563,18 @@ def add_project_photos(project_id):
 
 # API route to update main image of a project
 @app.route('/api/projects/<int:project_id>/main-image', methods=['PUT'])
+@login_required
 def update_project_main_image(project_id):
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია მთავარი ფოტოს განახლება
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Find the project in the database
-        project = Project.query.get(project_id)
+        project = Project.query.options(selectinload(Project.photos)).get(project_id)
         if not project:
             return jsonify({
                 'success': False,
@@ -594,10 +637,18 @@ def update_project_main_image(project_id):
 
 # API route to delete main image of a project
 @app.route('/api/projects/<int:project_id>/main-image', methods=['DELETE'])
+@login_required
 def delete_project_main_image(project_id):
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია მთავარი ფოტოს წაშლა
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Find the project in the database
-        project = Project.query.get(project_id)
+        project = Project.query.options(selectinload(Project.photos)).get(project_id)
         if not project:
             return jsonify({
                 'success': False,
@@ -648,10 +699,18 @@ def delete_project_main_image(project_id):
 
 # API route to delete a photo from a project by URL
 @app.route('/api/projects/<int:project_id>/photos', methods=['DELETE'])
+@login_required
 def delete_project_photo_by_url(project_id):
     try:
+        # უსაფრთხოების შემოწმება: მხოლოდ ადმინისტრატორს შეუძლია ფოტოს წაშლა
+        if not current_user.is_admin:
+            return jsonify({
+                'success': False,
+                'error': 'Access denied. Admin privileges required.'
+            }), 403
+
         # Find the project in the database
-        project = Project.query.get(project_id)
+        project = Project.query.options(selectinload(Project.photos)).get(project_id)
         if not project:
             return jsonify({
                 'success': False,
@@ -857,7 +916,7 @@ def get_user_liked_projects():
             project_likes.c.user_id == current_user.id
         ).outerjoin(
             likes_count_subquery, Project.id == likes_count_subquery.c.project_id
-        ).all()
+        ).options(selectinload(Project.photos)).all()
 
         # Create JSON response
         projects_data = []
@@ -907,12 +966,27 @@ def get_admin_user_liked_projects(user_id):
                 'error': f'User with ID {user_id} not found'
             }), 404
         
-        # Get all liked projects for the target user
-        liked_projects = target_user.liked_projects.all()
+        # N+1 პრობლემის გადაჭრა: Subquery მოწონებების დასათვლელად
+        likes_count_subquery = db.session.query(
+            project_likes.c.project_id,
+            func.count(project_likes.c.user_id).label('likes_count')
+        ).group_by(project_likes.c.project_id).subquery()
+        
+        # Get all liked projects for the target user with their like counts
+        liked_projects_with_counts = db.session.query(
+            Project,
+            likes_count_subquery.c.likes_count
+        ).join(
+            project_likes, Project.id == project_likes.c.project_id
+        ).filter(
+            project_likes.c.user_id == user_id
+        ).outerjoin(
+            likes_count_subquery, Project.id == likes_count_subquery.c.project_id
+        ).options(selectinload(Project.photos)).all()
         
         # Create JSON response
         projects_data = []
-        for project in liked_projects:
+        for project, likes_count in liked_projects_with_counts:
             # Get all photo URLs for this project
             photo_urls = [photo.url for photo in project.photos]
             
@@ -922,7 +996,7 @@ def get_admin_user_liked_projects(user_id):
                 'main_image_url': project.main_image_url,
                 'photos': photo_urls,
                 'is_liked': True,  # Always true for liked projects
-                'likes_count': project.liked_by_users.count()
+                'likes_count': likes_count or 0
             }
             projects_data.append(project_data)
         
@@ -976,6 +1050,14 @@ def contact_form():
         # Log contact form submission
         print(f"Contact form submission from {sender_email}: {message[:50]}...")
         
+        # Save to database
+        submission = ContactSubmission(
+            sender_email=sender_email,
+            message=message
+        )
+        db.session.add(submission)
+        db.session.commit()
+
         return jsonify({
             'success': True,
             'message': 'Contact form submitted successfully',
@@ -1242,6 +1324,11 @@ def delete_carousel_image(image_id):
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/csrf-token')
+def get_csrf_token():
+    from flask_wtf.csrf import generate_csrf
+    return jsonify({'csrf_token': generate_csrf()})
 
 # Run the server in debug mode when app.py is run directly
 if __name__ == '__main__':

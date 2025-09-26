@@ -3,6 +3,22 @@
 // ავტორიზაცია, პროექტების ჩატვირთვა, კონტაქტ ფორმა
 
 document.addEventListener('DOMContentLoaded', function() {
+    // ===== CSRF Token-ის წამოღება =====
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // ===== უსაფრთხო fetch ფუნქცია =====
+    const secureFetch = async (url, options = {}) => {
+        // ჰედერების დამატება
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            ...options.headers,
+        };
+        
+        // მოთხოვნის გაგზავნა
+        return fetch(url, { ...options, headers });
+    };
+    
     // ===== კარუსელის ფოტოების ჩატვირთვა =====
     loadCarouselImages();
     
@@ -102,9 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- გასვლის დამუშავება ---
     async function handleLogout() {
         try {
-            const response = await fetch('/api/logout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+            const response = await secureFetch('/api/logout', {
+                method: 'POST'
             });
             
             const data = await response.json();
@@ -187,9 +202,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = 'შესვლა...';
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await secureFetch('/api/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
                 const result = await response.json();
@@ -229,9 +243,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = 'რეგისტრაცია...';
 
             try {
-                const response = await fetch('/api/register', {
+                const response = await secureFetch('/api/register', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, password })
                 });
                 const result = await response.json();
@@ -956,9 +969,8 @@ async function handleLikeClick(projectId, likeButton) {
     
     try {
         console.log('Sending like request to:', `/api/projects/${projectId}/like`);
-        const response = await fetch(`/api/projects/${projectId}/like`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+        const response = await secureFetch(`/api/projects/${projectId}/like`, {
+            method: 'POST'
         });
         
         console.log('Response status:', response.status);
