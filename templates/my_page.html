@@ -23,30 +23,52 @@
     <style>
         /* User profile page specific styles */
         .profile-page {
-            min-height: 100vh;
-            background-color: #f8f9fa;
-            padding-top: 135px;
+            width: 94%;
+            background-color: #ffffff;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid var(--color-black);
+            border-radius: 10px;
         }
         
         .profile-header {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px 0;
             background: linear-gradient(135deg, #663399 0%, #8a4cbf 100%);
             color: white;
-            padding: 40px 0;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--color-black);
+            border-radius: 10px;
+        }
+
+        .profile-header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
         }
         
         .profile-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.2rem;
+            margin: 0;
             font-family: 'BPG Nino Mtavruli Bold', sans-serif;
             font-weight: 400;
+            line-height: 1.2;
+        }
+
+        .profile-header h3 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+            font-weight: 400;
+            opacity: 0.95;
+            line-height: 1.2;
         }
         
-        .profile-header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-        
+               
         .profile-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -66,6 +88,20 @@
         
         /* <= 600px - შევამციროთ ტელეფონის და ღილაკის ზომები და მობილური განლაგება */
         @media (max-width: 600px) {
+            .profile-page {
+                width: 100%;
+                margin: 20px 0;
+                padding: 10px;
+            }
+
+            .profile-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .profile-header h3 {
+                font-size: 1rem;
+            }
+
             .header-bottom-line h1 {
                 font-size: 14px;
             }
@@ -79,13 +115,14 @@
             .profile-content {
                 padding: 20px 10px;
             }
-            .projects-grid {
+            .profile-page .projects-grid {
+                grid-template-columns: 1fr;
                 gap: 15px;
                 padding: 0 10px;
             }
             .project-card {
                 width: 100%;
-                max-width: 300px;
+                max-width: 310px;
                 margin: 0 auto;
             }
             .back-to-home {
@@ -119,20 +156,14 @@
             margin-top: 40px;
         }
         
-        .section-title {
-            font-size: 2rem;
-            color: #242424;
-            margin-bottom: 30px;
-            text-align: center;
-            font-family: 'DejaVu Sans', sans-serif;
-        }
-        
+       
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
             gap: 30px;
             margin-top: 30px;
             justify-items: center;
+            justify-content: center;
         }
         
         .project-card {
@@ -281,10 +312,12 @@
     <div class="profile-page">
         <!-- Profile Header -->
         <div class="profile-header">
+
             <div class="container">
                 <h1>ჩემი გვერდი</h1>
-                <p>აქ ნახავთ თქვენს მოწონებულ პროექტებს</p>
+                <h3>შერჩეული პროექტები</h3>                
             </div>
+
         </div>
         
         <!-- Profile Content -->
@@ -294,22 +327,21 @@
                 
                 <!-- Liked Projects Section -->
                 <div class="liked-projects-section">
-                    <h2 class="section-title">მოწონებული პროექტები</h2>
                     
                     <!-- Loading State -->
                     <div class="loading" id="loadingState">
                         <h3>იტვირთება...</h3>
-                        <p>ავტორიზაციის შემოწმება და მოწონებული პროექტების ჩატვირთვა</p>
+                        <p>ავტორიზაციის შემოწმება და შერჩეული პროექტების ჩატვირთვა</p>
                     </div>
                     
                     <!-- No Projects State -->
                     <div class="no-projects" id="noProjectsState" style="display: none;">
-                        <h3>ჯერ არ გაქვთ მოწონებული პროექტები</h3>
-                        <p>მთავარ გვერდზე გადადით და დაიწყეთ პროექტების მოწონება</p>
+                        <h3>ჯერ არ გაქვთ შერჩეული პროექტები</h3>
+                        <p>მთავარ გვერდზე გადადით და დაიწყეთ პროექტების შერჩევა</p>
                     </div>
                     
                     <!-- Projects Grid -->
-                    <div class="projects-grid" id="projectsGrid" style="display: none;">
+                    <div class="projects-grid" id="likedProjectsGrid" style="display: none;">
                         <!-- Projects will be loaded here dynamically -->
                     </div>
                 </div>
@@ -553,7 +585,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const loadingState = document.getElementById('loadingState');
             const noProjectsState = document.getElementById('noProjectsState');
-            const projectsGrid = document.getElementById('projectsGrid');
+            const projectsGrid = document.getElementById('likedProjectsGrid');
             const backToHomeBtn = document.getElementById('backToHomeBtn');
             const backToHomeHeaderLink = document.getElementById('backToHomeHeaderLink');
             
@@ -582,7 +614,7 @@
             
             // Display projects in grid
             function displayProjects(projects) {
-                const grid = document.getElementById('projectsGrid');
+                const grid = document.getElementById('likedProjectsGrid');
                 grid.innerHTML = '';
                 
                 projects.forEach(project => {
@@ -655,7 +687,7 @@
                         const remainingProjects = document.querySelectorAll('.project-card');
                         if (remainingProjects.length === 0) {
                             // Show "no projects" message
-                            document.getElementById('projectsGrid').style.display = 'none';
+                            document.getElementById('likedProjectsGrid').style.display = 'none';
                             document.getElementById('noProjectsState').style.display = 'block';
                         }
                     } else {
