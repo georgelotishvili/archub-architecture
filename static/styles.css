@@ -32,6 +32,7 @@
   --color-white-80: rgba(255, 255, 255, 0.7);
   --color-card-info-bg: rgba(52, 52, 52, 0.7);
   --color-purple: #420092;
+  --gradient-purple: linear-gradient(135deg, #663399 0%, #8a4cbf 100%);
   --color-red: #900000;
 }
 
@@ -463,14 +464,14 @@ body {
 /* ===== სექცია 1 - არქიტექტურული სერვისები ===== */
 /* სექცია 1-ის მთავარი კონტეინერი */
 .section-1 {
-  width: 100%;
+  width: 94%;
   min-height: 700px;
   display: flex;
   align-items: center;
   justify-content: space-around;
   flex-wrap: wrap;
-  padding: 0 100px;
   background-color: var(--color-white-80);
+  margin: 50px auto;
 }
 
 
@@ -574,6 +575,7 @@ body {
   font-weight: 900;
   line-height: 1.2;
   letter-spacing: 1px;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   color: var(--color-red);
 }
 
@@ -582,6 +584,7 @@ body {
   font-size: 24px;
   line-height: 1.2;
   letter-spacing: 1px;
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
   color: var(--color-black);
 }
 
@@ -624,7 +627,7 @@ body {
 /* ===== 1. მთავარი კონტეინერი ===== */
 .section-2 {
   width: 100%;
-  /* height: 450px; */
+  background-image: url(/static/photos/stone\ 2.jpg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -632,12 +635,13 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  /* gap: 30px; */
   flex-wrap: nowrap;
   overflow-x: hidden;
   position: relative;
+  border-top: 5px solid var(--color-white);
+  border-bottom: 5px solid var(--color-white);
   --s2-card-w: 450px;
-  /* background-color: var(--color-purple); */
+  margin: 50px 0px;
 }
 
 /* ===== 2. Z-INDEX მართვა ===== */
@@ -648,24 +652,24 @@ body {
 .section-2-top-bar, .section-2-bottom-bar {
   width: 100%;
   height: 50px;
-  background-color: var(--color-white-80);
+  /* background-color: var(--color-white); */
   display: flex;
   justify-content: center;
-  align-items: center;
   flex-shrink: 0;
 }
 
 .section-2-top-bar{
-  margin: 5px 0px 0px 0px;
+  align-items: flex-end;
 }
 
 .section-2-bottom-bar{
-  margin: 0px 0px 5px 0px;
+  align-items: flex-start;
 }
 
 .section-2-top-bar h3 {
   font-size: 26px;
-  color: var(--color-black);
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+  color: var(--color-white);
 }
 
 /* ===== 4. ძებნის ველი ===== */
@@ -1083,23 +1087,21 @@ body {
 /* ===== სექცია 3 - ჩვენი გუნდი ===== */
 /* სექცია 3-ის მთავარი კონტეინერი */
 .section-3 {
-  width: 100%;
+  width: 94%;
   /* min-height: 500px; */
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: var(--color-white-80);
+  margin: 50px auto;
 }
 
 /* სექცია 3-ის შინა კონტენტი */
 .section-3-content {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  text-align: center;
-  /* background-color: var(--color-black); */
-  /* color: var(--color-white); */
   max-width: 1340px;
   width: 100%;
   padding: 20px;
@@ -1107,11 +1109,11 @@ body {
 
 /* სექცია 3-ის პროექტების გრიდი */
 .projects-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 20px;
   width: 100%;
+  justify-items: center;
 }
 
 /* სექცია 3-ის პროექტის ქარდი */
@@ -1197,11 +1199,6 @@ body {
 }
 
 
-/* ===== სექცია 4 ===== */
-.sec-free-space {
-  width: 100%;
-  height: 30px;
-}
 
 /* ===== ფუტერი ===== */
 /* ფუტერის მთავარი კონტეინერი */
@@ -1213,7 +1210,7 @@ body {
   padding:10px 0 10px 0;
   margin-top: 30px;
   position: relative;
-  background-color: var(--color-dark-gray-70);
+  /* background-color: var(--color-gradient-purple); */
 }
 
 /* ფუტერის შინა კონტენტი */
