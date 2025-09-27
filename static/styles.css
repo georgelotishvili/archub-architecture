@@ -623,6 +623,7 @@ body {
 /* ===== 1. მთავარი კონტეინერი ===== */
 .section-2 {
   width: 100%;
+  /* height: 450px; */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -630,11 +631,12 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 0;
-  flex-wrap: wrap;
+  /* gap: 30px; */
+  flex-wrap: nowrap;
   overflow-x: hidden;
   position: relative;
-  --s2-card-w: 450px; /* desktop default */
+  --s2-card-w: 450px;
+  /* background-color: var(--color-purple); */
 }
 
 /* ===== 2. Z-INDEX მართვა ===== */
@@ -649,6 +651,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .section-2-top-bar{
@@ -766,83 +769,11 @@ body {
 /* ===== 5. კარუსელის კონტეინერები ===== */
 .projects-scroll-1 {
   width: 100%;
-}
-
-.projects-scroll-1 .carousel-container {
-  position: relative;
-  width: 100%;
-  /* match card height exactly; vertical margin handled by .cards-container gap logic */
-  min-height: calc(var(--s2-card-w) * 3 / 4);
-  height: auto;
-  padding: 30px 0 30px 0; /* 30px top/bottom transparent band around cards */
-  overflow: visible; 
-}
-
-/* ===== 6. კარუსელის ნავიგაციის ისრები ===== */
-.carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  border: 2px solid var(--color-white-80);
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 20;
+  flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-}
-
-.carousel-prev {
-  left: 20px;
-}
-
-.carousel-next {
-  right: 20px;
-}
-
-.carousel-arrow:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-  border-color: rgb(255, 255, 255);
-  transform: translateY(-50%) scale(1.1);
-}
-
-.carousel-arrow:active {
-  transform: translateY(-50%) scale(0.95);
-}
-
-.carousel-arrow:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  transform: translateY(-50%);
-}
-
-.carousel-arrow svg {
-  width: 24px;
-  height: 24px;
-  stroke: white;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke 0.3s ease;
-}
-
-.carousel-arrow:hover svg {
-  stroke: white;
-}
-
-/* ===== 7. ბარათების კონტეინერები ===== */
-.cards-wrapper {
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: visible;
-  padding-top: 0;
-  padding-bottom: 0;
+  align-items: center;
+  height: calc(var(--s2-card-w) * 3 / 4 + 60px);
 }
 
 .cards-container {
@@ -853,12 +784,13 @@ body {
   overflow-y: visible;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  padding: 0 64px;
+  padding: 30px 64px;
   -webkit-overflow-scrolling: touch;
   width: 100%;
-  /* hide scrollbar while keeping scroll functionality */
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* IE 10+ */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* background-color: var(--color-red); */
+
 }
 
 /* WebKit scrollbar hide for carousel track */
@@ -867,7 +799,7 @@ body {
   height: 0;
 }
 
-/* ===== 8. პროექტის ბარათები ===== */
+/* ===== 6. პროექტის ბარათები ===== */
 /* ზოგადი ბარათის სტილები */
 .project-card {
   width: 450px;
@@ -880,7 +812,7 @@ body {
   overflow: hidden;
 }
 
-/* კარუსელის ბარათების სპეციფიური სტილები */
+/* სექცია 2-ის ბარათების სპეციფიური სტილები */
 .projects-scroll-1 .project-card {
   border-radius: 4px;
   overflow: visible;
@@ -890,29 +822,16 @@ body {
   transform-origin: center;
   scroll-snap-align: center;
   flex: 0 0 auto; /* prevent shrinking in flex row */
-}
-
-.projects-scroll-1 .card-image {
-  border-radius: inherit;
-}
-
-.projects-scroll-1 .card-info {
-  border-radius: 0 0 4px 4px;
+  height: calc(var(--s2-card-w) * 3 / 4); /* lock height to ratio to avoid inner scroll */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .projects-scroll-1 .project-card:hover {
   transform: scale(1.03);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
   z-index: 5;
-}
-
-/* ბარათის სურათი */
-.card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background: var(--color-purple);
-  border-radius: 4px;
 }
 
 /* ბარათის ინფორმაცია */
@@ -925,6 +844,7 @@ body {
   color: var(--color-black);
   padding: 15px 10px 15px 10px;
   border-radius: 0 0 4px 4px;
+  pointer-events: none; /* ensure hover scaling isn't disrupted */
 }
 
 /* ბარათის ფართობი */
@@ -990,12 +910,6 @@ body {
 @media (max-width: 900px) {
   /* adjust card width variable for tablet */
   .section-2 { --s2-card-w: 380px; }
-  /* კარუსელის კონტეინერი */
-  .projects-scroll-1 .carousel-container {
-    /* recompute from variable */
-    min-height: calc((var(--s2-card-w) * 3 / 4) + 60px);
-    height: auto;
-  }
   
   /* პროექტის ბარათები */
   .project-card {
@@ -1013,25 +927,7 @@ body {
   /* ბარათების დაშორება */
   .cards-container {
     gap: 30px;
-  }
-  
-  /* კარუსელის ისრები */
-  .carousel-arrow {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .carousel-arrow svg {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .carousel-prev {
-    left: 10px;
-  }
-  
-  .carousel-next {
-    right: 10px;
+    padding: 25px 50px;
   }
   
   /* მოწონების ღილაკი */
@@ -1046,17 +942,40 @@ body {
     width: 16px;
     height: 16px;
   }
+  
+  /* სექცია 2-ის ზოლები საშუალო ეკრანებზე */
+  .section-2-top-bar h3 {
+    font-size: 22px;
+  }
+  
+  .section-2-top-bar, .section-2-bottom-bar {
+    height: 45px;
+  }
+  
+  /* კარუსელის კონტეინერი საშუალო ეკრანებზე */
+  .projects-scroll-1 {
+    height: calc(var(--s2-card-w) * 3 / 4 + 60px);
+  }
+  
+  /* სექცია 2-ის ისრები საშუალო ეკრანებზე */
+  .projects-scroll-1 .nav-icon {
+    font-size: 50px;
+    padding: 12px;
+  }
+  
+  .projects-scroll-1 .prev {
+    left: 15px;
+  }
+  
+  .projects-scroll-1 .next {
+    right: 15px;
+  }
 }
 
 /* მცირე ეკრანები (600px-მდე) */
 @media (max-width: 600px) {
   /* adjust card width variable for mobile */
   .section-2 { --s2-card-w: 280px; }
-  /* კარუსელის კონტეინერი */
-  .projects-scroll-1 .carousel-container {
-    min-height: calc((var(--s2-card-w) * 3 / 4) + 60px);
-    height: auto;
-  }
   
   /* პროექტის ბარათები */
   .project-card {
@@ -1074,7 +993,70 @@ body {
   /* ბარათების დაშორება */
   .cards-container {
     gap: 30px;
+    padding: 20px 30px;
   }
+  
+  /* სექცია 2-ის ზოლები მცირე ეკრანებზე */
+  .section-2-top-bar h3 {
+    font-size: 18px;
+  }
+  
+  .section-2-top-bar, .section-2-bottom-bar {
+    height: 40px;
+  }
+  
+  /* კარუსელის კონტეინერი მცირე ეკრანებზე */
+  .projects-scroll-1 {
+    height: calc(var(--s2-card-w) * 3 / 4 + 60px);
+  }
+  
+  /* სექცია 2-ის ისრები მცირე ეკრანებზე */
+  .projects-scroll-1 .nav-icon {
+    font-size: 40px;
+    padding: 10px;
+  }
+  
+  .projects-scroll-1 .prev {
+    left: 10px;
+  }
+  
+  .projects-scroll-1 .next {
+    right: 10px;
+  }
+}
+
+/* ===== სექცია 2 - სქროლის ისრები ===== */
+/* სექცია 2-ის ნავიგაციის ისრები */
+.projects-scroll-1 .nav-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-white);
+  font-size: 60px;
+  cursor: pointer;
+  z-index: 15;
+  transition: all 0.3s ease;
+  padding: 15px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* სექცია 2-ის ისრების hover ეფექტი */
+.projects-scroll-1 .nav-icon:hover {
+  transform: translateY(-50%) scale(1.1);
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+}
+
+/* სექცია 2-ის წინა ისარი */
+.projects-scroll-1 .prev {
+  left: 20px;
+}
+
+/* სექცია 2-ის შემდეგი ისარი */
+.projects-scroll-1 .next {
+  right: 20px;
 }
 
 /* ===== სექცია 2 დასასრული ===== */
@@ -1800,7 +1782,7 @@ body {
   
   /* სექცია 2 საშუალო ეკრანებზე */
   .section-2 {
-    gap: 0;
+    gap: 20px;
   }
   
   .form-group {
@@ -1870,7 +1852,7 @@ body {
 
   /* სექცია 2 მობილურზე */
   .section-2 {
-    gap: 0;
+    gap: 15px;
   }
   
   /* ძებნის ველი მობილურზე */
@@ -1945,38 +1927,6 @@ body {
     height: 16px;
   }
   
-  .team-info .phone {
-    font-size: 16px;
-    color: var(--color-white);
-    margin: 0;
-    padding: 0;
-  }
-  
-  .team-info {
-    bottom: 15px;
-    left: 14px;
-    padding: 0;
-  }
-  
-  .team-info .name {
-    font-size: 22px;
-    margin-bottom: 6px;
-    line-height: 1.0;
-  }
-  
-  .team-info .position {
-    font-size: 16px;
-    margin-bottom: 6px;
-    line-height: 1.5;
-  }
-  
-  .team-info .phone {
-    font-size: 16px;
-    color: var(--color-white);
-    margin: 0;
-    padding: 0;
-    line-height: 1.2;
-  }
   
   
   
@@ -2104,23 +2054,6 @@ body {
     font-size: 10px;
   }
   
-  /* გუნდის წევრის სახელი მცირე ეკრანებზე */
-  .team-info .name {
-    font-size: 16px;
-    line-height: 0.7;
-  }
-  
-  /* გუნდის წევრის პოზიცია მცირე ეკრანებზე */
-  .team-info .position {
-    font-size: 16px;
-    line-height: 1.5;
-  }
-  
-  /* გუნდის წევრის ტელეფონი მცირე ეკრანებზე */
-  .team-info .phone {
-    font-size: 16px;
-    line-height: 0.7;
-  }
   
   /* ძებნის ველი მცირე ეკრანებზე */
   .search-container {

@@ -315,50 +315,15 @@ let cardsContainer = null;
 let totalCards = 0;
 
 window.initProjectsCarousel = async function initProjectsCarousel() {
-    const cardsWrapper = document.getElementById('cardsWrapper');
-    const prevBtn = document.getElementById('carouselPrev');
-    const nextBtn = document.getElementById('carouselNext');
-    
-    if (!cardsWrapper || !prevBtn || !nextBtn) return;
-    
-        // ქარდების კონტეინერის შექმნა
-    cardsContainer = document.createElement('div');
-    cardsContainer.className = 'cards-container';
-    cardsWrapper.appendChild(cardsContainer);
-    
-        // ინიციალიზაცია
+    // Use the existing Section 2 container directly
+    cardsContainer = document.getElementById('cardsWrapper');
+    if (!cardsContainer) return;
+
     await loadCardsFromAPI();
     renderProjectsCards();
     
-    // საწყისი ინდექსი შუა სექციაზე (ინფინიტ ციკლისთვის)
-    currentCardIndex = totalCards;
-    
-    // მოვლენების მოსმენები
-    prevBtn.addEventListener('click', () => {
-        console.log('Previous button clicked');
-        moveCarousel(-1);
-    });
-    nextBtn.addEventListener('click', () => {
-        console.log('Next button clicked');
-        moveCarousel(1);
-    });
-    
-    // ფანჯრის ზომის შეცვლისას პოზიციის გადათვლა
-    window.addEventListener('resize', () => {
-        updateCarouselPosition();
-    });
-    
-    // პირველი ქარდის ცენტრირებისთვის საწყისი პოზიციის განახლება
-    setTimeout(() => {
-        updateCarouselPosition();
-    }, 100);
-
-    // scroll-ის დასრულების შემდეგ უხილავი გადაყვანა შუა სექციაში
-    const onCardsScroll = debounce(() => {
-        snapNearestIndexToCurrent();
-        resetCarouselPositionIfNeeded();
-    }, 160);
-    cardsContainer.addEventListener('scroll', onCardsScroll);
+    // Initialize Section 2 arrows
+    initSection2Arrows();
 }
 
 // ===== სექცია 3 - პროექტების გრიდი =====
@@ -541,42 +506,30 @@ function createRandomCards() {
 }
 
 function renderProjectsCards() {
-        if (!cardsContainer || !projectsCards.length) return;
-    
+    if (!cardsContainer || !projectsCards.length) return;
+
     console.log(`Rendering ${projectsCards.length} cards, totalCards=${totalCards}`);
     cardsContainer.innerHTML = '';
-    
-        // Create cards with duplication for infinite loop effect
-        // Add cards at the beginning (for seamless transition from last to first)
-        projectsCards.forEach((card, index) => {
-            const cardElement = createCardElement(card, index, 'prepend');
-            cardsContainer.appendChild(cardElement);
-        });
-        
-        // Add original cards in the middle
-        projectsCards.forEach((card, index) => {
-            const cardElement = createCardElement(card, index, 'middle');
-            cardsContainer.appendChild(cardElement);
-        });
-        
-        // Add cards at the end (for seamless transition from first to last)
-        projectsCards.forEach((card, index) => {
-            const cardElement = createCardElement(card, index, 'append');
-            cardsContainer.appendChild(cardElement);
-        });
-        
-    // scroll-snap იყენებს ბრაუზერი; ცენტრირებისთვის ერთი ბარათის დაყოვნებით გასქროლვა
-    setTimeout(() => {
-        scrollToCard(cardsContainer.querySelector('.project-card'));
-    }, 50);
+
+    // Render a single set of cards (no cloning, no arrows)
+    projectsCards.forEach((card, index) => {
+        const cardElement = createCardElement(card, index);
+        cardsContainer.appendChild(cardElement);
+    });
 }
 
-function createCardElement(card, index, position) {
+function createCardElement(card, index) {
     const cardElement = document.createElement('div');
     cardElement.className = 'project-card';
     cardElement.setAttribute('data-original-index', index);
     cardElement.setAttribute('data-project-id', card.id);
-    cardElement.setAttribute('data-position', position);
+    // Use background image for the card
+    if (card.image) {
+        cardElement.style.backgroundImage = `url('${card.image}')`;
+        cardElement.style.backgroundSize = 'cover';
+        cardElement.style.backgroundPosition = 'center';
+        cardElement.style.backgroundRepeat = 'no-repeat';
+    }
     
     // Create like button HTML (only for authenticated users)
     const likeButtonHtml = (window.userAuthenticated) ? `
@@ -588,7 +541,6 @@ function createCardElement(card, index, position) {
     ` : '';
     
     cardElement.innerHTML = `
-        <img src="${card.image}" class="card-image">
         <div class="card-info">
             <div class="card-area">${card.area}</div>
             ${card.title ? `<div class="card-title" style="display: none;">${card.title}</div>` : ''}
@@ -1368,20 +1320,91 @@ function initSearchFunctionality() {
 
 // კონკრეტულ ქარდზე სქროლვის ფუნქცია (გლობალური)
 function scrollToCard(targetCard) {
-    const cardsContainer = document.querySelector('.cards-container');
-    if (!cardsContainer || !targetCard) return;
-    const projectCards = Array.from(cardsContainer.querySelectorAll('.project-card'));
-    const clonesForSameProject = projectCards
-        .map((el, idx) => ({ el, idx }))
-        .filter(({ el }) => el.dataset.projectId === targetCard.dataset.projectId);
-    if (clonesForSameProject.length === 0) return;
-    // pick the clone closest to current index for smoother loop
-    const nearest = clonesForSameProject.reduce((best, cur) => {
-        const dBest = Math.abs(best.idx - currentCardIndex);
-        const dCur = Math.abs(cur.idx - currentCardIndex);
-        return dCur < dBest ? cur : best;
+    const container = document.getElementById('cardsWrapper');
+    if (!container || !targetCard) return;
+    
+    // იყენებს კონტეინერის scrollLeft-ს გვერდის სქროლვის ნაცვლად
+    const containerRect = container.getBoundingClientRect();
+    const cardRect = targetCard.getBoundingClientRect();
+    const scrollLeft = cardRect.left - containerRect.left + container.scrollLeft - (containerRect.width / 2) + (cardRect.width / 2);
+    
+    container.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
     });
-    currentCardIndex = nearest.idx;
-    nearest.el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    setTimeout(() => resetCarouselPositionIfNeeded(), 360);
+}
+
+// სექცია 2-ის ისრების ფუნქციონალი
+function initSection2Arrows() {
+    const prevBtn = document.getElementById('section2PrevBtn');
+    const nextBtn = document.getElementById('section2NextBtn');
+    const container = document.getElementById('cardsWrapper');
+    
+    if (!prevBtn || !nextBtn || !container) return;
+    
+    // წინა ისრის მოვლენა
+    prevBtn.addEventListener('click', () => {
+        const cards = container.querySelectorAll('.project-card');
+        if (cards.length === 0) return;
+        
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        
+        // ვპოულობთ ყველაზე ახლო ქარდს ცენტრთან
+        let closestCard = null;
+        let minDistance = Infinity;
+        
+        cards.forEach(card => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(cardCenter - containerCenter);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestCard = card;
+            }
+        });
+        
+        if (closestCard) {
+            // ვპოულობთ წინა ქარდს
+            const allCards = Array.from(cards);
+            const currentIndex = allCards.indexOf(closestCard);
+            const prevIndex = currentIndex > 0 ? currentIndex - 1 : allCards.length - 1;
+            
+            scrollToCard(allCards[prevIndex]);
+        }
+    });
+    
+    // შემდეგი ისრის მოვლენა
+    nextBtn.addEventListener('click', () => {
+        const cards = container.querySelectorAll('.project-card');
+        if (cards.length === 0) return;
+        
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        
+        // ვპოულობთ ყველაზე ახლო ქარდს ცენტრთან
+        let closestCard = null;
+        let minDistance = Infinity;
+        
+        cards.forEach(card => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const distance = Math.abs(cardCenter - containerCenter);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestCard = card;
+            }
+        });
+        
+        if (closestCard) {
+            // ვპოულობთ შემდეგ ქარდს
+            const allCards = Array.from(cards);
+            const currentIndex = allCards.indexOf(closestCard);
+            const nextIndex = currentIndex < allCards.length - 1 ? currentIndex + 1 : 0;
+            
+            scrollToCard(allCards[nextIndex]);
+        }
+    });
 }
