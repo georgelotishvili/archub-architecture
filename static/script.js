@@ -63,9 +63,18 @@ document.addEventListener('DOMContentLoaded', function() {
             window.userAuthenticated = userAuthenticated;
             console.log('window.userAuthenticated set to:', window.userAuthenticated);
             
-            // ლაიქების ღილაკების ხელახალი რენდერი ავტორიზაციის სტატუსის შემოწმების შემდეგ
-            if (typeof renderProjectsCards === 'function') {
-                renderProjectsCards();
+            // სექცია 2-ის მონაცემების განახლება ავტორიზაციის სტატუსის დადასტურების შემდეგ
+            if (typeof loadCardsFromAPI === 'function' && typeof renderProjectsCards === 'function') {
+                try {
+                    await loadCardsFromAPI();
+                    renderProjectsCards();
+                } catch (e) {
+                    console.error('Failed to refresh Section 2 cards after auth status check:', e);
+                }
+            }
+            // სექცია 3-ის ქარდების ხელახალი რენდერი, რათა ლაიქის ღილაკები გამოვაჩინოთ/დავმალოთ
+            if (typeof initSection3Projects === 'function') {
+                initSection3Projects().catch(err => console.error('Re-init section 3 after auth:', err));
             }
         } catch (error) {
             console.error('Error checking auth status:', error);
@@ -130,7 +139,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.userAuthenticated = false;
                 updateAuthButtons('login');
                 // ლაიქების ღილაკების ხელახალი რენდერი გამოსვლის შემდეგ
+                await loadCardsFromAPI();
                 renderProjectsCards();
+                if (typeof initSection3Projects === 'function') {
+                    initSection3Projects().catch(err => console.error('Re-init section 3 after logout:', err));
+                }
                 alert('წარმატებით გამოხვედით სისტემიდან!');
                 // გადამისამართება მთავარ გვერდზე, რათა თავიდან ავიცილოთ შეცდომები დაცულ გვერდებზე
                 window.location.href = '/';
@@ -214,7 +227,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.userAuthenticated = true;
                     updateAuthButtons('logout');
                     // ლაიქების ღილაკების ხელახალი რენდერი ავტორიზაციის შემდეგ
+                    await loadCardsFromAPI();
                     renderProjectsCards();
+                    if (typeof initSection3Projects === 'function') {
+                        initSection3Projects().catch(err => console.error('Re-init section 3 after login:', err));
+                    }
                     alert('წარმატებით შეხვედით სისტემაში!');
                     closeModal('loginModal');
                 } else {

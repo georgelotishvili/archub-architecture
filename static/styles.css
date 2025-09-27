@@ -26,10 +26,11 @@
 :root {
   --color-black: #000000;
   --color-dark-gray: #343434;
-  --color-dark-gray-70: rgba(52, 52, 52, 0.5);
+  --color-dark-gray-70: rgba(52, 52, 52, 0.7);
   --color-yellow: #ffc400;
   --color-white: #FFFFFF;
   --color-white-80: rgba(255, 255, 255, 0.7);
+  --color-card-info-bg: rgba(52, 52, 52, 0.7);
   --color-purple: #420092;
   --color-red: #900000;
 }
@@ -822,8 +823,8 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--color-white-80);
-  color: var(--color-black);
+  background: var(--color-card-info-bg);
+  color: var(--color-white);
   padding: 15px 10px 15px 10px;
   border-radius: 0 0 4px 4px;
   pointer-events: none; /* ensure hover scaling isn't disrupted */
@@ -1136,6 +1137,8 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none;
+  user-select: none;
   background: var(--color-purple);
   border-radius: 4px 4px 0 0;
 }
@@ -1146,8 +1149,8 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--color-white-80);
-  color: var(--color-black);
+  background: var(--color-card-info-bg);
+  color: var(--color-white);
   padding: 16px 15px 12px;
   border-radius: 0 0 4px 4px;
 }
