@@ -26,10 +26,10 @@
 :root {
   --color-black: #000000;
   --color-dark-gray: #343434;
-  --color-dark-gray-70: rgba(52, 52, 52, 0.6);
+  --color-dark-gray-70: rgba(52, 52, 52, 0.5);
   --color-yellow: #ffc400;
   --color-white: #FFFFFF;
-  --color-white-80: rgba(255, 255, 255, 0.7);
+  --color-white-80: rgba(255, 255, 255, 0.5);
   --color-purple: #420092;
   --color-red: #900000;
 }
@@ -647,7 +647,7 @@ body {
 .section-2-top-bar, .section-2-bottom-bar {
   width: 100%;
   height: 50px;
-  background-color: var(--color-white);
+  background-color: var(--color-white-80);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -746,25 +746,7 @@ body {
   background: rgba(255, 0, 0, 0.1);
 }
 
-.search-results-info {
-  color: var(--color-white);
-  font-size: 12px;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 4px 8px;
-  border-radius: 12px;
-  backdrop-filter: blur(5px);
-  height: 20px;
-  line-height: 20px;
-  position: absolute;
-  top: 100%;
-  margin-top: 2px;
-}
-
-.search-results-info span {
-  font-weight: bold;
-  color: var(--color-yellow);
-}
+/* search results badge removed */
 
 /* ===== 5. კარუსელის კონტეინერები ===== */
 .projects-scroll-1 {
@@ -1164,8 +1146,8 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.53);
-  color: var(--color-white);
+  background: var(--color-white-80);
+  color: var(--color-black);
   padding: 16px 15px 12px;
   border-radius: 0 0 4px 4px;
 }
@@ -1884,12 +1866,7 @@ body {
     height: 16px;
   }
   
-  .search-results-info {
-    font-size: 11px;
-    padding: 4px 6px;
-    height: 18px;
-    line-height: 18px;
-  }
+  /* search results badge removed */
   
   /* სექცია 3 მობილურზე */
   .section-3 {
@@ -2083,11 +2060,6 @@ body {
     height: 14px;
   }
   
-  .search-results-info {
-    font-size: 10px;
-    padding: 4px 6px;
-    height: 18px;
-    line-height: 18px;
-  }
+  /* search results badge removed */
 }
 

@@ -1181,8 +1181,6 @@ function initSearchFunctionality() {
     const searchInput = document.getElementById('projectSearchInput');
     const searchBtn = document.getElementById('searchBtn');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
-    const searchResultsInfo = document.getElementById('searchResultsInfo');
-    const searchResultsCount = document.getElementById('searchResultsCount');
     
     if (!searchInput || !searchBtn || !clearSearchBtn) return;
     
@@ -1237,8 +1235,8 @@ function initSearchFunctionality() {
         searchMode = filteredProjects.length > 0;
         searchCurrentIndex = 0;
         
-        // შედეგების ჩვენება
-        updateSearchResults();
+        // შედეგების ჩვენება — badge ამოღებულია, არაფერს ვაკეთებთ
+        // updateSearchResults();
         updateCarouselDisplay();
         
         // ძებნის ღილაკების განახლება
@@ -1254,8 +1252,8 @@ function initSearchFunctionality() {
         searchMode = false;
         searchCurrentIndex = 0;
         
-        // ყველა პროექტის ჩვენება
-        updateSearchResults();
+        // ყველა პროექტის ჩვენება — badge ამოღებულია, არაფერს ვაკეთებთ
+        // updateSearchResults();
         updateCarouselDisplay();
         
         // ძებნის ღილაკების განახლება
@@ -1264,14 +1262,7 @@ function initSearchFunctionality() {
     }
     
     // ძებნის შედეგების განახლება
-    function updateSearchResults() {
-        if (currentSearchTerm) {
-            searchResultsCount.textContent = filteredProjects.length;
-            searchResultsInfo.style.display = 'block';
-        } else {
-            searchResultsInfo.style.display = 'none';
-        }
-    }
+    function updateSearchResults() { /* badge removed */ }
     
     // კარუსელის ჩვენების განახლება
     function updateCarouselDisplay() {
