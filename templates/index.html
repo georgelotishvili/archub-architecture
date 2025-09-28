@@ -7,7 +7,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Archub</title>
+    <title>Archub | არქიტექტურული კომპანია თბილისში | პროექტირება და ნებართვები</title>
+    <meta name="description" content="Archub — არქიტექტურული კომპანია თბილისში. ვაკეთებთ პროექტირებას, მშენებლობის ნებართვებს, გრგ-ს, კონსტრუქციულ/გეოლოგიურ ექსპერტიზებს და არქიტექტურულ რენდერებს.">
+    <meta name="keywords" content="არქიტექტურული კომპანია, არქიტექტორი თბილისი, პროექტირება, მშენებლობის ნებართვა, გრგ, გაპი, 41 დადგენილება, კონსტრუქციული პროექტი, გეოლოგიური დასკვნა, არქიტექტურული რენდერები, Archub, archub.ge">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://archub.ge/">
+    
+    <!-- Hidden SEO additions -->
+    <link rel="alternate" href="https://archub.ge/" hreflang="ka">
+    <link rel="alternate" href="https://archub.ge/" hreflang="ka-GE">
+    <link rel="alternate" href="https://archub.ge/" hreflang="x-default">
+
+    <meta property="og:site_name" content="Archub">
+    <meta property="og:locale" content="ka_GE">
+    <meta property="og:image:alt" content="Archub — არქიტექტურული კომპანია">
+
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='photos/logo 1.jpg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='photos/logo 1.jpg') }}">
+    <meta name="apple-mobile-web-app-title" content="Archub">
+    <meta name="theme-color" content="#FF6633">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://archub.ge/">
+    <meta property="og:title" content="Archub | არქიტექტურული კომპანია თბილისში">
+    <meta property="og:description" content="პროექტირება · ნებართვები · გრგ · კონსტრუქციული/გეოლოგიური ექსპერტიზა · არქიტექტურული რენდერები">
+    <meta property="og:image" content="{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://archub.ge/">
+    <meta name="twitter:title" content="Archub | არქიტექტურული კომპანია თბილისში">
+    <meta name="twitter:description" content="სრული არქიტექტურული სერვისები: პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური სამუშაოები.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}">
     
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -18,6 +55,99 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap">
     </noscript>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Archub",
+      "url": "https://archub.ge/",
+      "logo": "{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}",
+      "telephone": "+995593222033",
+      "email": "naormala@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Tbilisi",
+        "addressCountry": "GE"
+      },
+      "areaServed": "Georgia",
+      "description": "არქიტექტურული კომპანია თბილისში — პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური ექსპერტიზა, რენდერები.",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "არქიტექტურული სერვისები",
+        "itemListElement": [
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "მიწის ნაკვეთის შერჩევა და შეფასება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "გაპის აღება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "განაშენიანების რეგულირების გეგმა (გრგ)"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "არქიტექტურული პროექტის შეთანხმება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "მაღალხარისხიანი არქიტექტურული რენდერები"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "მშენებლობის ნებართვის აღება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "41 დადგენილება და მისაწვდომობის სტანდარტი — კონსულტაცია/ექსპერტიზა"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "ფასადებზე რეკლამების/ღიობების შეთანხმება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "კონსტრუქციული პროექტი / ექსპერტიზა"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "გეოლოგიური დასკვნა / ექსპერტიზა"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "სახანძრო და კომუნალური ქსელების პროექტი"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "დენდროლოგიური პროექტი და ტაქსაცია"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "სატრანსპორტო სქემები"}}
+        ]
+      }
+    }
+    </script>
+    
+    <!-- Additional JSON-LD: WebSite + SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Archub",
+      "url": "https://archub.ge/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://archub.ge/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Additional JSON-LD: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "რა სერვისებს ვთავაზობთ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "პროექტირება, ნებართვები (გაპი, გრგ, მშენებლობა), არქიტექტურული რენდერები, კონსტრუქციული/გეოლოგიური ექსპერტიზა, სახანძრო/კომუნალური პროექტები, დენდროლოგია, სატრანსპორტო სქემები." }
+        },
+        {
+          "@type": "Question",
+          "name": "რომელ რეგიონებში ვმუშაობთ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "თბილისი და მთელი საქართველო." }
+        },
+        {
+          "@type": "Question",
+          "name": "როგორ დაგვიკავშირდეთ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "ელ-ფოსტა: naormala@gmail.com · მობ: +995 593 222 033." }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Additional JSON-LD: BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "მთავარი", "item": "https://archub.ge/#home" },
+        { "@type": "ListItem", "position": 2, "name": "პროექტები", "item": "https://archub.ge/#section2" },
+        { "@type": "ListItem", "position": 3, "name": "ჩვენს შესახებ", "item": "https://archub.ge/#section3" },
+        { "@type": "ListItem", "position": 4, "name": "კონტაქტი", "item": "https://archub.ge/#footer" }
+      ]
+    }
+    </script>
     
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
