@@ -57,7 +57,7 @@ html {
 body {
   line-height: 1.6;
   color: var(--color-black);
-  background-image: url(/static/photos/zaha.jpg);
+  background-image: url(/static/photos/zaha\ 2.jpg);
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -348,7 +348,7 @@ body {
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   position: relative;
   overflow: hidden;
 }
@@ -470,10 +470,10 @@ body {
   align-items: center;
   justify-content: space-around;
   flex-wrap: wrap;
-  background-color: var(--color-white);
+  background-color: var(--color-white-80);
   margin: 50px auto 0px auto;
-  border: 1px solid var(--color-black);
-  border-radius: 10px;
+  /* border: 1px solid var(--color-black); */
+  /* border-radius: 10px; */
 }
 
 
@@ -503,8 +503,8 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   position: absolute;
-  border: 1px solid var(--color-black);
-  border-radius: 10px;
+  /* border: 1px solid var(--color-black); */
+  /* border-radius: 10px; */
 }
 
 /* პირველი ფოტო */
@@ -550,8 +550,8 @@ body {
   right: 2%;
   z-index: 10;
   box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--color-black);
-  border-radius: 10px;
+  /* border: 1px solid var(--color-black); */
+  /* border-radius: 10px; */
 }
 
 /* ოვერლეი ბლოკის რიცხვი */
@@ -703,7 +703,7 @@ body {
   max-width: 400px;
   height: 32px;
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 20px;
+  /* border-radius: 20px; */
   padding: 6px 12px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
@@ -737,7 +737,7 @@ body {
   border: none;
   cursor: pointer;
   padding: 6px;
-  border-radius: 50%;
+  /* border-radius: 50%; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -805,14 +805,14 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  border-radius: 8px;
-  border: 1px solid var(--color-black);
+  /* border-radius: 8px; */
+  /* border: 1px solid var(--color-black); */
   overflow: hidden;
 }
 
 /* სექცია 2-ის ბარათების სპეციფიური სტილები */
 .projects-scroll-1 .project-card {
-  border-radius: 8px;
+  /* border-radius: 8px; */
   overflow: visible;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
   will-change: transform, box-shadow;
@@ -841,7 +841,7 @@ body {
   background: var(--color-card-info-bg);
   color: var(--color-white);
   padding: 15px 10px 15px 10px;
-  border-radius: 0 0 4px 4px;
+  /* border-radius: 0 0 4px 4px; */
   pointer-events: none; /* ensure hover scaling isn't disrupted */
 }
 
@@ -874,7 +874,7 @@ body {
   right: 15px;
   background: none;
   border: none;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   width: 40px;
   height: 40px;
   display: flex;
@@ -1059,7 +1059,7 @@ body {
   z-index: 15;
   transition: all 0.3s ease;
   padding: 15px;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   background: none;
   border: none;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -1090,7 +1090,7 @@ body {
   left: 20px;
   background: none;
   border: none;
-  border-radius: 0;
+  /* border-radius: 0; */
   width: 50px;
   height: 50px;
   display: flex;
@@ -1126,10 +1126,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--color-white);
+  background-color: var(--color-white-80);
   margin: 0px auto;
-  border: 1px solid var(--color-black);
-  border-radius: 10px;
+  /* border: 1px solid var(--color-black); */
+  /* border-radius: 10px; */
 }
 
 /* სექცია 3-ის შინა კონტენტი */
@@ -1140,7 +1140,7 @@ body {
   align-items: center;
   max-width: 1340px;
   width: 100%;
-  padding: 30px 20px;
+  padding: 50px 20px;
 }
 
 /* სექცია 3-ის პროექტების გრიდი */
@@ -1162,8 +1162,8 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  border-radius: 8px;
-  border: 1px solid var(--color-black);
+  /* border-radius: 8px; */
+  /* border: 1px solid var(--color-black); */
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
@@ -1181,7 +1181,7 @@ body {
   pointer-events: none;
   user-select: none;
   background: var(--color-purple);
-  border-radius: 4px 4px 0 0;
+  /* border-radius: 4px 4px 0 0; */
 }
 
 /* სექცია 3-ის ქარდის ინფორმაცია */
@@ -1193,7 +1193,7 @@ body {
   background: var(--color-card-info-bg);
   color: var(--color-white);
   padding: 16px 15px 12px;
-  border-radius: 0 0 4px 4px;
+  /* border-radius: 0 0 4px 4px; */
 }
 
 /* სექცია 3-ის ქარდის ფართობის ინფორმაცია */
@@ -1208,7 +1208,7 @@ body {
   right: 15px;
   background: none;
   border: none;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   width: 40px;
   height: 40px;
   display: flex;
@@ -1569,7 +1569,7 @@ body {
   max-width: 1000px;
   max-height: 700px;
   position: relative;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   overflow: hidden;
   box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
   animation: slideIn 0.3s ease;
@@ -1580,7 +1580,7 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   overflow: hidden;
   box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
   display: block;
@@ -1627,7 +1627,7 @@ body {
   z-index: 20;
   transition: all 0.3s ease;
   padding: 10px;
-  border-radius: 10px;
+  /* border-radius: 10px; */
 }
 
 /* დახურვის აიქონის hover ეფექტი */
@@ -1646,7 +1646,7 @@ body {
   z-index: 10;
   transition: all 0.3s ease;
   padding: 20px;
-  border-radius: 10px;
+  /* border-radius: 10px; */
 }
 
 /* ნავიგაციის აიქონების hover ეფექტი */
@@ -1678,8 +1678,8 @@ body {
 .dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  /* border-radius: 50%; */
+  background: rgba(255, 255, 255, 0.7);
   border: 2px solid rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1697,7 +1697,7 @@ body {
   color: white;
   padding: 40px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  /* border-radius: 20px; */
   border: 2px dashed rgba(255, 255, 255, 0.3);
   margin: 20px;
 }
