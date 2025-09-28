@@ -6,14 +6,21 @@
 let projectsCards = [];  // პროექტების მასივი
 let galleryPhotos = [];  // გალერეის ფოტოების მასივი
 
-// ===== API კონფიგურაცია =====
+// ===== API კონფიგურაცია და უსაფრთხო fetch =====
 const API_BASE_URL = '/api/projects';  // API-ის ძირითადი URL
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+async function secureFetch(url, options = {}) {
+    const headers = { ...(options.headers || {}) };
+    if (csrfToken) headers['X-CSRFToken'] = csrfToken;
+    return fetch(url, { credentials: 'same-origin', ...options, headers });
+}
 
 // ===== პროექტების ჩატვირთვა API-დან =====
 async function loadCardsFromAPI() {
     try {
         console.log('Loading cards from API...');
-        const response = await fetch(API_BASE_URL);
+        const response = await secureFetch(API_BASE_URL);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -146,7 +153,7 @@ async function deleteCard(projectId) {
     if (confirm('ნამდვილად გსურთ ქარდის წაშლა? (გალერიის ფოტოებიც წაიშლება)')) {
         try {
             console.log('Deleting project with ID:', projectId);
-            const response = await fetch(`${API_BASE_URL}/${projectId}`, {
+            const response = await secureFetch(`${API_BASE_URL}/${projectId}`, {
                 method: 'DELETE'
             });
             
@@ -370,7 +377,7 @@ async function saveProjectUpdate(projectId) {
         const formData = new FormData();
         formData.append('area', newArea);
         
-        const response = await fetch(`${API_BASE_URL}/${projectId}`, {
+        const response = await secureFetch(`${API_BASE_URL}/${projectId}`, {
             method: 'PUT',
             body: formData
         });
@@ -531,7 +538,7 @@ function goToMainPage(event) {
 async function addNewCard() {
     try {
         console.log('Creating empty project...');
-        const response = await fetch('/api/projects/empty', {
+        const response = await secureFetch('/api/projects/empty', {
             method: 'POST'
         });
         
@@ -628,7 +635,7 @@ function addPhotosToProject(projectId) {
             
             console.log(`Adding ${files.length} photos to project ${projectId}`);
             
-            const response = await fetch(`/api/projects/${projectId}/photos`, {
+            const response = await secureFetch(`/api/projects/${projectId}/photos`, {
                 method: 'POST',
                 body: formData
             });
@@ -685,7 +692,7 @@ async function deletePhotoFromProject(projectId, photoIndex) {
             const formData = new FormData();
             formData.append('photo_url', photoUrl);
             
-            const response = await fetch(`/api/projects/${projectId}/photos`, {
+            const response = await secureFetch(`/api/projects/${projectId}/photos`, {
                 method: 'DELETE',
                 body: formData
             });
@@ -735,7 +742,7 @@ function changeMainImage(projectId) {
             
             console.log(`Updating main image for project ${projectId}`);
             
-            const response = await fetch(`/api/projects/${projectId}/main-image`, {
+            const response = await secureFetch(`/api/projects/${projectId}/main-image`, {
                 method: 'PUT',
                 body: formData
             });
@@ -778,7 +785,7 @@ async function deleteMainImage(projectId) {
         try {
             console.log(`Deleting main image for project ${projectId}`);
             
-            const response = await fetch(`/api/projects/${projectId}/main-image`, {
+            const response = await secureFetch(`/api/projects/${projectId}/main-image`, {
                 method: 'DELETE'
             });
             
@@ -885,7 +892,7 @@ let carouselImages = [];  // კარუსელის ფოტოები�
 async function loadCarouselImages() {
     try {
         console.log('Loading carousel images from API...');
-        const response = await fetch('/api/carousel');
+        const response = await secureFetch('/api/carousel');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -999,7 +1006,7 @@ async function addCarouselImage() {
     const formData = new FormData(form);
     
     try {
-        const response = await fetch('/api/carousel', {
+        const response = await secureFetch('/api/carousel', {
             method: 'POST',
             body: formData
         });
@@ -1064,7 +1071,7 @@ function editCarouselImageOrder(imageId) {
 // კარუსელის ფოტოს რიგის შენახვა
 async function saveCarouselImageOrder(imageId, newOrder) {
     try {
-        const response = await fetch(`/api/carousel/${imageId}/order`, {
+        const response = await secureFetch(`/api/carousel/${imageId}/order`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -1089,7 +1096,7 @@ async function saveCarouselImageOrder(imageId, newOrder) {
 // კარუსელის ფოტოს სტატუსის შეცვლა
 async function toggleCarouselImageStatus(imageId) {
     try {
-        const response = await fetch(`/api/carousel/${imageId}/toggle`, {
+        const response = await secureFetch(`/api/carousel/${imageId}/toggle`, {
             method: 'PUT'
         });
         
@@ -1114,7 +1121,7 @@ async function deleteCarouselImage(imageId) {
     }
     
     try {
-        const response = await fetch(`/api/carousel/${imageId}`, {
+        const response = await secureFetch(`/api/carousel/${imageId}`, {
             method: 'DELETE'
         });
         

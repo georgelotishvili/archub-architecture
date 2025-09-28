@@ -438,6 +438,10 @@
             return fetch(url, { ...options, headers });
         };
 
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"'`=\/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[c]));
+        }
+
         // ===== ავტორიზაციის ფუნქციონალი (copied from main script.js) =====
         let userAuthenticated = false;
         let currentUser = null;
@@ -636,9 +640,9 @@
                     `;
                     
                     projectCard.innerHTML = `
-                        <img src="/${project.main_image_url}" alt="${project.area}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ფოტო არ არის</text+Cjwvc3ZnPg=='">
+                        <img src="/${project.main_image_url}" alt="${escapeHtml(project.area)}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5mYW1pbHkgYXIgYXJhIHN0</text+Cjwvc3ZnPg=='">
                         <div class="card-info">
-                            <div class="card-area">${project.area}</div>
+                            <div class="card-area">${escapeHtml(project.area)}</div>
                         </div>
                         ${likeButtonHtml}
                     `;

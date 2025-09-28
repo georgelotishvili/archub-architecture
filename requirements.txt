@@ -71,3 +71,9 @@ werkzeug==2.3.7
     #   flask
     #   flask-cors
     #   flask-login
+Pillow==10.4.0
+    # via - security: image verification
+bleach==6.1.0
+    # via - input sanitization
+flask-limiter==3.7.0
+    # via - rate limiting

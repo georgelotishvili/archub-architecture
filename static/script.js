@@ -399,9 +399,9 @@ function createSection3CardElement(project) {
     ` : '';
     
     cardElement.innerHTML = `
-        <img src="${project.main_image_url}" class="card-image" alt="${project.area}">
+        <img src="${project.main_image_url}" class="card-image" alt="${escapeHtml(project.area)}">
         <div class="card-info">
-            <div class="card-area">${project.area}</div>
+            <div class="card-area">${escapeHtml(project.area)}</div>
         </div>
         ${likeButtonHtml}
     `;
@@ -559,9 +559,9 @@ function createCardElement(card, index) {
     
     cardElement.innerHTML = `
         <div class="card-info">
-            <div class="card-area">${card.area}</div>
-            ${card.title ? `<div class="card-title" style="display: none;">${card.title}</div>` : ''}
-            ${card.description ? `<div class="card-description" style="display: none;">${card.description}</div>` : ''}
+            <div class="card-area">${escapeHtml(card.area)}</div>
+            ${card.title ? `<div class="card-title" style="display: none;">${escapeHtml(card.title)}</div>` : ''}
+            ${card.description ? `<div class="card-description" style="display: none;">${escapeHtml(card.description)}</div>` : ''}
         </div>
         ${likeButtonHtml}
     `;
@@ -1415,4 +1415,8 @@ function initSection2Arrows() {
             scrollToCard(allCards[nextIndex]);
         }
     });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"'`=\/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[c]));
 }

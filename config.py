@@ -13,6 +13,8 @@ class Config:
     """ძირითადი კონფიგურაციის კლასი - საერთო პარამეტრები"""
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    REMEMBER_COOKIE_SAMESITE = 'Lax'
     
     # ===== ფაილის ატვირთვის პარამეტრები =====
     UPLOAD_FOLDER = os.path.join(basedir, 'static', 'uploads')
@@ -43,6 +45,8 @@ class ProductionConfig(Config):
     DEBUG = False
     # წარმოებაში PostgreSQL ბაზის გამოყენება
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://user:password@localhost/archub'
+    SESSION_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = True
     
     # წარმოების გარემოს ელ-ფოსტის პარამეტრები
     MAIL_SUPPRESS_SEND = False

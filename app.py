@@ -4,7 +4,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -16,18 +16,31 @@ import uuid
 from datetime import datetime
 from email_validator import validate_email, EmailNotValidError
 from config import config
+from PIL import Image
+import bleach
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # ===== FLASK აპლიკაციის ინიციალიზაცია =====
 # Flask აპლიკაციის შექმნა
 app = Flask(__name__)
 
 # CORS-ის ინიციალიზაცია (Cross-Origin Resource Sharing)
-CORS(app)
+# CORS ინიციალიზდება კონფიგურაციის ჩატვირთვის შემდეგ; აქ ვრთავთ მხოლოდ CSRF-ს
 csrf = CSRFProtect(app)
 
 # კონფიგურაციის არჩევა FLASK_ENV ცვლადის მიხედვით
 config_name = os.getenv('FLASK_ENV', 'default')
 app.config.from_object(config[config_name])
+
+# CORS კონფიგურაცია გარემოზე დაყრდნობით
+if config_name == 'production':
+    CORS(app, resources={r"/api/*": {"origins": [os.getenv('CORS_ORIGIN', 'https://archub.ge')]}}, supports_credentials=True)
+else:
+    CORS(app, supports_credentials=True)
+
+# Rate limiting
+limiter = Limiter(key_func=get_remote_address, app=app)
 
 # ატვირთული ფაილების საქაღალდის შექმნა (თუ არ არსებობს)
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -52,6 +65,16 @@ migrate = Migrate(app, db)
 # LoginManager-ის ინიციალიზაცია (მომხმარებლის ავტორიზაციისთვის)
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'home'
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    try:
+        if request.path.startswith('/api/'):
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        return redirect(url_for('home'))
+    except Exception:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 401
 
 # მოდელების იმპორტი models.py ფაილიდან
 from models import Project, Photo, User, CarouselImage, project_likes, ContactSubmission
@@ -83,19 +106,31 @@ def generate_unique_filename(original_filename):
         return f"{timestamp}_{unique_id}"
 
 def save_uploaded_file(file, folder=''):
-    """Save uploaded file and return the URL path"""
+    """Save uploaded file and return the URL path (with image verification)"""
     if file and allowed_file(file.filename):
-        # Generate unique filename
         unique_filename = generate_unique_filename(file.filename)
-        
-        # Create folder path
+
+        # Ensure folder exists
         folder_path = os.path.join(app.config['UPLOAD_FOLDER'], folder)
         os.makedirs(folder_path, exist_ok=True)
-        
+
+        # Verify image content using Pillow
+        try:
+            file.stream.seek(0)
+            with Image.open(file.stream) as img:
+                img.verify()
+        except Exception:
+            return None
+        finally:
+            try:
+                file.stream.seek(0)
+            except Exception:
+                pass
+
         # Save file
         file_path = os.path.join(folder_path, unique_filename)
         file.save(file_path)
-        
+
         # Return URL path (relative to static folder)
         return f"static/uploads/{folder}/{unique_filename}"
     return None
@@ -254,6 +289,8 @@ def create_project():
                 'success': False,
                 'error': 'Area field is required'
             }), 400
+        # sanitize
+        area = bleach.clean(area, tags=[], strip=True)
         
         # Get main image file
         main_image = request.files['main_image']
@@ -458,6 +495,8 @@ def update_project(project_id):
                 'success': False,
                 'error': 'Area field is required'
             }), 400
+        # sanitize
+        new_area = bleach.clean(new_area, tags=[], strip=True)
         
         # Update the project's area field
         project.area = new_area
@@ -769,6 +808,7 @@ def delete_project_photo_by_url(project_id):
 # User authentication API endpoints
 
 @app.route('/api/register', methods=['POST'])
+@limiter.limit('5 per minute')
 def register():
     data = request.get_json()
     username = data.get('username')
@@ -792,6 +832,7 @@ def register():
     return jsonify({'success': True, 'message': 'რეგისტრაცია წარმატებით დასრულდა'}), 201
 
 @app.route('/api/login', methods=['POST'])
+@limiter.limit('5 per minute')
 def login():
     try:
         data = request.get_json()
@@ -1019,6 +1060,7 @@ def get_admin_user_liked_projects(user_id):
 
 # Contact form API endpoint
 @app.route('/api/contact', methods=['POST'])
+@limiter.limit('10 per minute')
 def contact_form():
     try:
         # Get JSON data from request
@@ -1047,6 +1089,15 @@ def contact_form():
                 'error': 'message is required'
             }), 400
         
+        # Validate email format
+        try:
+            validate_email(sender_email)
+        except EmailNotValidError:
+            return jsonify({
+                'success': False,
+                'error': 'არასწორი ელ-ფოსტის ფორმატი'
+            }), 400
+
         # Log contact form submission
         print(f"Contact form submission from {sender_email}: {message[:50]}...")
         
