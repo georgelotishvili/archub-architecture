@@ -189,7 +189,7 @@ body {
 .header-bottom-line {
   width: 100%;
   height: 50px;
-  background-color: var(--color-dark-gray-70);
+  background-color: var(--color-dark-gray);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -924,8 +924,8 @@ body {
   
   /* ბარათების დაშორება */
   .cards-container {
-    gap: 30px;
-    padding: 25px 50px;
+    gap: 25px;
+    padding: 5px 30px;
   }
   
   /* მოწონების ღილაკი */
@@ -952,7 +952,31 @@ body {
   
   /* კარუსელის კონტეინერი საშუალო ეკრანებზე */
   .projects-scroll-1 {
-    height: calc(var(--s2-card-w) * 3 / 4 + 60px);
+    height: calc(var(--s2-card-w) * 3 / 4);
+  }
+  
+  /* სექცია 3 – ერთი სვეტი, ცენტრში, გვერდითი წასვლის გარეშე */
+  .section-3 {
+    padding: 20px 0;
+  }
+  .section-3-content {
+    width: 95%;
+    height: auto;
+    padding: 15px;
+  }
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 0 10px;
+    justify-items: center;
+    justify-content: center;
+  }
+  .projects-grid .project-card {
+    width: 100%;
+    max-width: 310px;
+    height: auto;
+    aspect-ratio: 4/3;
+    margin: 0 auto;
   }
   
   /* სექცია 2-ის ისრები საშუალო ეკრანებზე */
@@ -990,8 +1014,8 @@ body {
   
   /* ბარათების დაშორება */
   .cards-container {
-    gap: 30px;
-    padding: 20px 30px;
+    gap: 20px;
+    padding: 5px 20px;
   }
   
   /* სექცია 2-ის ზოლები მცირე ეკრანებზე */
@@ -1000,12 +1024,12 @@ body {
   }
   
   .section-2-top-bar, .section-2-bottom-bar {
-    height: 40px;
+    height: 45px;
   }
   
   /* კარუსელის კონტეინერი მცირე ეკრანებზე */
   .projects-scroll-1 {
-    height: calc(var(--s2-card-w) * 3 / 4 + 60px);
+    height: calc(var(--s2-card-w) * 3 / 4);
   }
   
   /* სექცია 2-ის ისრები მცირე ეკრანებზე */
@@ -1126,11 +1150,13 @@ body {
   gap: 20px;
   width: 100%;
   justify-items: center;
+  justify-content: center;
 }
 
 /* სექცია 3-ის პროექტის ქარდი */
 .projects-grid .project-card {
   width: 310px;
+  margin: 0 auto;
   height: 233px; /* 4:3 პროპორცია (310/4*3 = 232.5) */
   background: var(--color-white);
   cursor: pointer;
@@ -1878,12 +1904,16 @@ body {
   .projects-grid {
     gap: 15px;
     padding: 0 10px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    justify-content: center;
   }
 
   /* სექცია 3-ის ქარდები მობილურზე */
   .projects-grid .project-card {
     width: 280px;
     height: 210px; /* 4:3 პროპორცია (280/4*3 = 210) */
+    margin: 0 auto;
   }
 
   /* სექცია 3-ის მოწონების ღილაკი მობილურზე */
