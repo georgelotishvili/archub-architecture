@@ -7,6 +7,24 @@ import os
 import sys
 from pathlib import Path
 
+# ===== Windows console Unicode handling =====
+# Some Windows terminals use a legacy codepage that cannot encode emojis or
+# non-ASCII characters. Reconfigure stdout/stderr to UTF-8 with a safe fallback
+# so that debug prints do not crash the process.
+if os.name == 'nt':
+    try:
+        # Python 3.7+: preferred way
+        sys.stdout.reconfigure(encoding='utf-8', errors='ignore')
+        sys.stderr.reconfigure(encoding='utf-8', errors='ignore')
+    except Exception:
+        try:
+            import io
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='ignore')
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='ignore')
+        except Exception:
+            # As a last resort, avoid failing due to encoding issues
+            pass
+
 # ===== მოთხოვნების შემოწმება =====
 def check_requirements():
     """ყველა მოთხოვნის შემოწმება - ბაზა, საქაღალდეები და ა.შ."""
