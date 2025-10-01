@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<!-- ===== ARCHUB - მთავარი გვერდი ===== -->
+<!-- არქიტექტურული პორტფოლიო ვებ-საიტი -->
+<!-- შეიცავს: ჰედერი, პროექტების გალერეა, კონტაქტ ფორმა, ავტორიზაცია -->
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Archub | არქიტექტურული კომპანია თბილისში | პროექტირება და ნებართვები</title>
+    <meta name="description" content="Archub — არქიტექტურული კომპანია თბილისში. ვაკეთებთ პროექტირებას, მშენებლობის ნებართვებს, გრგ-ს, კონსტრუქციულ/გეოლოგიურ ექსპერტიზებს და არქიტექტურულ რენდერებს.">
+    <meta name="keywords" content="არქიტექტურული კომპანია, არქიტექტორი თბილისი, პროექტირება, მშენებლობის ნებართვა, გრგ, გაპი, 41 დადგენილება, კონსტრუქციული პროექტი, გეოლოგიური დასკვნა, არქიტექტურული რენდერები, Archub, archub.ge">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://archub.ge/">
+    
+    <!-- Hidden SEO additions -->
+    <link rel="alternate" href="https://archub.ge/" hreflang="ka">
+    <link rel="alternate" href="https://archub.ge/" hreflang="ka-GE">
+    <link rel="alternate" href="https://archub.ge/" hreflang="x-default">
+
+    <meta property="og:site_name" content="Archub">
+    <meta property="og:locale" content="ka_GE">
+    <meta property="og:image:alt" content="Archub — არქიტექტურული კომპანია">
+
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='photos/logo 1.jpg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='photos/logo 1.jpg') }}">
+    <meta name="apple-mobile-web-app-title" content="Archub">
+    <meta name="theme-color" content="#FF6633">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://archub.ge/">
+    <meta property="og:title" content="Archub | არქიტექტურული კომპანია თბილისში">
+    <meta property="og:description" content="პროექტირება · ნებართვები · გრგ · კონსტრუქციული/გეოლოგიური ექსპერტიზა · არქიტექტურული რენდერები">
+    <meta property="og:image" content="{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://archub.ge/">
+    <meta name="twitter:title" content="Archub | არქიტექტურული კომპანია თბილისში">
+    <meta name="twitter:description" content="სრული არქიტექტურული სერვისები: პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური სამუშაოები.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}">
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <noscript> 
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap">
+    </noscript>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Archub",
+      "url": "https://archub.ge/",
+      "logo": "{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}",
+      "telephone": "+995593222033",
+      "email": "naormala@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Tbilisi",
+        "addressCountry": "GE"
+      },
+      "areaServed": "Georgia",
+      "description": "არქიტექტურული კომპანია თბილისში — პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური ექსპერტიზა, რენდერები.",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "არქიტექტურული სერვისები",
+        "itemListElement": [
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "მიწის ნაკვეთის შერჩევა და შეფასება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "გაპის აღება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "განაშენიანების რეგულირების გეგმა (გრგ)"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "არქიტექტურული პროექტის შეთანხმება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "მაღალხარისხიანი არქიტექტურული რენდერები"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "მშენებლობის ნებართვის აღება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "41 დადგენილება და მისაწვდომობის სტანდარტი — კონსულტაცია/ექსპერტიზა"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "ფასადებზე რეკლამების/ღიობების შეთანხმება"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "კონსტრუქციული პროექტი / ექსპერტიზა"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "გეოლოგიური დასკვნა / ექსპერტიზა"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "სახანძრო და კომუნალური ქსელების პროექტი"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "დენდროლოგიური პროექტი და ტაქსაცია"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "სატრანსპორტო სქემები"}}
+        ]
+      }
+    }
+    </script>
+    
+    <!-- Additional JSON-LD: WebSite + SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Archub",
+      "url": "https://archub.ge/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://archub.ge/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Additional JSON-LD: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "რა სერვისებს ვთავაზობთ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "პროექტირება, ნებართვები (გაპი, გრგ, მშენებლობა), არქიტექტურული რენდერები, კონსტრუქციული/გეოლოგიური ექსპერტიზა, სახანძრო/კომუნალური პროექტები, დენდროლოგია, სატრანსპორტო სქემები." }
+        },
+        {
+          "@type": "Question",
+          "name": "რომელ რეგიონებში ვმუშაობთ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "თბილისი და მთელი საქართველო." }
+        },
+        {
+          "@type": "Question",
+          "name": "როგორ დაგვიკავშირდეთ?",
+          "acceptedAnswer": { "@type": "Answer", "text": "ელ-ფოსტა: naormala@gmail.com · მობ: +995 593 222 033." }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Additional JSON-LD: BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "მთავარი", "item": "https://archub.ge/#home" },
+        { "@type": "ListItem", "position": 2, "name": "პროექტები", "item": "https://archub.ge/#section2" },
+        { "@type": "ListItem", "position": 3, "name": "ჩვენს შესახებ", "item": "https://archub.ge/#section3" },
+        { "@type": "ListItem", "position": 4, "name": "კონტაქტი", "item": "https://archub.ge/#footer" }
+      ]
+    }
+    </script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- ვებ-გვერდის ჰედერი -->
+    <header class="header">
+        <div class="header-container">
+            <!-- კომპანიის ლოგო - მარცხენა მხარე -->
+            <div class="logo">
+                <a href="#home" class="logo-link">
+                    <svg class="logo-svg" width="324" height="86" viewBox="0 0 324 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <title>Archub Logo</title>
+                        <g clip-path="url(#clip0_8_2)">
+                        <path d="M117.162 80.774C117.877 82.4584 117.093 84.4013 115.413 85.1164C113.729 85.8315 111.786 85.0475 111.071 83.3674L94.5157 44.7685L79.942 78.7536H97.178C99.0088 78.7536 100.495 80.2399 100.495 82.0707C100.495 83.9016 99.0088 85.3878 97.178 85.3878H74.9146V85.3792C74.4795 85.3792 74.0401 85.293 73.618 85.1121C71.9336 84.397 71.1538 82.4541 71.869 80.7697L91.47 35.0714C91.7931 34.3132 92.4005 33.6713 93.219 33.3224C94.8991 32.6072 96.8462 33.3913 97.5614 35.0714L117.162 80.7697V80.774ZM143.828 44.7513C145.659 44.7513 147.145 46.2375 147.145 48.0683C147.145 49.8992 145.659 51.3854 143.828 51.3854C139.99 51.3854 136.518 52.9406 134.002 55.4564C131.486 57.9722 129.931 61.4444 129.931 65.2828V82.1052C129.931 83.9361 128.445 85.4223 126.614 85.4223C124.783 85.4223 123.297 83.9361 123.297 82.1052V65.2828C123.297 59.6136 125.597 54.4785 129.311 50.7608C133.028 47.0431 138.159 44.7469 143.833 44.7469L143.828 44.7513ZM177.766 73.9158C178.903 72.4856 180.988 72.2444 182.419 73.386C183.849 74.5233 184.09 76.6083 182.949 78.0385C181.036 80.4466 178.589 82.4197 175.784 83.7767C173.075 85.0863 170.046 85.8229 166.863 85.8229C161.194 85.8229 156.059 83.5225 152.341 79.8091C148.623 76.0913 146.327 70.9606 146.327 65.2871C146.327 59.6179 148.627 54.4828 152.341 50.7651C156.059 47.0474 161.189 44.7513 166.863 44.7513C170.046 44.7513 173.075 45.4879 175.784 46.7975C178.589 48.1545 181.036 50.1275 182.949 52.5357C184.086 53.9659 183.849 56.0509 182.419 57.1882C180.988 58.3255 178.903 58.0886 177.766 56.6583C176.465 55.017 174.807 53.6773 172.911 52.7597C171.093 51.8809 169.043 51.3898 166.867 51.3898C163.029 51.3898 159.557 52.9449 157.041 55.4607C154.525 57.9766 152.97 61.4487 152.97 65.2871C152.97 69.1254 154.525 72.6019 157.041 75.1134C159.557 77.6293 163.029 79.1844 166.867 79.1844C169.047 79.1844 171.097 78.6933 172.911 77.8145C174.807 76.8969 176.465 75.5572 177.766 73.9158Z" fill="#FF6633"/>
+                        <path d="M228.6 82.6824C228.6 84.5133 227.113 85.9995 225.282 85.9995C223.452 85.9995 221.965 84.5133 221.965 82.6824V63.5208C221.965 60.2942 220.66 57.3777 218.545 55.2625C216.434 53.1517 213.513 51.8421 210.287 51.8421C207.06 51.8421 204.144 53.1474 202.028 55.2625C199.917 57.3734 198.608 60.2942 198.608 63.5208V82.6824C198.608 84.5133 197.122 85.9995 195.291 85.9995C193.46 85.9995 191.974 84.5133 191.974 82.6824V34.9335C191.974 33.1026 193.46 31.6164 195.291 31.6164C197.122 31.6164 198.608 33.1026 198.608 34.9335V49.4167C201.778 46.7889 205.845 45.2122 210.282 45.2122C215.34 45.2122 219.919 47.2627 223.232 50.5755C226.545 53.8883 228.595 58.4676 228.595 63.5251V82.6867L228.6 82.6824ZM236.612 48.5293C236.612 46.6984 238.099 45.2122 239.929 45.2122C241.76 45.2122 243.246 46.6984 243.246 48.5293V67.6909C243.246 70.9175 244.552 73.834 246.667 75.9492C248.778 78.06 251.699 79.3696 254.925 79.3696C258.152 79.3696 261.068 78.0643 263.183 75.9492C265.294 73.8383 266.604 70.9175 266.604 67.6909V48.5293C266.604 46.6984 268.09 45.2122 269.921 45.2122C271.752 45.2122 273.238 46.6984 273.238 48.5293V67.6909C273.238 72.7484 271.188 77.3277 267.875 80.6405C264.562 83.9533 259.983 86.0038 254.925 86.0038C249.868 86.0038 245.288 83.9533 241.976 80.6405C238.663 77.3277 236.612 72.7484 236.612 67.6909V48.5293ZM293.554 75.1134C296.07 77.6292 299.542 79.1844 303.381 79.1844C307.219 79.1844 310.691 77.6292 313.207 75.1134C315.723 72.5976 317.278 69.1254 317.278 65.2871C317.278 61.4487 315.723 57.9765 313.207 55.4607C310.691 52.9449 307.219 51.3897 303.381 51.3897C299.542 51.3897 296.066 52.9449 293.554 55.4607C291.038 57.9765 289.483 61.4487 289.483 65.2871C289.483 69.1254 291.038 72.6019 293.554 75.1134ZM303.381 85.8186C298.022 85.8186 293.141 83.7637 289.483 80.3992V81.7907C289.483 83.6216 287.997 85.1078 286.166 85.1078C284.335 85.1078 282.849 83.6216 282.849 81.7907V35.2609C282.849 33.43 284.335 31.9438 286.166 31.9438C287.997 31.9438 289.483 33.43 289.483 35.2609V50.1663C293.141 46.8018 298.022 44.7469 303.381 44.7469C309.05 44.7469 314.185 47.0473 317.903 50.7608C321.62 54.4785 323.916 59.6092 323.916 65.2828C323.916 70.952 321.616 76.087 317.903 79.8047C314.185 83.5225 309.054 85.8186 303.381 85.8186Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M59.7336 85.3533L31.8096 73.3773L43.7857 45.4534L71.7096 57.4294L59.7336 85.3533Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0 59.7342L27.9239 71.7102L39.8999 43.7862L11.976 31.8102L0 59.7342Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M85.3527 25.6198L57.4288 13.6438L45.4485 41.5677L73.3767 53.5437L85.3527 25.6198Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M25.6192 0.000610352L53.5431 11.9766L41.5671 39.9005L13.6432 27.9245L25.6192 0.000610352Z" fill="#343434"/>
+                        </g>
+                        <defs>
+                        <clipPath id="clip0_8_2">
+                        <rect width="323.916" height="86.0002" fill="white"/>
+                        </clipPath>
+                        </defs>
+                        </svg>
+                </a>
+            </div>
+            
+            <!-- მთავარი ნავიგაციის მენიუ - შუაში -->
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="#home" class="nav-link">მთავარი</a></li>
+                    <li><a href="#section2" class="nav-link">პროექტები</a></li>
+                    <li><a href="#section3" class="nav-link">ჩვენს შესახებ</a></li>
+                    <li><a href="#footer" class="nav-link">კონტაქტი</a></li>
+                </ul>
+            </nav>
+
+            <!-- მობილური ბურგერ მენიუ -->
+            <div class="burger-menu">
+                <div class="burger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <div class="header-bottom-line">
+            <div class="header-bottom-line-container">
+                <h1>+995 593 222 033</h1>
+                <!-- Authentication ღილაკების კონტეინერი -->
+                <div class="auth-buttons-container">
+                    <button class="auth-btn" id="authBtn">შესვლა</button>
+                    <button class="my-page-btn" id="myPageBtn" style="display: none;">ჩემი გვერდი</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- მობილური ნავიგაციის სლაიდინგ პანელი -->
+    <div class="mobile-nav-panel" id="mobileNavPanel">
+        <div class="mobile-nav-content">
+            <!-- მობილური მენიუს დახურვის ღილაკი -->
+            <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close navigation menu">
+                <span></span>
+                <span></span>
+            </button>
+            <!-- მობილური ნავიგაციის მენიუ -->
+            <nav class="mobile-nav">
+                <ul class="mobile-nav-list">
+                    <li><a href="#home" class="mobile-nav-link">მთავარი</a></li>
+                    <li><a href="#section2" class="mobile-nav-link">პროექტები</a></li>
+                    <li><a href="#section3" class="mobile-nav-link">ჩვენს შესახებ</a></li>
+                    <li><a href="#footer" class="mobile-nav-link">კონტაქტი</a></li>
+                </ul>
+                <!-- მობილური Authentication ღილაკი -->
+                <button class="mobile-auth-btn" id="mobileAuthBtn">შესვლა</button>
+                <!-- მობილური My Page ღილაკი -->
+                <button class="mobile-my-page-btn" id="mobileMyPageBtn" style="display: none;">ჩემი გვერდი</button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- ვებ-გვერდის მთავარი კონტენტი -->
+    <main class="main" id="home">
+
+        <!-- ფოტოების ავტომატური კარუსელი -->
+        <div class="carousel">
+            <div class="carousel-container" id="carouselContainer">
+                <!-- კარუსელის სლაიდები დინამიურად დაემატება აქ -->
+            </div>
+        </div>
+
+        <!-- სექცია 1 - არქიტექტურული სერვისების შესახებ -->
+        <div class="section-1">
+
+            <!-- სექცია 1-ის მარცხენა ნაწილი - ფოტოების გალერეა -->
+            <div class="section-1-left">
+                <div class="section-1-left-content">
+                    <!-- პირველი ფოტო -->
+                    <div class="photo-1"></div>
+                    <!-- მეორე ფოტო -->
+                    <div class="photo-2"></div>
+                    <!-- მესამე ფოტო -->
+                    <div class="photo-3"></div>
+                    <!-- მეოთხე ფოტო -->
+                    <div class="photo-4"></div>
+                </div>
+                <!-- გამოცდილების წლების ოვერლეი -->
+                <div class="overlay-element">
+                    <h3>30+</h3>
+                    <p>წლის გამოცდილება</p>
+                </div>
+            </div>
+
+            <!-- სექცია 1-ის მარჯვენა ნაწილი - ტექსტური კონტენტი -->
+            <div class="section-1-right">
+                <h1>არქიტექტურული პროექტირება და სერვისები </h1>
+                <h2>თქვენს ხედვასა და სურვილებს ვაქცევთ არქიტექტურად</h2>
+                
+                <!-- კომპანიის აღწერა -->
+                <p>ჩვენ დაგეხმარებით შენობის პროექტირების, მშენებლობის და დასრულების ყველა ეტაპზე:<br>
+                    • მიწის ნაკვეთის შერჩევა და შეფასება არქიტექტურული კუთხით;<br>
+                    • გაპის აღება;<br>
+                    • განაშენიანების რეგულირების გეგმის (გრგ) მომზადება და შეთანხმება;<br>
+                    • არქიტექტურული პროექტის შეთანხმება;<br>
+                    • მაღალხარისხიანი არქიტექტურული რენდერები;<br>
+                    • მშენებლობის ნებართვის აღება;<br>
+                    • 41 დადგენილების და მისაწვდომობის ექსპერტიზა / კონსულტაცია;<br>
+                    • ფასადებზე ღიობების რეკლამების და სხვა შეთანხმება;<br>
+                    • კონსტრუქციული პროექტი / ექსპერტიზა;<br>
+                    • გეოლოგიური დასკვნა / ექსპერტიზა;<br>
+                    • სახანძრო და კომუნალური ქსელების პროექტი;<br>
+                    • დენდროლოგიური პროექტი და ტაქსაცია;<br>
+                    • სატრანსპორტო სქემები / შეთანხმება;<br>
+                არქიტექტურული სასწავლო პლატფორმა gipc.ge</p>
+                <!-- GIPC-ის ბმული -->
+                <a href="https://gipc.ge" target="_blank" rel="noopener noreferrer" class="projects-btn">gipc.ge</a>
+            </div>
+
+        </div>
+
+        <!-- სექცია 2 - პროექტების გალერეა -->
+        <div class="section-2" id="section2">
+            <!-- ზედა ჰორიზონტალური ზოლი -->
+            <div class="section-2-top-bar">
+                <h3>შეარჩიეთ პროექტი</h3>
+            </div>
+
+            <!-- პროექტების კარუსელი (გამარტივებული ერთსაფეხურიანი სქროლის ტრეკი) -->
+            <div class="projects-scroll-1">
+                <div class="cards-container" id="cardsWrapper" role="group" aria-label="Projects carousel">
+                    <!-- ბარათები დინამიურად დაემატება აქ -->
+                </div>
+                
+                <!-- სქროლის ისრები -->
+                <span class="nav-icon prev" id="section2PrevBtn">‹</span>
+                <span class="nav-icon next" id="section2NextBtn">›</span>
+            </div>
+
+            <!-- ქვედა ჰორიზონტალური ზოლი -->
+            <div class="section-2-bottom-bar">
+                <!-- ძებნის ველი -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" id="projectSearchInput" placeholder="ძებნა პროექტებში..." class="search-input">
+                        <button class="search-btn" id="searchBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="M21 21l-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                        <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+       <!-- სექცია 3 - პროექტების გამოფენა -->
+        <div class="section-3" id="section3">
+            <div class="section-3-content">
+                <!-- პროექტების ქარდების კონტეინერი -->
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- პროექტების ქარდები დინამიურად დაემატება აქ -->
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- ვებ-გვერდის ფუტერი -->
+    <footer class="footer" id="footer">
+        
+        <div class="container">
+            <div class="footer-content">
+                <!-- კომპანიის ინფორმაცია -->
+                <div class="footer-section">
+                    <h3>არქჰაბი</h3>
+                    <p>ჩვენი კომპანიის მოკლე აღწერა და ინფორმაცია.</p>
+                </div>
+                <!-- ნავიგაციის ბმულები -->
+                <div class="footer-section">
+                    <h3>ბმულები</h3>
+                    <ul class="footer-links" role="list">
+                        <li><a href="#home">მთავარი</a></li>
+                        <li><a href="#section2">პროექტები</a></li>
+                        <li><a href="#section3">ჩვენს შესახებ</a></li>
+                        <li><a href="#footer">კონტაქტი</a></li>
+                    </ul>
+                </div>
+                <!-- კონტაქტის ინფორმაცია -->
+                <div class="footer-section">
+                    <h3>კონტაქტი</h3>
+                    <p>Email: <a href="mailto:naormala@gmail.com">naormala@gmail.com</a></p>
+                    <p>mobile: <a href="tel:+995593222033">+995 593 222 033</a></p>
+                    <p>თბილისი, საქართველო</p>
+                </div>
+            </div>
+            <!-- ფუტერის ქვედა ნაწილი -->
+            <div class="footer-bottom">
+                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
+            </div>
+        </div>
+    </footer>
+
+
+
+    <!-- გალერიის მოდალური ფანჯარა -->
+    <div class="gallery-modal" id="galleryModal">
+        <div class="gallery-modal-content">
+            <!-- გალერიის კონტეინერი -->
+            <div class="gallery" id="gallery">
+                <!-- სლაიდების კონტეინერი -->
+                <div class="gallery-container">
+                    <div class="carousel-container" id="galleryCarouselContainer">
+                        <!-- სლაიდები დინამიურად დაემატება აქ -->
+                    </div>
+                </div>
+                
+                
+                <!-- დახურვის აიქონი - მარჯვენა ზედა კუთხე -->
+                <span class="close-icon" id="galleryCloseBtn">✕</span>
+                
+                <!-- ნავიგაციის აიქონები -->
+                <span class="nav-icon prev" id="galleryPrevBtn">‹</span>
+                <span class="nav-icon next" id="galleryNextBtn">›</span>
+                
+                <!-- ღილაკები (dots) -->
+                <div class="dots" id="galleryDots">
+                    <!-- dots დინამიურად დაემატება აქ -->
+                </div>
+            </div>
+            
+            <!-- ფოტოების არარსებობის შეტყობინება -->
+            <div class="no-photos" id="galleryNoPhotos" style="display: none;">
+                <h3>ფოტოები არ არის</h3>
+                <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- შესვლის მოდალური ფანჯარა -->
+    <div class="auth-modal" id="loginModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h2>შესვლა</h2>
+                <button class="auth-modal-close" onclick="closeModal('loginModal')">✕</button>
+            </div>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">ელ-ფოსტა:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">პაროლი:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="contact-submit-btn">შესვლა</button>
+                <p style="text-align:center; margin-top:15px;">არ გაქვს ანგარიში? <a href="#" id="showRegisterModal">რეგისტრაცია</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- რეგისტრაციის მოდალური ფანჯარა -->
+    <div class="auth-modal" id="registerModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h2>რეგისტრაცია</h2>
+                <button class="auth-modal-close" onclick="closeModal('registerModal')">✕</button>
+            </div>
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">მომხმარებლის სახელი:</label>
+                    <input type="text" id="registerUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">ელ-ფოსტა:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">პაროლი:</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <button type="submit" class="contact-submit-btn">რეგისტრაცია</button>
+                <p style="text-align:center; margin-top:15px;">უკვე გაქვს ანგარიში? <a href="#" id="showLoginModal">შესვლა</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- მთავარი JavaScript ფაილი -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

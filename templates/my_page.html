@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<!-- ===== ARCHUB - მომხმარებლის პროფილის გვერდი ===== -->
+<!-- მომხმარებლის პირადი გვერდი მოწონებული პროექტების ნახვისთვის -->
+<!-- შეიცავს: მომხმარებლის ინფორმაცია, მოწონებული პროექტების სია -->
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>ჩემი გვერდი - Archub</title>
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <noscript> 
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800&display=swap">
+    </noscript>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* User profile page specific styles */
+        .profile-page {
+            width: 94%;
+            background-color:var(--color-white-80);
+            margin: 50px auto 0px auto;
+            padding: 20px;
+            border: 1px solid var(--color-black);
+            /* border-radius: 10px; */
+        }
+        
+        .profile-header {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px 0;
+            background-image: url(/static/photos/brick%203.jpg);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--color-black);
+            /* border-radius: 10px; */
+        }
+
+        .profile-header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .profile-header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+
+        .profile-header h3 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+            font-weight: 400;
+            opacity: 0.95;
+            line-height: 1.2;
+        }
+        
+               
+        .profile-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* ჰედერის ქვედა ნაწილის ღილაკი — გაფართოება ტექსტისათვის */
+        .header-bottom-line .auth-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            padding: 0 24px;
+            white-space: nowrap;
+            overflow: visible;
+        }
+        
+        /* <= 600px - შევამციროთ ტელეფონის და ღილაკის ზომები და მობილური განლაგება */
+        @media (max-width: 600px) {
+            .profile-page {
+                width: 100%;
+                margin: 20px 0;
+                padding: 10px;
+            }
+
+            .profile-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .profile-header h3 {
+                font-size: 1rem;
+            }
+
+            .header-bottom-line h1 {
+                font-size: 14px;
+            }
+            .header-bottom-line .auth-btn {
+                height: 36px;
+                font-size: 12px;
+                padding: 0 10px;
+            }
+
+            /* მცირე ეკრანებისთვის საერთო კონტენტი */
+            .profile-content {
+                padding: 20px 10px;
+            }
+            .profile-page .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 0 10px;
+            }
+            .project-card {
+                width: 100%;
+                max-width: 310px;
+                margin: 0 auto;
+            }
+            .back-to-home {
+                width: 180px;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+        }
+        
+        .back-to-home {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
+            color: #242424;
+            padding: 12px 24px;
+            /* border-radius: 8px; */
+            text-decoration: none;
+            font-weight: 600;
+            font-family: 'DejaVu Sans', sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        
+        .back-to-home:hover {
+            background: linear-gradient(135deg, #e6b000 0%, #ffc400 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
+        }
+        
+        
+        .liked-projects-section {
+            margin-top: 40px;
+        }
+        
+       
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+            justify-items: center;
+            justify-content: center;
+        }
+        
+        .project-card {
+            width: 310px;
+            height: auto;
+            aspect-ratio: 4/3;
+            background: #ffffff;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+        
+        .card-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.53);
+            color: #ffffff;
+            padding: 20px 15px 15px;
+        }
+        
+        .card-area {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .no-projects {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-projects h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #242424;
+        }
+        
+        .no-projects p {
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .loading h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #242424;
+        }
+        
+        /* Responsive adjustments for <= 900px */
+        @media (max-width: 900px) {
+            .profile-header h1 {
+                font-size: 2rem;
+                font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+                font-weight: 400;
+            }
+            
+            .profile-header p {
+                font-size: 1rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 20px;
+            }
+            
+            .project-card {
+                width: 100%;
+                max-width: 350px;
+                margin: 0 auto;
+            }
+            
+            .back-to-home {
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ვებ-გვერდის ჰედერი (გათანაბრებული მთავარ გვერდთან) -->
+    <header class="header">
+        <div class="header-container">
+            <!-- კომპანიის ლოგო - მარცხენა მხარე -->
+            <div class="logo">
+                <a href="/" class="logo-link">
+                    <svg class="logo-svg" width="324" height="86" viewBox="0 0 324 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <title>Archub Logo</title>
+                        <g clip-path="url(#clip0_8_2)">
+                        <path d="M117.162 80.774C117.877 82.4584 117.093 84.4013 115.413 85.1164C113.729 85.8315 111.786 85.0475 111.071 83.3674L94.5157 44.7685L79.942 78.7536H97.178C99.0088 78.7536 100.495 80.2399 100.495 82.0707C100.495 83.9016 99.0088 85.3878 97.178 85.3878H74.9146V85.3792C74.4795 85.3792 74.0401 85.293 73.618 85.1121C71.9336 84.397 71.1538 82.4541 71.869 80.7697L91.47 35.0714C91.7931 34.3132 92.4005 33.6713 93.219 33.3224C94.8991 32.6072 96.8462 33.3913 97.5614 35.0714L117.162 80.7697V80.774ZM143.828 44.7513C145.659 44.7513 147.145 46.2375 147.145 48.0683C147.145 49.8992 145.659 51.3854 143.828 51.3854C139.99 51.3854 136.518 52.9406 134.002 55.4564C131.486 57.9722 129.931 61.4444 129.931 65.2828V82.1052C129.931 83.9361 128.445 85.4223 126.614 85.4223C124.783 85.4223 123.297 83.9361 123.297 82.1052V65.2828C123.297 59.6136 125.597 54.4785 129.311 50.7608C133.028 47.0431 138.159 44.7469 143.833 44.7469L143.828 44.7513ZM177.766 73.9158C178.903 72.4856 180.988 72.2444 182.419 73.386C183.849 74.5233 184.09 76.6083 182.949 78.0385C181.036 80.4466 178.589 82.4197 175.784 83.7767C173.075 85.0863 170.046 85.8229 166.863 85.8229C161.194 85.8229 156.059 83.5225 152.341 79.8091C148.623 76.0913 146.327 70.9606 146.327 65.2871C146.327 59.6179 148.627 54.4828 152.341 50.7651C156.059 47.0474 161.189 44.7513 166.863 44.7513C170.046 44.7513 173.075 45.4879 175.784 46.7975C178.589 48.1545 181.036 50.1275 182.949 52.5357C184.086 53.9659 183.849 56.0509 182.419 57.1882C180.988 58.3255 178.903 58.0886 177.766 56.6583C176.465 55.017 174.807 53.6773 172.911 52.7597C171.093 51.8809 169.043 51.3898 166.867 51.3898C163.029 51.3898 159.557 52.9449 157.041 55.4607C154.525 57.9766 152.97 61.4487 152.97 65.2871C152.97 69.1254 154.525 72.6019 157.041 75.1134C159.557 77.6293 163.029 79.1844 166.867 79.1844C169.047 79.1844 171.097 78.6933 172.911 77.8145C174.807 76.8969 176.465 75.5572 177.766 73.9158Z" fill="#FF6633"/>
+                        <path d="M228.6 82.6824C228.6 84.5133 227.113 85.9995 225.282 85.9995C223.452 85.9995 221.965 84.5133 221.965 82.6824V63.5208C221.965 60.2942 220.66 57.3777 218.545 55.2625C216.434 53.1517 213.513 51.8421 210.287 51.8421C207.06 51.8421 204.144 53.1474 202.028 55.2625C199.917 57.3734 198.608 60.2942 198.608 63.5208V82.6824C198.608 84.5133 197.122 85.9995 195.291 85.9995C193.46 85.9995 191.974 84.5133 191.974 82.6824V34.9335C191.974 33.1026 193.46 31.6164 195.291 31.6164C197.122 31.6164 198.608 33.1026 198.608 34.9335V49.4167C201.778 46.7889 205.845 45.2122 210.282 45.2122C215.34 45.2122 219.919 47.2627 223.232 50.5755C226.545 53.8883 228.595 58.4676 228.595 63.5251V82.6867L228.6 82.6824ZM236.612 48.5293C236.612 46.6984 238.099 45.2122 239.929 45.2122C241.76 45.2122 243.246 46.6984 243.246 48.5293V67.6909C243.246 70.9175 244.552 73.834 246.667 75.9492C248.778 78.06 251.699 79.3696 254.925 79.3696C258.152 79.3696 261.068 78.0643 263.183 75.9492C265.294 73.8383 266.604 70.9175 266.604 67.6909V48.5293C266.604 46.6984 268.09 45.2122 269.921 45.2122C271.752 45.2122 273.238 46.6984 273.238 48.5293V67.6909C273.238 72.7484 271.188 77.3277 267.875 80.6405C264.562 83.9533 259.983 86.0038 254.925 86.0038C249.868 86.0038 245.288 83.9533 241.976 80.6405C238.663 77.3277 236.612 72.7484 236.612 67.6909V48.5293ZM293.554 75.1134C296.07 77.6292 299.542 79.1844 303.381 79.1844C307.219 79.1844 310.691 77.6292 313.207 75.1134C315.723 72.5976 317.278 69.1254 317.278 65.2871C317.278 61.4487 315.723 57.9765 313.207 55.4607C310.691 52.9449 307.219 51.3897 303.381 51.3897C299.542 51.3897 296.066 52.9449 293.554 55.4607C291.038 57.9765 289.483 61.4487 289.483 65.2871C289.483 69.1254 291.038 72.6019 293.554 75.1134ZM303.381 85.8186C298.022 85.8186 293.141 83.7637 289.483 80.3992V81.7907C289.483 83.6216 287.997 85.1078 286.166 85.1078C284.335 85.1078 282.849 83.6216 282.849 81.7907V35.2609C282.849 33.43 284.335 31.9438 286.166 31.9438C287.997 31.9438 289.483 33.43 289.483 35.2609V50.1663C293.141 46.8018 298.022 44.7469 303.381 44.7469C309.05 44.7469 314.185 47.0473 317.903 50.7608C321.62 54.4785 323.916 59.6092 323.916 65.2828C323.916 70.952 321.616 76.087 317.903 79.8047C314.185 83.5225 309.054 85.8186 303.381 85.8186Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M59.7336 85.3533L31.8096 73.3773L43.7857 45.4534L71.7096 57.4294L59.7336 85.3533Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0 59.7342L27.9239 71.7102L39.8999 43.7862L11.976 31.8102L0 59.7342Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M85.3527 25.6198L57.4288 13.6438L45.4485 41.5677L73.3767 53.5437L85.3527 25.6198Z" fill="#343434"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M25.6192 0.000610352L53.5431 11.9766L41.5671 39.9005L13.6432 27.9245L25.6192 0.000610352Z" fill="#343434"/>
+                        </g>
+                        <defs>
+                        <clipPath id="clip0_8_2">
+                        <rect width="323.916" height="86.0002" fill="white"/>
+                        </clipPath>
+                        </defs>
+                        </svg>
+                </a>
+            </div>
+        </div>
+        <div class="header-bottom-line">
+            <div class="header-bottom-line-container">
+                <h1>+995 593 222 033</h1>
+                <a href="/" class="auth-btn" id="backToHomeHeaderLink">მთავარი გვერდი</a>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main" id="home">
+    <!-- ფოტოების ავტომატური კარუსელი (იგივე, რაც მთავარ გვერდზე) -->
+    <div class="carousel">
+        <div class="carousel-container" id="carouselContainer">
+            <!-- კარუსელის სლაიდები დინამიურად დაემატება აქ -->
+        </div>
+    </div>
+    <div class="sec-free-space"></div>
+
+    <!-- User Profile Page -->
+    <div class="profile-page">
+        <!-- Profile Header -->
+        <div class="profile-header">
+
+            <div class="container">
+                <h1>ჩემი გვერდი</h1>
+                <h3>შერჩეული პროექტები</h3>                
+            </div>
+
+        </div>
+        
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <div class="container">
+                
+                
+                <!-- Liked Projects Section -->
+                <div class="liked-projects-section">
+                    
+                    <!-- Loading State -->
+                    <div class="loading" id="loadingState">
+                        <h3>იტვირთება...</h3>
+                        <p>ავტორიზაციის შემოწმება და შერჩეული პროექტების ჩატვირთვა</p>
+                    </div>
+                    
+                    <!-- No Projects State -->
+                    <div class="no-projects" id="noProjectsState" style="display: none;">
+                        <h3>ჯერ არ გაქვთ შერჩეული პროექტები</h3>
+                        <p>მთავარ გვერდზე გადადით და დაიწყეთ პროექტების შერჩევა</p>
+                    </div>
+                    
+                    <!-- Projects Grid -->
+                    <div class="projects-grid" id="likedProjectsGrid" style="display: none;">
+                        <!-- Projects will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- ვებ-გვერდის ფუტერი (იგივე, რაც მთავარ გვერდზე) -->
+    <footer class="footer" id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- კომპანიის ინფორმაცია -->
+                <div class="footer-section">
+                    <h3>არქჰაბი</h3>
+                    <p>ჩვენი კომპანიის მოკლე აღწერა და ინფორმაცია.</p>
+                </div>
+                <!-- ნავიგაციის ბმულები -->
+                <div class="footer-section">
+                    <h3>ბმულები</h3>
+                    <ul class="footer-links" role="list">
+                        <li><a href="#home">მთავარი</a></li>
+                        <li><a href="#section2">პროექტები</a></li>
+                        <li><a href="#section3">ჩვენს შესახებ</a></li>
+                        <li><a href="#footer">კონტაქტი</a></li>
+                    </ul>
+                </div>
+                <!-- კონტაქტის ინფორმაცია -->
+                <div class="footer-section">
+                    <h3>კონტაქტი</h3>
+                    <p>Email: <a href="mailto:naormala@gmail.com">naormala@gmail.com</a></p>
+                    <p>mobile: <a href="tel:+995593222033">+995 593 222 033</a></p>
+                    <p>თბილისი, საქართველო</p>
+                </div>
+            </div>
+            <!-- ფუტერის ქვედა ნაწილი -->
+            <div class="footer-bottom">
+                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Gallery Modal (reused from main page) -->
+    <div class="gallery-modal" id="galleryModal">
+        <div class="gallery-modal-content">
+            <!-- Gallery container -->
+            <div class="gallery" id="gallery">
+                <!-- Slides container -->
+                <div class="gallery-container">
+                    <div class="carousel-container" id="galleryCarouselContainer">
+                        <!-- Slides will be added dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Close icon -->
+                <span class="close-icon" id="galleryCloseBtn">✕</span>
+                
+                <!-- Navigation icons -->
+                <span class="nav-icon prev" id="galleryPrevBtn">‹</span>
+                <span class="nav-icon next" id="galleryNextBtn">›</span>
+                
+                <!-- Dots -->
+                <div class="dots" id="galleryDots">
+                    <!-- Dots will be added dynamically -->
+                </div>
+            </div>
+            
+            <!-- No photos message -->
+            <div class="no-photos" id="galleryNoPhotos" style="display: none;">
+                <h3>ფოტოები არ არის</h3>
+                <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- მთავარი JavaScript ფაილი (საჭიროა კარუსელისთვის) -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Authentication and Gallery Modal JavaScript (custom for my-page) -->
+    <script>
+        // ===== CSRF Token-ის წამოღება =====
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        // ===== უსაფრთხო fetch ფუნქცია =====
+        const secureFetch = async (url, options = {}) => {
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+                ...options.headers,
+            };
+            return fetch(url, { ...options, headers });
+        };
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"'`=\/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[c]));
+        }
+
+        // ===== ავტორიზაციის ფუნქციონალი (copied from main script.js) =====
+        let userAuthenticated = false;
+        let currentUser = null;
+        
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                if (data.logged_in) {
+                    userAuthenticated = true;
+                    currentUser = data.user;
+                    window.userAuthenticated = true;
+                } else {
+                    userAuthenticated = false;
+                    currentUser = null;
+                    window.userAuthenticated = false;
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+                userAuthenticated = false;
+                currentUser = null;
+                window.userAuthenticated = false;
+            }
+            return userAuthenticated;
+        }
+        
+        // ===== რეალ-ტაიმ განახლების ფუნქციონალი =====
+        // ლაიქების მოსმენა localStorage-იდან
+        function setupRealtimeUpdates() {
+            // მოსმენა localStorage ცვლილებების
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'projectLiked' || e.key === 'projectUnliked') {
+                    console.log('Project like status changed, reloading liked projects...');
+                    loadLikedProjects();
+                }
+            });
+            
+            // მოსმენა custom events-ების
+            window.addEventListener('projectLiked', function(e) {
+                console.log('Project liked event received:', e.detail);
+                loadLikedProjects();
+            });
+            
+            window.addEventListener('projectUnliked', function(e) {
+                console.log('Project unliked event received:', e.detail);
+                loadLikedProjects();
+            });
+        }
+        
+        // ===== გალერიის მოდალური ფანჯრის ფუნქციონალი (copied from main script.js) =====
+        let galleryCurrentSlide = 0;
+        let gallerySlides = [];
+        let galleryDots = [];
+        let galleryTotalSlides = 0;
+        
+        function initGalleryModal() {
+            const galleryModal = document.getElementById('galleryModal');
+            const galleryCloseBtn = document.getElementById('galleryCloseBtn');
+            const galleryPrevBtn = document.getElementById('galleryPrevBtn');
+            const galleryNextBtn = document.getElementById('galleryNextBtn');
+            
+            if (!galleryModal) return;
+            
+            // Event listeners
+            if (galleryCloseBtn) galleryCloseBtn.addEventListener('click', closeGalleryModal);
+            if (galleryPrevBtn) galleryPrevBtn.addEventListener('click', () => changeGallerySlide(-1));
+            if (galleryNextBtn) galleryNextBtn.addEventListener('click', () => changeGallerySlide(1));
+        
+            // Close modal when clicking outside
+            galleryModal.addEventListener('click', (e) => {
+                if (e.target === galleryModal) closeGalleryModal();
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (galleryModal.classList.contains('active')) {
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        changeGallerySlide(-1);
+                    } else if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        changeGallerySlide(1);
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        closeGalleryModal();
+                    }
+                }
+            });
+        }
+        
+        function closeGalleryModal() {
+            const galleryModal = document.getElementById('galleryModal');
+            if (!galleryModal) return;
+            
+            galleryModal.classList.remove('active');
+            document.body.style.overflow = '';
+            window.selectedCard = null;
+        }
+        
+        function changeGallerySlide(direction) {
+            if (galleryTotalSlides === 0) return;
+            
+            galleryCurrentSlide += direction;
+            if (galleryCurrentSlide >= galleryTotalSlides) {
+                galleryCurrentSlide = 0;
+            } else if (galleryCurrentSlide < 0) {
+                galleryCurrentSlide = galleryTotalSlides - 1;
+            }
+            showGallerySlide(galleryCurrentSlide);
+        }
+        
+        function showGallerySlide(index) {
+            if (!gallerySlides || gallerySlides.length === 0) return;
+            
+            gallerySlides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            if (galleryDots && galleryDots.length > 0) {
+                galleryDots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+            
+            galleryCurrentSlide = index;
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus().then(() => {
+                if (!userAuthenticated) {
+                    // Redirect to main page if not authenticated
+                    alert('პირადი გვერდის ნახვისთვის აუცილებელია შესვლა');
+                    window.location.href = '/';
+                    return;
+                }
+                // Load liked projects only if authenticated (defer to ensure functions are defined)
+                setTimeout(() => { if (typeof window.loadLikedProjects === 'function') { window.loadLikedProjects(); } }, 0);
+            });
+            initGalleryModal();
+            setupRealtimeUpdates();
+        });
+    </script>
+    
+    <!-- User profile page specific JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingState = document.getElementById('loadingState');
+            const noProjectsState = document.getElementById('noProjectsState');
+            const projectsGrid = document.getElementById('likedProjectsGrid');
+            const backToHomeBtn = document.getElementById('backToHomeBtn');
+            const backToHomeHeaderLink = document.getElementById('backToHomeHeaderLink');
+            
+            // Load liked projects
+            async function loadLikedProjects() {
+                try {
+                    const response = await fetch('/api/user/liked-projects');
+                    const data = await response.json();
+                    
+                    loadingState.style.display = 'none';
+                    
+                    if (data.success && data.projects.length > 0) {
+                        projectsGrid.style.display = 'grid';
+                        displayProjects(data.projects);
+                    } else {
+                        noProjectsState.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error loading liked projects:', error);
+                    loadingState.style.display = 'none';
+                    noProjectsState.style.display = 'block';
+                }
+            }
+            // Expose for other scripts
+            window.loadLikedProjects = loadLikedProjects;
+            
+            // Display projects in grid
+            function displayProjects(projects) {
+                const grid = document.getElementById('likedProjectsGrid');
+                grid.innerHTML = '';
+                
+                projects.forEach(project => {
+                    const projectCard = document.createElement('div');
+                    projectCard.className = 'project-card';
+                    projectCard.setAttribute('data-project-id', project.id);
+                    projectCard.onclick = () => openGallery(project);
+                    
+                    // Create like button HTML
+                    const likeButtonHtml = `
+                        <button class="like-btn liked" data-project-id="${project.id}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </button>
+                    `;
+                    
+                    projectCard.innerHTML = `
+                        <img src="/${project.main_image_url}" alt="${escapeHtml(project.area)}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5mYW1pbHkgYXIgYXJhIHN0</text+Cjwvc3ZnPg=='">
+                        <div class="card-info">
+                            <div class="card-area">${escapeHtml(project.area)}</div>
+                        </div>
+                        ${likeButtonHtml}
+                    `;
+                    
+                    // Add like button click event listener
+                    const likeBtn = projectCard.querySelector('.like-btn');
+                    if (likeBtn) {
+                        likeBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleUnlikeClick(project.id, projectCard);
+                        });
+                    }
+                    
+                    grid.appendChild(projectCard);
+                });
+            }
+            
+            // Handle unlike click
+            async function handleUnlikeClick(projectId, projectCard) {
+                // Show confirmation dialog
+                const confirmed = confirm('ნამდვილად გსურთ ამ პროექტის მოწონების გაუქმება? პროექტი წაიშლება თქვენი პირადი გვერდიდან.');
+                
+                if (!confirmed) {
+                    return; // User cancelled, do nothing
+                }
+                
+                try {
+                    const response = await secureFetch(`/api/projects/${projectId}/like`, {
+                        method: 'POST'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        // Remove the card from the grid
+                        projectCard.remove();
+                        
+                        // რეალ-ტაიმ განახლება მთავარი გვერდისთვის
+                        localStorage.setItem('projectUnliked', JSON.stringify({
+                            projectId: projectId,
+                            timestamp: Date.now()
+                        }));
+                        window.dispatchEvent(new CustomEvent('projectUnliked', {
+                            detail: { projectId: projectId }
+                        }));
+                        
+                        // Check if there are any remaining projects
+                        const remainingProjects = document.querySelectorAll('.project-card');
+                        if (remainingProjects.length === 0) {
+                            // Show "no projects" message
+                            document.getElementById('likedProjectsGrid').style.display = 'none';
+                            document.getElementById('noProjectsState').style.display = 'block';
+                        }
+                    } else {
+                        // Error handling
+                        const errorMessage = data.error || 'შეცდომა მოწონების გაუქმებისას';
+                        alert(`შეცდომა: ${errorMessage}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error during unlike:', error);
+                    alert('შეცდომა სერვერთან კავშირისას.');
+                }
+            }
+            
+            // Gallery variables
+            let currentSlide = 0;
+            let totalSlides = 0;
+            
+            // Open gallery modal
+            function openGallery(project) {
+                const modal = document.getElementById('galleryModal');
+                const galleryContainer = document.getElementById('galleryCarouselContainer');
+                const dotsContainer = document.getElementById('galleryDots');
+                const noPhotosDiv = document.getElementById('galleryNoPhotos');
+                
+                if (!modal || !galleryContainer || !dotsContainer) {
+                    console.error('Gallery elements not found');
+                    return;
+                }
+                
+                // Clear previous content
+                galleryContainer.innerHTML = '';
+                dotsContainer.innerHTML = '';
+                
+                // Get all photos (main image + gallery photos)
+                const allPhotos = [];
+                if (project.main_image_url) {
+                    allPhotos.push(project.main_image_url);
+                }
+                if (project.photos && project.photos.length > 0) {
+                    allPhotos.push(...project.photos);
+                }
+                
+                // Filter out empty photos
+                const validPhotos = allPhotos.filter(photo => photo && photo.trim() !== '');
+                
+                if (validPhotos.length === 0) {
+                    noPhotosDiv.style.display = 'block';
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    return;
+                }
+                
+                noPhotosDiv.style.display = 'none';
+                
+                // Create slides
+                validPhotos.forEach((photoUrl, index) => {
+                    const slide = document.createElement('div');
+                    slide.className = `slide ${index === 0 ? 'active' : ''}`;
+                    slide.innerHTML = `<img src="/${photoUrl}" alt="Gallery image ${index + 1}">`;
+                    galleryContainer.appendChild(slide);
+                    
+                    // Create dot
+                    const dot = document.createElement('button');
+                    dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                    dot.onclick = () => goToSlide(index);
+                    dotsContainer.appendChild(dot);
+                });
+                
+                // Set up variables
+                currentSlide = 0;
+                totalSlides = validPhotos.length;
+                
+                // Show modal
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Go to specific slide
+            function goToSlide(index) {
+                const slides = document.querySelectorAll('#galleryCarouselContainer .slide');
+                const dots = document.querySelectorAll('#galleryDots .dot');
+                
+                if (slides.length === 0) return;
+                
+                // Hide all slides
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                // Show current slide
+                if (slides[index]) {
+                    slides[index].classList.add('active');
+                }
+                if (dots[index]) {
+                    dots[index].classList.add('active');
+                }
+                
+                currentSlide = index;
+            }
+            
+            // Previous slide
+            function prevSlide() {
+                if (totalSlides === 0) return;
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                goToSlide(currentSlide);
+            }
+            
+            // Next slide
+            function nextSlide() {
+                if (totalSlides === 0) return;
+                currentSlide = (currentSlide + 1) % totalSlides;
+                goToSlide(currentSlide);
+            }
+            
+            // Close gallery
+            function closeGallery() {
+                const modal = document.getElementById('galleryModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+            
+            // Back to home functionality (simple redirect)
+            if (backToHomeBtn) {
+                backToHomeBtn.onclick = (e) => {
+                    window.location.href = '/';
+                };
+            }
+            
+            // Set up gallery event listeners
+            document.getElementById('galleryCloseBtn').onclick = closeGallery;
+            document.getElementById('galleryPrevBtn').onclick = prevSlide;
+            document.getElementById('galleryNextBtn').onclick = nextSlide;
+            
+            // Close gallery when clicking outside
+            document.getElementById('galleryModal').onclick = (e) => {
+                if (e.target.id === 'galleryModal') {
+                    closeGallery();
+                }
+            };
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                const modal = document.getElementById('galleryModal');
+                if (!modal.classList.contains('active')) return;
+                
+                if (e.key === 'Escape') {
+                    closeGallery();
+                } else if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                }
+            });
+            
+            // Liked projects are now loaded conditionally in the auth check above
+        });
+        
+        // მცირე fallback, თუ მთავარი script.js არ არის ჩატვირთული
+        if (typeof openAdminPanel !== 'function') {
+            function openAdminPanel() {
+                window.location.href = '/admin';
+            }
+        }
+    </script>
+</body>
+</html>

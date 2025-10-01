@@ -1,0 +1,7 @@
+venv/
+.env
+database.db
+static/uploads/
+__pycache__/
+*.pyc
+run.log

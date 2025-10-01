@@ -1,0 +1,9 @@
+{
+    "python.pythonPath": "C:\\Users\\george\\Desktop\\archub.ge\\kodi\\archub 3\\venv\\Scripts\\python.exe",
+    "python.defaultInterpreterPath": "C:\\Users\\george\\Desktop\\archub.ge\\kodi\\archub 3\\venv\\Scripts\\python.exe",
+    "python.analysis.extraPaths": [
+        "C:\\Users\\george\\Desktop\\archub.ge\\kodi\\archub 3\\venv\\Lib\\site-packages"
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "basic"
+}

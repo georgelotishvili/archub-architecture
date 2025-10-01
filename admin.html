@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archub - ადმინ პანელი</title>
+    
+    <!-- Preload critical fonts for better mobile performance -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Fallback for browsers that don't support preload -->
+    <noscript> 
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800;900&display=swap">
+    </noscript>
+    
+    <link rel="stylesheet" href="static/admin.css">
+</head>
+<body>
+    <!-- ჰედერი -->
+    <header class="admin-header">
+        <div class="admin-header-container">
+            <div class="logo">
+                <a href="/" class="logo-link">
+                    <svg class="logo-svg" width="324" height="86" viewBox="0 0 324 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <title>Archub Logo</title>
+                        <g clip-path="url(#clip0_8_2)">
+                        <path d="M117.162 80.774C117.877 82.4584 117.093 84.4013 115.413 85.1164C113.729 85.8315 111.786 85.0475 111.071 83.3674L94.5157 44.7685L79.942 78.7536H97.178C99.0088 78.7536 100.495 80.2399 100.495 82.0707C100.495 83.9016 99.0088 85.3878 97.178 85.3878H74.9146V85.3792C74.4795 85.3792 74.0401 85.293 73.618 85.1121C71.9336 84.397 71.1538 82.4541 71.869 80.7697L91.47 35.0714C91.7931 34.3132 92.4005 33.6713 93.219 33.3224C94.8991 32.6072 96.8462 33.3913 97.5614 35.0714L117.162 80.7697V80.774ZM143.828 44.7513C145.659 44.7513 147.145 46.2375 147.145 48.0683C147.145 49.8992 145.659 51.3854 143.828 51.3854C139.99 51.3854 136.518 52.9406 134.002 55.4564C131.486 57.9722 129.931 61.4444 129.931 65.2828V82.1052C129.931 83.9361 128.445 85.4223 126.614 85.4223C124.783 85.4223 123.297 83.9361 123.297 82.1052V65.2828C123.297 59.6136 125.597 54.4785 129.311 50.7608C133.028 47.0431 138.159 44.7469 143.833 44.7469L143.828 44.7513ZM177.766 73.9158C178.903 72.4856 180.988 72.2444 182.419 73.386C183.849 74.5233 184.09 76.6083 182.949 78.0385C181.036 80.4466 178.589 82.4197 175.784 83.7767C173.075 85.0863 170.046 85.8229 166.863 85.8229C161.194 85.8229 156.059 83.5225 152.341 79.8091C148.623 76.0913 146.327 70.9606 146.327 65.2871C146.327 59.6179 148.627 54.4828 152.341 50.7651C156.059 47.0474 161.189 44.7513 166.863 44.7513C170.046 44.7513 173.075 45.4879 175.784 46.7975C178.589 48.1545 181.036 50.1275 182.949 52.5357C184.086 53.9659 183.849 56.0509 182.419 57.1882C180.988 58.3255 178.903 58.0886 177.766 56.6583C176.465 55.017 174.807 53.6773 172.911 52.7597C171.093 51.8809 169.043 51.3898 166.867 51.3898C163.029 51.3898 159.557 52.9449 157.041 55.4607C154.525 57.9766 152.97 61.4487 152.97 65.2871C152.97 69.1254 154.525 72.6019 157.041 75.1134C159.557 77.6293 163.029 79.1844 166.867 79.1844C169.047 79.1844 171.097 78.6933 172.911 77.8145C174.807 76.8969 176.465 75.5572 177.766 73.9158Z" fill="#FF6633"/>
+                        <path d="M228.6 82.6824C228.6 84.5133 227.113 85.9995 225.282 85.9995C223.452 85.9995 221.965 84.5133 221.965 82.6824V63.5208C221.965 60.2942 220.66 57.3777 218.545 55.2625C216.434 53.1517 213.513 51.8421 210.287 51.8421C207.06 51.8421 204.144 53.1474 202.028 55.2625C199.917 57.3734 198.608 60.2942 198.608 63.5208V82.6824C198.608 84.5133 197.122 85.9995 195.291 85.9995C193.46 85.9995 191.974 84.5133 191.974 82.6824V34.9335C191.974 33.1026 193.46 31.6164 195.291 31.6164C197.122 31.6164 198.608 33.1026 198.608 34.9335V49.4167C201.778 46.7889 205.845 45.2122 210.282 45.2122C215.34 45.2122 219.919 47.2627 223.232 50.5755C226.545 53.8883 228.595 58.4676 228.595 63.5251V82.6867L228.6 82.6824ZM236.612 48.5293C236.612 46.6984 238.099 45.2122 239.929 45.2122C241.76 45.2122 243.246 46.6984 243.246 48.5293V67.6909C243.246 70.9175 244.552 73.834 246.667 75.9492C248.778 78.06 251.699 79.3696 254.925 79.3696C258.152 79.3696 261.068 78.0643 263.183 75.9492C265.294 73.8383 266.604 70.9175 266.604 67.6909V48.5293C266.604 46.6984 268.09 45.2122 269.921 45.2122C271.752 45.2122 273.238 46.6984 273.238 48.5293V67.6909C273.238 72.7484 271.188 77.3277 267.875 80.6405C264.562 83.9533 259.983 86.0038 254.925 86.0038C249.868 86.0038 245.288 83.9533 241.976 80.6405C238.663 77.3277 236.612 72.7484 236.612 67.6909V48.5293ZM293.554 75.1134C296.07 77.6292 299.542 79.1844 303.381 79.1844C307.219 79.1844 310.691 77.6292 313.207 75.1134C315.723 72.5976 317.278 69.1254 317.278 65.2871C317.278 61.4487 315.723 57.9765 313.207 55.4607C310.691 52.9449 307.219 51.3897 303.381 51.3897C299.542 51.3897 296.066 52.9449 293.554 55.4607C291.038 57.9765 289.483 61.4487 289.483 65.2871C289.483 69.1254 291.038 72.6019 293.554 75.1134ZM303.381 85.8186C298.022 85.8186 293.141 83.7637 289.483 80.3992V81.7907C289.483 83.6216 287.997 85.1078 286.166 85.1078C284.335 85.1078 282.849 83.6216 282.849 81.7907V35.2609C282.849 33.43 284.335 31.9438 286.166 31.9438C287.997 31.9438 289.483 33.43 289.483 35.2609V50.1663C293.141 46.8018 298.022 44.7469 303.381 44.7469C309.05 44.7469 314.185 47.0473 317.903 50.7608C321.62 54.4785 323.916 59.6092 323.916 65.2828C323.916 70.952 321.616 76.087 317.903 79.8047C314.185 83.5225 309.054 85.8186 303.381 85.8186Z" fill="#663399"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M59.7336 85.3533L31.8096 73.3773L43.7857 45.4534L71.7096 57.4294L59.7336 85.3533Z" fill="#663399"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0 59.7342L27.9239 71.7102L39.8999 43.7862L11.976 31.8102L0 59.7342Z" fill="#663399"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M85.3527 25.6198L57.4288 13.6438L45.4485 41.5677L73.3767 53.5437L85.3527 25.6198Z" fill="#663399"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M25.6192 0.000610352L53.5431 11.9766L41.5671 39.9005L13.6432 27.9245L25.6192 0.000610352Z" fill="#663399"/>
+                        </g>
+                        <defs>
+                        <clipPath id="clip0_8_2">
+                        <rect width="323.916" height="86.0002" fill="white"/>
+                        </clipPath>
+                        </defs>
+                        </svg>
+                </a>
+            </div>
+            
+            <div class="admin-title">
+                <h1>ადმინ პანელი</h1>
+                <a href="/" class="back-to-site">მთავარ გვერდზე დაბრუნება</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- მთავარი კონტენტი -->
+    <main class="admin-main">
+        <div class="container">
+            <div class="admin-content">
+                <div class="admin-section">
+                    <h2>ქარდების მართვა</h2>
+                    <div class="cards-management">
+                        <div class="cards-grid" id="cardsGrid">
+                            <!-- Cards will be listed here -->
+                        </div>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </main>
+
+    <!-- localStorage and sessionStorage polyfill -->
+    <script>
+        // localStorage polyfill for older browsers
+        if (!window.localStorage) {
+            console.log('localStorage not supported, using memory storage');
+            window.localStorage = {
+                data: {},
+                setItem: function(key, value) {
+                    this.data[key] = value;
+                },
+                getItem: function(key) {
+                    return this.data[key] || null;
+                },
+                removeItem: function(key) {
+                    delete this.data[key];
+                },
+                clear: function() {
+                    this.data = {};
+                }
+            };
+        }
+        
+        // sessionStorage polyfill
+        if (!window.sessionStorage) {
+            console.log('sessionStorage not supported, using memory storage');
+            window.sessionStorage = {
+                data: {},
+                setItem: function(key, value) {
+                    this.data[key] = value;
+                },
+                getItem: function(key) {
+                    return this.data[key] || null;
+                },
+                removeItem: function(key) {
+                    delete this.data[key];
+                },
+                clear: function() {
+                    this.data = {};
+                }
+            };
+        }
+    </script>
+    <script src="static/admin.js"></script>
+</body>
+</html>
