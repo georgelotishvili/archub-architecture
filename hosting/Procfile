@@ -1,0 +1,3 @@
+web: gunicorn -c hosting/gunicorn.conf.py hosting.wsgi:app
+
+

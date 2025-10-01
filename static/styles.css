@@ -57,7 +57,7 @@ html {
 body {
   line-height: 1.6;
   color: var(--color-black);
-  background-image: url(/static/photos/zaha\ 2.jpg);
+  background-image: url(/static/photos/zaha%202.jpg);
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -509,28 +509,28 @@ body {
 
 /* პირველი ფოტო */
 .photo-1 {
-  background-image: url(photos/logo\ 1.jpg);
+  background-image: url(/static/photos/logo%201.jpg);
   top: 0;
   left: 0;
 }
 
 /* მეორე ფოტო */
 .photo-2 {
-  background-image: url(photos/logo\ 2.jpg);
+  background-image: url(/static/photos/logo%202.jpg);
   top: 0;
   right: 0;
 }
 
 /* მესამე ფოტო */
 .photo-3 {
-  background-image: url(photos/logo\ 3.jpg);
+  background-image: url(/static/photos/logo%203.jpg);
   bottom: 0;
   left: 0;
 }
 
 /* მეოთხე ფოტო */
 .photo-4 {
-  background-image: url(photos/logo\ 4.jpg);
+  background-image: url(/static/photos/logo%204.jpg);
   bottom: 0;
   right: 0;
 }
@@ -631,7 +631,7 @@ body {
 /* ===== 1. მთავარი კონტეინერი ===== */
 .section-2 {
   width: 100%;
-  /* background-image: url(/static/photos/brick\ 3.jpg); */
+%20%20/*%20background-image:%20url(/static/photos/brick%203.jpg);%20*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

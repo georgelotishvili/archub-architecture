@@ -1,0 +1,20 @@
+[Unit]
+Description=Archub Gunicorn Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/archub
+Environment="FLASK_ENV=production"
+EnvironmentFile=/opt/archub/.env
+ExecStart=/opt/archub/venv/bin/gunicorn -c hosting/gunicorn.conf.py hosting.wsgi:app
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+
+

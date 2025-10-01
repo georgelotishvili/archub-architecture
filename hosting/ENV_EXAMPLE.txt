@@ -1,0 +1,32 @@
+===== Archub Production Environment Example =====
+
+# Flask environment
+FLASK_ENV=production
+SECRET_KEY=change-this-to-a-strong-random-string
+
+# Database
+# For SQLite (local file)
+# DATABASE_URL=sqlite:////opt/archub/database.db
+
+# For PostgreSQL (recommended in production)
+# DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/archub
+
+# CORS origin (production)
+CORS_ORIGIN=https://archub.example.com
+
+# Mail settings (optional)
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=true
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_DEFAULT_SENDER=noreply@archub.ge
+
+# Gunicorn overrides (optional)
+GUNICORN_WORKERS=3
+GUNICORN_THREADS=2
+GUNICORN_LOGLEVEL=info
+GUNICORN_HOST=127.0.0.1
+GUNICORN_PORT=8000
+
+
