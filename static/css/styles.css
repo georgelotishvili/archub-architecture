@@ -596,11 +596,21 @@ body {
   letter-spacing: -0.5px;
   transform: translateY(6px);
   margin: 0;
+  white-space: nowrap;
+}
+
+/* Energy Banner Responsive - Large Desktop */
+@media (max-width: 1400px) {
+  .energy-text { font-size: 38px; }
 }
 
 /* Energy Banner Responsive - Tablet Landscape */
 @media (max-width: 1200px) {
   .energy-text { font-size: 28px; }
+}
+
+@media (max-width: 1100px) {
+  .energy-text { font-size: 24px; }
 }
 
 /* Energy Banner Responsive - Tablet */
