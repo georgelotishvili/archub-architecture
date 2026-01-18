@@ -24,18 +24,19 @@
         /* User profile page specific styles */
         .profile-page {
             width: 94%;
-            background-color:var(--color-white-80);
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
             margin: 50px auto 0px auto;
-            padding: 20px;
-            border: 1px solid var(--color-black);
-            /* border-radius: 10px; */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .profile-header {
             width: 100%;
-            min-height: 120px;
-            padding: 16px 0;
-            background-image: url(/static/images/brick%203.jpg);
+            min-height: 160px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -43,31 +44,56 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 1px solid var(--color-black);
-            /* border-radius: 10px; */
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url(/static/images/brick%203.jpg) center/cover;
+            opacity: 0.3;
+        }
+
+        .profile-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-orange), var(--color-purple), var(--color-orange));
         }
 
         .profile-header .container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
         }
         
         .profile-header h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             margin: 0;
             font-family: 'BPG Nino Mtavruli Bold', sans-serif;
             font-weight: 400;
             line-height: 1.2;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .profile-header h3 {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             margin: 0;
             font-family: 'BPG Nino Mtavruli Bold', sans-serif;
             font-weight: 400;
-            opacity: 0.95;
+            opacity: 0.9;
             line-height: 1.2;
         }
         
@@ -75,7 +101,7 @@
         .profile-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 50px 20px;
         }
 
         /* ჰედერის ქვედა ნაწილის ღილაკი — გაფართოება ტექსტისათვის */
@@ -84,9 +110,10 @@
             align-items: center;
             justify-content: center;
             width: fit-content;
-            padding: 0 24px;
+            padding: 10px 28px;
             white-space: nowrap;
             overflow: visible;
+            border-radius: 25px;
         }
         
         /* <= 600px - შევამციროთ ტელეფონის და ღილაკის ზომები და მობილური განლაგება */
@@ -94,7 +121,14 @@
             .profile-page {
                 width: 100%;
                 margin: 20px 0;
-                padding: 10px;
+                padding: 15px;
+                border-radius: 0;
+            }
+
+            .profile-header {
+                min-height: 120px;
+                padding: 20px 15px;
+                border-radius: 12px;
             }
 
             .profile-header h1 {
@@ -111,16 +145,16 @@
             .header-bottom-line .auth-btn {
                 height: 36px;
                 font-size: 12px;
-                padding: 0 10px;
+                padding: 0 15px;
             }
 
             /* მცირე ეკრანებისთვის საერთო კონტენტი */
             .profile-content {
-                padding: 20px 10px;
+                padding: 25px 10px;
             }
             .profile-page .projects-grid {
                 grid-template-columns: 1fr;
-                gap: 15px;
+                gap: 20px;
                 padding: 0 10px;
             }
             .project-card {
@@ -130,33 +164,36 @@
             }
             .back-to-home {
                 width: 180px;
-                padding: 10px 20px;
+                padding: 12px 20px;
                 font-size: 16px;
             }
         }
         
         .back-to-home {
-            display: inline-block;
-            background: linear-gradient(135deg, #ffc400 0%, #ffb84d 100%);
-            color: #242424;
-            padding: 12px 24px;
-            /* border-radius: 8px; */
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--color-orange) 0%, #ff8855 100%);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
             text-decoration: none;
             font-weight: 600;
-            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 16px;
             transition: all 0.3s ease;
             margin-bottom: 30px;
+            box-shadow: 0 6px 20px rgba(255, 102, 51, 0.3);
         }
         
         .back-to-home:hover {
-            background: linear-gradient(135deg, #e6b000 0%, #ffc400 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 196, 0, 0.4);
+            background: linear-gradient(135deg, #ff8855 0%, var(--color-orange) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 102, 51, 0.4);
         }
         
         
         .liked-projects-section {
-            margin-top: 40px;
+            margin-top: 50px;
         }
         
        
@@ -176,20 +213,27 @@
             background: #ffffff;
             overflow: hidden;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
         }
         
         .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
         }
         
         .card-image {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+            transition: transform 0.4s ease;
+        }
+
+        .project-card:hover .card-image {
+            transform: scale(1.05);
         }
         
         .card-info {
@@ -197,9 +241,9 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(0, 0, 0, 0.53);
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
             color: #ffffff;
-            padding: 20px 15px 15px;
+            padding: 40px 20px 20px;
         }
         
         .card-area {
@@ -209,23 +253,31 @@
         
         .no-projects {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: #666;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
         
         .no-projects h3 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             margin-bottom: 15px;
             color: #242424;
+            background: linear-gradient(90deg, var(--color-orange), var(--color-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .no-projects p {
             font-size: 1.1rem;
+            color: #666;
         }
         
         .loading {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: #666;
         }
         
@@ -249,7 +301,7 @@
             
             .projects-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 25px;
                 padding: 0 20px;
             }
             
@@ -260,10 +312,10 @@
             }
             
             .back-to-home {
-                display: block;
+                display: flex;
                 margin: 10px auto;
                 text-align: center;
-                width: 200px;
+                width: fit-content;
             }
         }
     </style>
@@ -634,7 +686,7 @@
                     const likeButtonHtml = `
                         <button class="like-btn liked" data-project-id="${project.id}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" stroke-width="2">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
                             </svg>
                         </button>
                     `;
