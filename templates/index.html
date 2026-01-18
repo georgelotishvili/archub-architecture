@@ -7,9 +7,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Archub | არქიტექტურული კომპანია თბილისში | პროექტირება და ნებართვები</title>
-    <meta name="description" content="Archub — არქიტექტურული კომპანია თბილისში. ვაკეთებთ პროექტირებას, მშენებლობის ნებართვებს, გრგ-ს, კონსტრუქციულ/გეოლოგიურ ექსპერტიზებს და არქიტექტურულ რენდერებს.">
-    <meta name="keywords" content="არქიტექტურული კომპანია, არქიტექტორი თბილისი, პროექტირება, მშენებლობის ნებართვა, გრგ, გაპი, 41 დადგენილება, კონსტრუქციული პროექტი, გეოლოგიური დასკვნა, არქიტექტურული რენდერები, Archub, archub.ge">
+    <title>Archub | არქიტექტურული კომპანია თბილისში | შენობების ენერგოეფექტურობის სერტიფიკატი</title>
+    <meta name="description" content="Archub — არქიტექტურული კომპანია თბილისში. პროექტირება, მშენებლობის ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური ექსპერტიზა, არქიტექტურული რენდერები. ასევე შენობების ენერგოეფექტურობის სერტიფიკატი.">
+    <meta name="keywords" content="შენობების სერტიფიკატი, შენობის სერტიფიკატი, სერტიფიკატი, სერტიფიკატები, ენერგოეფექტურობის სერტიფიკატი, ენერგოეფექტურობა, ენერგო სერტიფიკატი, ენერგოსერტიფიკატი, ენერგოაუდიტი, შენობების ენერგოეფექტურობა, შენობის ენერგოეფექტურობა, ენერგეტიკული სერტიფიკატი, ენერგეტიკული აუდიტი, შენობის ენერგეტიკული პასპორტი, energy certificate, energy efficiency certificate, building energy certificate, EPC certificate, energy performance certificate, energy audit, building certification, энергосертификат, энергоэффективность, сертификат энергоэффективности, энергетический сертификат, энергоаудит, сертификация зданий, არქიტექტურული კომპანია, არქიტექტორი თბილისი, პროექტირება, მშენებლობის ნებართვა, გრგ, გაპი, 41 დადგენილება, კონსტრუქციული პროექტი, გეოლოგიური დასკვნა, არქიტექტურული რენდერები, Archub, archub.ge, Tbilisi, Georgia, თბილისი, საქართველო">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://archub.ge/">
     
@@ -20,7 +20,7 @@
 
     <meta property="og:site_name" content="Archub">
     <meta property="og:locale" content="ka_GE">
-    <meta property="og:image:alt" content="Archub — არქიტექტურული კომპანია">
+    <meta property="og:image:alt" content="Archub — არქიტექტურული კომპანია, შენობების ენერგოეფექტურობის სერტიფიკატი">
 
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -35,15 +35,15 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://archub.ge/">
-    <meta property="og:title" content="Archub | არქიტექტურული კომპანია თბილისში">
-    <meta property="og:description" content="პროექტირება · ნებართვები · გრგ · კონსტრუქციული/გეოლოგიური ექსპერტიზა · არქიტექტურული რენდერები">
+    <meta property="og:title" content="Archub | არქიტექტურული კომპანია თბილისში | ენერგოეფექტურობის სერტიფიკატი">
+    <meta property="og:description" content="არქიტექტურული სერვისები: პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური ექსპერტიზა. ასევე შენობების ენერგოეფექტურობის სერტიფიკატი.">
     <meta property="og:image" content="{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://archub.ge/">
-    <meta name="twitter:title" content="Archub | არქიტექტურული კომპანია თბილისში">
-    <meta name="twitter:description" content="სრული არქიტექტურული სერვისები: პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური სამუშაოები.">
+    <meta name="twitter:title" content="Archub | არქიტექტურული კომპანია | ენერგოეფექტურობის სერტიფიკატი">
+    <meta name="twitter:description" content="არქიტექტურული სერვისები: პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური სამუშაოები. შენობების ენერგოეფექტურობის სერტიფიკატი.">
     <meta name="twitter:image" content="{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}">
     
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -72,11 +72,12 @@
         "addressCountry": "GE"
       },
       "areaServed": "Georgia",
-      "description": "არქიტექტურული კომპანია თბილისში — პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური ექსპერტიზა, რენდერები.",
+      "description": "არქიტექტურული კომპანია თბილისში — პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური ექსპერტიზა, რენდერები. შენობების ენერგოეფექტურობის სერტიფიკატი.",
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "არქიტექტურული სერვისები",
         "itemListElement": [
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "შენობების ენერგოეფექტურობის სერტიფიკატი"}},
           {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "მიწის ნაკვეთის შერჩევა და შეფასება"}},
           {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "გაპის აღება"}},
           {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "განაშენიანების რეგულირების გეგმა (გრგ)"}},
@@ -260,7 +261,7 @@
                     </svg>
                 </div>
                 <div class="energy-banner-center">
-                    <span class="energy-text">შენობების ენერგოეფექტურობის სერტიფიკატი</span>
+                    <h2 class="energy-text">შენობების ენერგოეფექტურობის სერტიფიკატი</h2>
                 </div>
                 <div class="energy-banner-right">
                     <a href="tel:+995555123456" class="energy-phone">
