@@ -1001,22 +1001,12 @@ def reset_password_page():
     return render_template('index.html', reset_token=token)
 
 def send_reset_email(to_email, username, reset_url):
-    """პაროლის აღდგენის ელ-ფოსტის გაგზავნა"""
-    import smtplib
+    """პაროლის აღდგენის ელ-ფოსტის გაგზავნა - იყენებს სერვერის sendmail-ს"""
+    import subprocess
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     
-    # SMTP კონფიგურაცია (შეცვალეთ თქვენი პარამეტრებით)
-    smtp_server = app.config.get('MAIL_SERVER', 'smtp.gmail.com')
-    smtp_port = app.config.get('MAIL_PORT', 587)
-    smtp_username = app.config.get('MAIL_USERNAME')
-    smtp_password = app.config.get('MAIL_PASSWORD')
-    sender_email = app.config.get('MAIL_DEFAULT_SENDER', smtp_username)
-    
-    if not smtp_username or not smtp_password:
-        logger.warning('Email not configured. Reset URL: ' + reset_url)
-        # დროებით ლოგში ვწერთ reset URL-ს
-        return
+    sender_email = app.config.get('MAIL_DEFAULT_SENDER', 'noreply@archub.ge')
     
     # Email შეტყობინების შექმნა
     message = MIMEMultipart('alternative')
@@ -1055,11 +1045,26 @@ def send_reset_email(to_email, username, reset_url):
     
     message.attach(MIMEText(html, 'html'))
     
-    # Email გაგზავნა
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls()
-        server.login(smtp_username, smtp_password)
-        server.sendmail(sender_email, to_email, message.as_string())
+    # Email გაგზავნა sendmail-ით (cPanel სერვერებისთვის)
+    try:
+        # პირველ რიგში ვცდით sendmail-ს
+        process = subprocess.Popen(
+            ['/usr/sbin/sendmail', '-t', '-oi'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        stdout, stderr = process.communicate(message.as_bytes())
+        
+        if process.returncode != 0:
+            raise Exception(f"sendmail failed: {stderr.decode()}")
+            
+        logger.info(f'Password reset email sent to {to_email} via sendmail')
+        
+    except Exception as sendmail_error:
+        logger.warning(f'sendmail failed: {sendmail_error}')
+        # თუ sendmail ვერ მუშაობს, ვლოგავთ URL-ს
+        logger.warning(f'Reset URL for {to_email}: {reset_url}')
 
 @app.route('/api/status')
 def status():
