@@ -395,7 +395,7 @@
             </div>
             <!-- ფუტერის ქვედა ნაწილი -->
             <div class="footer-bottom">
-                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" class="footer-admin-link">ადმინ პანელი</a></p>
+                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია.{% if current_user.is_authenticated and current_user.is_admin %} | <a href="#" onclick="openAdminPanel()" class="footer-admin-link">ადმინ პანელი</a>{% endif %}</p>
             </div>
         </div>
     </footer>
@@ -453,7 +453,49 @@
                     <input type="password" id="loginPassword" required>
                 </div>
                 <button type="submit" class="contact-submit-btn">შესვლა</button>
+                <p class="text-center mt-15"><a href="#" id="showForgotPasswordModal">დამავიწყდა პაროლი</a></p>
                 <p class="text-center mt-15">არ გაქვს ანგარიში? <a href="#" id="showRegisterModal">რეგისტრაცია</a></p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- პაროლის აღდგენის მოთხოვნის მოდალური ფანჯარა -->
+    <div class="auth-modal" id="forgotPasswordModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h2>პაროლის აღდგენა</h2>
+                <button class="auth-modal-close" onclick="closeModal('forgotPasswordModal')">✕</button>
+            </div>
+            <form class="auth-form" id="forgotPasswordForm">
+                <p style="margin-bottom: 20px; color: #666;">შეიყვანეთ თქვენი ელ-ფოსტა და მიიღებთ პაროლის აღდგენის ინსტრუქციას.</p>
+                <div class="form-group">
+                    <label for="forgotEmail">ელ-ფოსტა:</label>
+                    <input type="email" id="forgotEmail" required>
+                </div>
+                <button type="submit" class="contact-submit-btn">გაგზავნა</button>
+                <p class="text-center mt-15"><a href="#" id="backToLoginFromForgot">უკან შესვლაზე</a></p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- პაროლის შეცვლის მოდალური ფანჯარა (reset token-ით) -->
+    <div class="auth-modal" id="resetPasswordModal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h2>ახალი პაროლი</h2>
+                <button class="auth-modal-close" onclick="closeModal('resetPasswordModal')">✕</button>
+            </div>
+            <form class="auth-form" id="resetPasswordForm">
+                <input type="hidden" id="resetToken" value="">
+                <div class="form-group">
+                    <label for="newPassword">ახალი პაროლი:</label>
+                    <input type="password" id="newPassword" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">გაიმეორეთ პაროლი:</label>
+                    <input type="password" id="confirmPassword" required minlength="6">
+                </div>
+                <button type="submit" class="contact-submit-btn">შეცვლა</button>
             </form>
         </div>
     </div>

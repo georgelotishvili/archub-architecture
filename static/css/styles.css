@@ -95,6 +95,7 @@
   --color-purple: #420092;
   --color-red: #900000;
   --color-orange: #ff6633;
+  --gradient-accent: linear-gradient(90deg, #0800ff, #c300ff);
 }
 
 /* ===== Base Reset ===== */
@@ -128,12 +129,12 @@
 
 /* Text Selection */
 ::selection {
-  background: rgba(255, 102, 51, 0.3);
+  background: rgba(66, 0, 146, 0.3);
   color: var(--color-black);
 }
 
 ::-moz-selection {
-  background: rgba(255, 102, 51, 0.3);
+  background: rgba(66, 0, 146, 0.3);
   color: var(--color-black);
   font-weight: 100;
 }
@@ -215,8 +216,8 @@ body {
 }
 
 .nav-link:hover {
-  color: var(--color-orange);
-  background: rgba(255, 102, 51, 0.08);
+  color: var(--color-purple);
+  background: rgba(66, 0, 146, 0.08);
 }
 
 .nav-link::after {
@@ -226,7 +227,7 @@ body {
   left: 50%;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-orange), var(--color-purple));
+  background: var(--color-purple);
   transition: all 0.3s ease;
   transform: translateX(-50%);
 }
@@ -246,7 +247,7 @@ body {
 }
 
 .burger-menu:hover {
-  background: rgba(255, 102, 51, 0.1);
+  background: rgba(66, 0, 146, 0.1);
 }
 
 .burger-icon {
@@ -260,7 +261,7 @@ body {
 .burger-icon span {
   width: 100%;
   height: 3px;
-  background: linear-gradient(90deg, var(--color-orange), var(--color-purple));
+  background: var(--color-black);
   border-radius: 3px;
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   transform-origin: center;
@@ -344,23 +345,22 @@ body {
   position: relative;
 }
 
-.auth-btn:hover, .my-page-btn:hover {
-  background: var(--color-white);
-  color: var(--color-black);
+.auth-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-white);
   border-color: var(--color-white);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
 }
 
 .my-page-btn {
-  background: linear-gradient(135deg, var(--color-orange), #ff8855);
-  border-color: transparent;
+  background: var(--color-yellow);
+  border: 2px solid var(--color-black);
+  color: var(--color-black);
 }
 
 .my-page-btn:hover {
-  background: linear-gradient(135deg, #ff8855, var(--color-orange));
-  color: var(--color-white);
-  border-color: transparent;
+  background: #e6b000;
+  color: var(--color-black);
+  border-color: var(--color-black);
 }
 
 /* ===== Mobile Navigation ===== */
@@ -404,15 +404,15 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 .mobile-nav-close:hover { 
-  background: linear-gradient(135deg, var(--color-orange), #ff8855);
+  background: var(--color-purple);
   transform: rotate(90deg);
-  box-shadow: 0 6px 20px rgba(255, 102, 51, 0.3);
+  box-shadow: 0 6px 20px rgba(66, 0, 146, 0.3);
 }
 
 .mobile-nav-close span {
   width: 20px;
   height: 3px;
-  background: linear-gradient(90deg, var(--color-orange), var(--color-purple));
+  background: var(--color-black);
   border-radius: 2px;
   position: absolute;
   transition: all 0.3s ease;
@@ -457,11 +457,11 @@ body {
 }
 
 .mobile-nav-link:hover { 
-  color: var(--color-orange);
-  background: linear-gradient(90deg, rgba(255, 102, 51, 0.08) 0%, white 100%);
-  border-left-color: var(--color-orange);
+  color: var(--color-purple);
+  background: linear-gradient(90deg, rgba(66, 0, 146, 0.08) 0%, white 100%);
+  border-left-color: var(--color-purple);
   transform: translateX(8px);
-  box-shadow: 0 4px 15px rgba(255, 102, 51, 0.15);
+  box-shadow: 0 4px 15px rgba(66, 0, 146, 0.15);
 }
 
 /* Mobile Auth Buttons */
@@ -482,14 +482,15 @@ body {
 }
 
 .mobile-auth-btn {
-  background: linear-gradient(135deg, var(--color-orange) 0%, #ff8855 100%);
-  color: white;
-  box-shadow: 0 6px 20px rgba(255, 102, 51, 0.35);
+  background: var(--color-yellow);
+  color: var(--color-black);
+  border: 1px solid var(--color-black);
+  box-shadow: none;
 }
 
 .mobile-auth-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(255, 102, 51, 0.45);
+  background: #e6b000;
 }
 
 .mobile-my-page-btn {
@@ -1009,7 +1010,7 @@ body {
 .like-btn:hover { 
   transform: scale(1.15);
   background: rgba(0, 0, 0, 0.5);
-  box-shadow: 0 8px 25px rgba(255, 102, 51, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 .like-btn:active {
   transform: scale(0.95);
@@ -1135,7 +1136,7 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: var(--color-white);
+  background: var(--gradient-accent);
 }
 
 .footer-content {

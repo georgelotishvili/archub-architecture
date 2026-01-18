@@ -4,8 +4,9 @@
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.extensions import db
+import secrets
 
 # ===== მრავალ-მრავალ კავშირის ცხრილი =====
 # მომხმარებლებისა და მოწონებული პროექტების კავშირი
@@ -22,6 +23,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)  # ელ-ფოსტა
     password_hash = db.Column(db.String(256), nullable=False)  # დაშიფრული პაროლი
     is_admin = db.Column(db.Boolean, default=False)  # ადმინისტრატორის სტატუსი
+    
+    # პაროლის აღდგენის ველები
+    reset_token = db.Column(db.String(100), unique=True, nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
 
     # კავშირი მოწონებულ პროექტებთან (მრავალ-მრავალ კავშირი)
     liked_projects = db.relationship('Project', secondary=project_likes, lazy='dynamic',
@@ -34,6 +39,25 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         """პაროლის შემოწმება"""
         return check_password_hash(self.password_hash, password)
+    
+    def generate_reset_token(self):
+        """პაროლის აღდგენის ტოკენის გენერირება (მოქმედებს 1 საათი)"""
+        self.reset_token = secrets.token_urlsafe(32)
+        self.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+        return self.reset_token
+    
+    def verify_reset_token(self, token):
+        """ტოკენის შემოწმება"""
+        if self.reset_token != token:
+            return False
+        if self.reset_token_expiry is None or datetime.utcnow() > self.reset_token_expiry:
+            return False
+        return True
+    
+    def clear_reset_token(self):
+        """ტოკენის წაშლა გამოყენების შემდეგ"""
+        self.reset_token = None
+        self.reset_token_expiry = None
 
     def __repr__(self):
         return f'<User {self.username}>'

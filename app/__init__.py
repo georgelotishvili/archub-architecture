@@ -883,6 +883,184 @@ def logout():
             'error': 'გამოსვლა ვერ მოხერხდა'
         }), 500
 
+@app.route('/api/forgot-password', methods=['POST'])
+@limiter.limit('3 per minute')
+def forgot_password():
+    """პაროლის აღდგენის მოთხოვნა - აგზავნის reset ლინკს ელ-ფოსტაზე"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        
+        if not email:
+            return jsonify({
+                'success': False,
+                'error': 'ელ-ფოსტა სავალდებულოა'
+            }), 400
+        
+        # Validate email format
+        try:
+            validate_email(email)
+        except EmailNotValidError:
+            return jsonify({
+                'success': False,
+                'error': 'არასწორი ელ-ფოსტის ფორმატი'
+            }), 400
+        
+        user = User.query.filter_by(email=email).first()
+        
+        # უსაფრთხოებისთვის ყოველთვის ვაბრუნებთ წარმატებულ პასუხს
+        # რომ ვერ გაიგონ არსებობს თუ არა ასეთი ელ-ფოსტა
+        if user:
+            token = user.generate_reset_token()
+            db.session.commit()
+            
+            # Email გაგზავნა
+            reset_url = f"{request.host_url}reset-password?token={token}"
+            try:
+                send_reset_email(user.email, user.username, reset_url)
+                logger.info(f'Password reset email sent to {email}')
+            except Exception as e:
+                logger.error(f'Failed to send reset email: {e}')
+                # მაინც ვაბრუნებთ წარმატებულ პასუხს უსაფრთხოებისთვის
+        
+        return jsonify({
+            'success': True,
+            'message': 'თუ ეს ელ-ფოსტა დარეგისტრირებულია, მიიღებთ პაროლის აღდგენის ინსტრუქციას'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Error in forgot password: {e}')
+        return jsonify({
+            'success': False,
+            'error': 'მოთხოვნის დამუშავება ვერ მოხერხდა'
+        }), 500
+
+@app.route('/api/reset-password', methods=['POST'])
+@limiter.limit('5 per minute')
+def reset_password():
+    """პაროლის აღდგენა ტოკენით"""
+    try:
+        data = request.get_json()
+        token = data.get('token')
+        new_password = data.get('password')
+        
+        if not token or not new_password:
+            return jsonify({
+                'success': False,
+                'error': 'ტოკენი და ახალი პაროლი სავალდებულოა'
+            }), 400
+        
+        if len(new_password) < 6:
+            return jsonify({
+                'success': False,
+                'error': 'პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო'
+            }), 400
+        
+        # ვეძებთ მომხმარებელს ტოკენით
+        user = User.query.filter_by(reset_token=token).first()
+        
+        if not user or not user.verify_reset_token(token):
+            return jsonify({
+                'success': False,
+                'error': 'არასწორი ან ვადაგასული ტოკენი'
+            }), 400
+        
+        # ვცვლით პაროლს და ვშლით ტოკენს
+        user.set_password(new_password)
+        user.clear_reset_token()
+        db.session.commit()
+        
+        logger.info(f'Password reset successful for user {user.email}')
+        
+        return jsonify({
+            'success': True,
+            'message': 'პაროლი წარმატებით შეიცვალა'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Error in reset password: {e}')
+        return jsonify({
+            'success': False,
+            'error': 'პაროლის შეცვლა ვერ მოხერხდა'
+        }), 500
+
+@app.route('/reset-password')
+def reset_password_page():
+    """პაროლის აღდგენის გვერდი"""
+    token = request.args.get('token')
+    if not token:
+        return redirect(url_for('index'))
+    
+    # შევამოწმოთ ტოკენი ვალიდურია
+    user = User.query.filter_by(reset_token=token).first()
+    if not user or not user.verify_reset_token(token):
+        return render_template('index.html', reset_error='არასწორი ან ვადაგასული ლინკი')
+    
+    return render_template('index.html', reset_token=token)
+
+def send_reset_email(to_email, username, reset_url):
+    """პაროლის აღდგენის ელ-ფოსტის გაგზავნა"""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    # SMTP კონფიგურაცია (შეცვალეთ თქვენი პარამეტრებით)
+    smtp_server = app.config.get('MAIL_SERVER', 'smtp.gmail.com')
+    smtp_port = app.config.get('MAIL_PORT', 587)
+    smtp_username = app.config.get('MAIL_USERNAME')
+    smtp_password = app.config.get('MAIL_PASSWORD')
+    sender_email = app.config.get('MAIL_DEFAULT_SENDER', smtp_username)
+    
+    if not smtp_username or not smtp_password:
+        logger.warning('Email not configured. Reset URL: ' + reset_url)
+        # დროებით ლოგში ვწერთ reset URL-ს
+        return
+    
+    # Email შეტყობინების შექმნა
+    message = MIMEMultipart('alternative')
+    message['Subject'] = 'Archub - პაროლის აღდგენა'
+    message['From'] = sender_email
+    message['To'] = to_email
+    
+    # HTML შეტყობინება
+    html = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #420092;">პაროლის აღდგენა</h2>
+            <p>გამარჯობა, <strong>{username}</strong>!</p>
+            <p>მივიღეთ მოთხოვნა თქვენი პაროლის აღდგენაზე.</p>
+            <p>პაროლის შესაცვლელად დააჭირეთ ქვემოთ მოცემულ ბმულს:</p>
+            <p style="margin: 30px 0;">
+                <a href="{reset_url}" 
+                   style="background: #420092; color: white; padding: 12px 30px; 
+                          text-decoration: none; border-radius: 5px; display: inline-block;">
+                    პაროლის შეცვლა
+                </a>
+            </p>
+            <p style="color: #666; font-size: 14px;">
+                ეს ბმული მოქმედებს <strong>1 საათის</strong> განმავლობაში.
+            </p>
+            <p style="color: #666; font-size: 14px;">
+                თუ თქვენ არ მოითხოვეთ პაროლის აღდგენა, უგულებელყოთ ეს შეტყობინება.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #999; font-size: 12px;">Archub - არქიტექტურული პორტფოლიო</p>
+        </div>
+    </body>
+    </html>
+    """
+    
+    message.attach(MIMEText(html, 'html'))
+    
+    # Email გაგზავნა
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.sendmail(sender_email, to_email, message.as_string())
+
 @app.route('/api/status')
 def status():
     try:

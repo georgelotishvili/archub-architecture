@@ -76,14 +76,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== ელემენტების არჩევა =====
     const loginModal = document.getElementById('loginModal');
     const registerModal = document.getElementById('registerModal');
+    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+    const resetPasswordModal = document.getElementById('resetPasswordModal');
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    const resetPasswordForm = document.getElementById('resetPasswordForm');
     const authBtn = document.getElementById('authBtn');
     const mobileAuthBtn = document.getElementById('mobileAuthBtn');
     const myPageBtn = document.getElementById('myPageBtn');
     const mobileMyPageBtn = document.getElementById('mobileMyPageBtn');
     const showRegisterModalLink = document.getElementById('showRegisterModal');
     const showLoginModalLink = document.getElementById('showLoginModal');
+    const showForgotPasswordLink = document.getElementById('showForgotPasswordModal');
+    const backToLoginFromForgotLink = document.getElementById('backToLoginFromForgot');
     
     // ===== გლობალური ცვლადები =====
     // ავტორიზაციის სტატუსის თვალყურის დევნება
@@ -306,6 +312,110 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // --- პაროლის აღდგენის მოდალის გახსნა ---
+    if (showForgotPasswordLink) {
+        showForgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeModal('loginModal');
+            openModal('forgotPasswordModal');
+        });
+    }
+
+    // --- უკან შესვლაზე დაბრუნება ---
+    if (backToLoginFromForgotLink) {
+        backToLoginFromForgotLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeModal('forgotPasswordModal');
+            openModal('loginModal');
+        });
+    }
+
+    // --- პაროლის აღდგენის მოთხოვნის ფორმა ---
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value;
+            const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'იგზავნება...';
+
+            try {
+                const response = await secureFetch('/api/forgot-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Toast.success(result.message);
+                    closeModal('forgotPasswordModal');
+                    document.getElementById('forgotEmail').value = '';
+                } else {
+                    Toast.error('შეცდომა: ' + result.error);
+                }
+            } catch (error) {
+                Toast.error('სერვერთან დაკავშირების შეცდომა.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'გაგზავნა';
+            }
+        });
+    }
+
+    // --- პაროლის შეცვლის ფორმა (reset token-ით) ---
+    if (resetPasswordForm) {
+        resetPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = document.getElementById('resetToken').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const submitBtn = resetPasswordForm.querySelector('button[type="submit"]');
+
+            if (newPassword !== confirmPassword) {
+                Toast.error('პაროლები არ ემთხვევა');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                Toast.error('პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'შეცვლა...';
+
+            try {
+                const response = await secureFetch('/api/reset-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ token, password: newPassword })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    Toast.success('პაროლი წარმატებით შეიცვალა!');
+                    closeModal('resetPasswordModal');
+                    // URL-დან token პარამეტრის წაშლა
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    openModal('loginModal');
+                } else {
+                    Toast.error('შეცდომა: ' + result.error);
+                }
+            } catch (error) {
+                Toast.error('სერვერთან დაკავშირების შეცდომა.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'შეცვლა';
+            }
+        });
+    }
+
+    // --- Reset token-ის შემოწმება URL-დან ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetToken = urlParams.get('token');
+    if (resetToken) {
+        document.getElementById('resetToken').value = resetToken;
+        openModal('resetPasswordModal');
+    }
 
     // --- მობილური მენიუ ---
     const burger = document.querySelector('.burger-menu');
