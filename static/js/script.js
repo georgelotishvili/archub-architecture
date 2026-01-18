@@ -132,11 +132,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             // ჩემი გვერდის ღილაკების ჩვენება შესვლისას
             if (myPageBtn) {
-                myPageBtn.style.display = 'block';
+                myPageBtn.classList.remove('hidden');
                 myPageBtn.onclick = () => window.location.href = '/my-page';
             }
             if (mobileMyPageBtn) {
-                mobileMyPageBtn.style.display = 'block';
+                mobileMyPageBtn.classList.remove('hidden');
                 mobileMyPageBtn.onclick = () => window.location.href = '/my-page';
             }
         } else {
@@ -150,10 +150,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             // ჩემი გვერდის ღილაკების დამალვა გამოსვლისას
             if (myPageBtn) {
-                myPageBtn.style.display = 'none';
+                myPageBtn.classList.add('hidden');
             }
             if (mobileMyPageBtn) {
-                mobileMyPageBtn.style.display = 'none';
+                mobileMyPageBtn.classList.add('hidden');
             }
         }
     }
@@ -755,14 +755,14 @@ function loadGalleryPhotosForModal() {
         if (window.selectedCard?.photos?.length > 0) {
             displayGalleryPhotos(window.selectedCard.photos);
             gallery.style.display = 'block';
-            noPhotos.style.display = 'none';
+            noPhotos.classList.add('hidden');
             return;
         }
         gallery.style.display = 'none';
-        noPhotos.style.display = 'block';
+        noPhotos.classList.remove('hidden');
     } catch (error) {
         gallery.style.display = 'none';
-        noPhotos.style.display = 'block';
+        noPhotos.classList.remove('hidden');
     }
 }
 
@@ -1059,8 +1059,8 @@ function initSearchFunctionality() {
         searchCurrentIndex = 0;
         updateCarouselDisplay();
         
-        searchBtn.style.display = 'none';
-        clearSearchBtn.style.display = 'flex';
+        searchBtn.classList.add('hidden');
+        clearSearchBtn.classList.remove('hidden');
     }
     
     function clearSearch() {
@@ -1071,8 +1071,8 @@ function initSearchFunctionality() {
         searchCurrentIndex = 0;
         updateCarouselDisplay();
         
-        searchBtn.style.display = 'flex';
-        clearSearchBtn.style.display = 'none';
+        searchBtn.classList.remove('hidden');
+        clearSearchBtn.classList.add('hidden');
     }
     
     function updateCarouselDisplay() {

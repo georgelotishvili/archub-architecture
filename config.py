@@ -11,7 +11,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 # ===== ძირითადი კონფიგურაციის კლასი =====
 class Config:
     """ძირითადი კონფიგურაციის კლასი - საერთო პარამეტრები"""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SESSION_COOKIE_SAMESITE = 'Lax'
     REMEMBER_COOKIE_SAMESITE = 'Lax'
@@ -33,6 +33,8 @@ class Config:
 class DevelopmentConfig(Config):
     """განვითარების გარემოს კონფიგურაცია - debug რეჟიმი ჩართული"""
     DEBUG = True
+    # Development-ში fallback SECRET_KEY დაშვებულია
+    SECRET_KEY = Config.SECRET_KEY or 'dev-secret-key-only-for-local-development'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or f'sqlite:///{os.path.join(basedir, "database.db")}'
     
     # განვითარების გარემოს ელ-ფოსტის პარამეტრები
@@ -43,6 +45,15 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """წარმოების გარემოს კონფიგურაცია - ოპტიმიზებული პროდუქტიულობისთვის"""
     DEBUG = False
+    
+    # Production-ში SECRET_KEY აუცილებელია
+    @property
+    def SECRET_KEY(self):
+        key = os.environ.get('SECRET_KEY')
+        if not key:
+            raise ValueError('SECRET_KEY environment variable is required in production!')
+        return key
+    
     # წარმოებაში PostgreSQL ბაზის გამოყენება
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://user:password@localhost/archub'
     SESSION_COOKIE_SECURE = True

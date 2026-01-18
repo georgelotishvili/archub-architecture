@@ -32,7 +32,12 @@ logger = logging.getLogger(__name__)
 
 # ===== FLASK აპლიკაციის ინიციალიზაცია =====
 # Flask აპლიკაციის შექმნა
-app = Flask(__name__)
+# template_folder და static_folder მიუთითებს პროექტის root-ზე
+import pathlib
+PROJECT_ROOT = pathlib.Path(__file__).parent.parent
+app = Flask(__name__, 
+            template_folder=str(PROJECT_ROOT / 'templates'),
+            static_folder=str(PROJECT_ROOT / 'static'))
 
 # CORS-ის ინიციალიზაცია (Cross-Origin Resource Sharing)
 # CORS ინიციალიზდება კონფიგურაციის ჩატვირთვის შემდეგ; აქ ვრთავთ მხოლოდ CSRF-ს

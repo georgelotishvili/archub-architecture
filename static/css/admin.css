@@ -1,10 +1,8 @@
 @charset "UTF-8";
 
-/* ===== ARCHUB - ადმინ პანელის CSS ფაილი ===== */
-/* ეს ფაილი შეიცავს ადმინ პანელის ყველა სტილს */
-/* შეიცავს: ადმინ ინტერფეისი, ფორმები, ცხრილები, ღილაკები */
+/* ===== ARCHUB - Admin Panel CSS ===== */
 
-/* ===== ზოგადი სტილები ===== */
+/* ===== Base Reset ===== */
 * {
   margin: 0;
   padding: 0;
@@ -26,8 +24,7 @@ body {
   min-height: 100vh;
 }
 
-/* Force BPG Nino Mtavruli Bold on all buttons and form elements */
-button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-edit-btn, 
+button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-edit-btn,
 .add-gallery-photo-btn, .remove-gallery-photo-btn, .upload-photos-btn {
   font-family: 'BPG Nino Mtavruli Bold', sans-serif !important;
 }
@@ -38,9 +35,13 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   padding: 0 20px;
 }
 
-/* ===== ადმინ ჰედერი ===== */
+/* ===== Utility Classes ===== */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+
+/* ===== Admin Header ===== */
 .admin-header {
-  background: #ffffff;
+  background: #fff;
   color: #242424;
   padding: 20px 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -58,22 +59,13 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
 
 .logo-link {
   display: block;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
 }
+.logo-link:hover { transform: scale(1.05); }
 
-.logo-link:hover {
-  transform: scale(1.05);
-}
+.logo-svg { width: 200px; height: auto; }
 
-.logo-svg {
-  width: 200px;
-  height: auto;
-}
-
-.admin-title {
-  text-align: center;
-}
+.admin-title { text-align: center; }
 
 .admin-title h1 {
   font-family: 'BPG Nino Mtavruli Bold', sans-serif;
@@ -89,13 +81,9 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   font-weight: 500;
   transition: all 0.3s ease;
 }
+.back-to-site:hover { color: #4c2666; text-decoration: underline; }
 
-.back-to-site:hover {
-  color: #4c2666;
-  text-decoration: underline;
-}
-
-/* ===== ადმინ მთავარი კონტენტი ===== */
+/* ===== Admin Main Content ===== */
 .admin-main {
   padding: 20px;
   min-height: calc(100vh - 80px);
@@ -108,7 +96,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
 }
 
 .admin-section {
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 20px;
@@ -125,18 +113,10 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   border-bottom: 2px solid #663399;
 }
 
-/* ===== ფორმა ===== */
-.card-form {
-  margin-bottom: 30px;
-}
+/* ===== Forms ===== */
+.card-form { margin-bottom: 30px; }
 
-
-
-/* ===== ქარდების მართვა ===== */
-.cards-management {
-  margin-top: 0;
-}
-
+/* ===== Cards Management ===== */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -145,7 +125,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
 }
 
 .card-item {
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 15px;
@@ -155,15 +135,9 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   transition: border-color 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+.card-item:hover { border-color: #999; }
 
-.card-item:hover {
-  border-color: #999;
-}
-
-.card-preview {
-  flex: 1;
-  margin-bottom: 15px;
-}
+.card-preview { flex: 1; margin-bottom: 15px; }
 
 .card-preview img {
   width: 100%;
@@ -173,9 +147,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.card-details {
-  margin-bottom: 15px;
-}
+.card-details { margin-bottom: 15px; }
 
 .card-area {
   font-weight: 700;
@@ -190,7 +162,6 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   margin-top: auto;
 }
 
-
 .edit-btn, .delete-btn {
   padding: 6px 12px;
   border: none;
@@ -200,77 +171,13 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   margin-right: 5px;
 }
 
-.edit-btn {
-  background: #007bff;
-  color: #ffffff;
-}
+.edit-btn { background: #007bff; color: #fff; }
+.edit-btn:hover { background: #0056b3; }
 
-.edit-btn:hover {
-  background: #0056b3;
-}
+.delete-btn { background: #dc3545; color: #fff; }
+.delete-btn:hover { background: #c82333; }
 
-.delete-btn {
-  background: #dc3545;
-  color: #ffffff;
-}
-
-.delete-btn:hover {
-  background: #c82333;
-}
-
-
-/* ===== Responsive Design ===== */
-@media (max-width: 768px) {
-  .card-item {
-    width: 95%;
-    height: auto;
-    min-height: 80px;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 15px;
-  }
-  
-  
-  .card-preview {
-    margin-right: 0;
-    margin-bottom: 10px;
-    align-self: center;
-  }
-  
-  .card-details {
-    margin-right: 0;
-    margin-bottom: 10px;
-    text-align: center;
-    width: 100%;
-  }
-  
-  .card-actions {
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  
-  .upload-photos-btn, .edit-btn, .delete-btn {
-    font-size: 16px;
-    padding: 6px 10px;
-  }
-  
-  .upload-sections {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  
-  .main-photo-section, .other-photos-section {
-    padding: 10px;
-  }
-}
-
-
-
-
-
-
-/* ===== რედაქტირების მოდალი ===== */
+/* ===== Edit Modal ===== */
 .edit-modal {
   display: flex;
   position: fixed;
@@ -285,7 +192,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
 }
 
 .edit-modal-content {
-  background-color: #ffffff;
+  background-color: #fff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 500px;
@@ -315,21 +222,15 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
 .edit-close {
   background: #6c757d;
   border: none;
-  color: #ffffff;
+  color: #fff;
   font-size: 16px;
   cursor: pointer;
   padding: 6px 12px;
   border-radius: 3px;
 }
+.edit-close:hover { background: #5a6268; }
 
-.edit-close:hover {
-  background: #5a6268;
-}
-
-.edit-modal-body {
-  padding: 25px;
-}
-
+.edit-modal-body { padding: 25px; }
 
 .current-image {
   margin-bottom: 15px;
@@ -363,14 +264,11 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   font-size: 16px;
   margin: 0 5px;
   background: #28a745;
-  color: #ffffff;
+  color: #fff;
 }
+.save-edit-btn:hover { background: #218838; }
 
-.save-edit-btn:hover {
-  background: #218838;
-}
-
-/* ===== გალერიის ფოტოების სტილები ===== */
+/* ===== Gallery Photos ===== */
 .gallery-photos-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -397,7 +295,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  background: #fff;
 }
 
 .gallery-photo-preview img {
@@ -421,10 +319,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   font-size: 16px;
   cursor: pointer;
 }
-
-.gallery-photo-input:hover {
-  border-color: #999;
-}
+.gallery-photo-input:hover { border-color: #999; }
 
 .remove-gallery-photo-btn {
   position: absolute;
@@ -442,14 +337,11 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   align-items: center;
   justify-content: center;
 }
-
-.remove-gallery-photo-btn:hover {
-  background: #c82333;
-}
+.remove-gallery-photo-btn:hover { background: #c82333; }
 
 .add-gallery-photo-btn {
   background: #28a745;
-  color: #ffffff;
+  color: #fff;
   border: none;
   border-radius: 3px;
   padding: 8px 16px;
@@ -458,10 +350,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   width: 100%;
   margin-top: 10px;
 }
-
-.add-gallery-photo-btn:hover {
-  background: #218838;
-}
+.add-gallery-photo-btn:hover { background: #218838; }
 
 .current-main-image {
   margin-top: 10px;
@@ -473,103 +362,18 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   border-radius: 4px;
 }
 
-/* ===== ანიმაციები ===== */
+/* ===== Animations ===== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-50px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(-50px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ===== რესპონსივი დიზაინი ===== */
-@media (max-width: 768px) {
-  .admin-header-container {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-  
-  .admin-title h1 {
-    font-size: 24px;
-  }
-  
-  .admin-main {
-    padding: 20px 0;
-  }
-  
-  .admin-content {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 0 10px;
-  }
-  
-  .admin-section {
-    padding: 20px;
-  }
-  
-  .admin-section h2 {
-    font-size: 20px;
-    margin-bottom: 20px;
-  }
-  
-  
-  .card-item {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
-  
-  
-  .card-preview {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  
-  .card-preview img {
-    width: 100px;
-    height: 75px;
-  }
-  
-  .card-actions {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-header {
-    padding: 15px 0;
-  }
-  
-  .logo-svg {
-    width: 150px;
-  }
-  
-  .admin-title h1 {
-    font-size: 20px;
-  }
-  
-  .admin-section {
-    padding: 15px;
-  }
-  
-}
-
-/* ===== კარუსელის მართვის სტილები ===== */
-.carousel-management {
-  /* ქარდების მართვის ისევე სტილები */
-}
-
+/* ===== Carousel Management ===== */
 .carousel-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -578,7 +382,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
 }
 
 .carousel-card {
-  background: #ffffff;
+  background: #fff;
   border: 1px solid #e9ecef;
   border-radius: 12px;
   overflow: hidden;
@@ -586,7 +390,6 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   transition: all 0.3s ease;
   position: relative;
 }
-
 .carousel-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -599,9 +402,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   border-bottom: 1px solid #e9ecef;
 }
 
-.carousel-card-info {
-  padding: 20px;
-}
+.carousel-card-info { padding: 20px; }
 
 .carousel-card-title {
   font-size: 16px;
@@ -631,16 +432,8 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   font-weight: 600;
   margin-left: 8px;
 }
-
-.carousel-card-status.active {
-  background: #d4edda;
-  color: #155724;
-}
-
-.carousel-card-status.inactive {
-  background: #f8d7da;
-  color: #721c24;
-}
+.carousel-card-status.active { background: #d4edda; color: #155724; }
+.carousel-card-status.inactive { background: #f8d7da; color: #721c24; }
 
 .carousel-card-details {
   font-size: 14px;
@@ -672,50 +465,16 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   gap: 4px;
 }
 
-.carousel-card-actions .edit-order-btn {
-  background: #17a2b8;
-  color: white;
-}
-
-.carousel-card-actions .edit-order-btn:hover {
-  background: #138496;
-}
-
-.carousel-card-actions .toggle-status-btn {
-  background: #ffc107;
-  color: #212529;
-}
-
-.carousel-card-actions .toggle-status-btn:hover {
-  background: #e0a800;
-}
-
-.carousel-card-actions .delete-btn {
-  background: #dc3545;
-  color: white;
-}
-
-.carousel-card-actions .delete-btn:hover {
-  background: #c82333;
-}
-
-.carousel-card-actions .save-order-btn {
-  background: #28a745;
-  color: white;
-}
-
-.carousel-card-actions .save-order-btn:hover {
-  background: #218838;
-}
-
-.carousel-card-actions .cancel-order-btn {
-  background: #6c757d;
-  color: white;
-}
-
-.carousel-card-actions .cancel-order-btn:hover {
-  background: #5a6268;
-}
+.carousel-card-actions .edit-order-btn { background: #17a2b8; color: white; }
+.carousel-card-actions .edit-order-btn:hover { background: #138496; }
+.carousel-card-actions .toggle-status-btn { background: #ffc107; color: #212529; }
+.carousel-card-actions .toggle-status-btn:hover { background: #e0a800; }
+.carousel-card-actions .delete-btn { background: #dc3545; color: white; }
+.carousel-card-actions .delete-btn:hover { background: #c82333; }
+.carousel-card-actions .save-order-btn { background: #28a745; color: white; }
+.carousel-card-actions .save-order-btn:hover { background: #218838; }
+.carousel-card-actions .cancel-order-btn { background: #6c757d; color: white; }
+.carousel-card-actions .cancel-order-btn:hover { background: #5a6268; }
 
 .carousel-order-input {
   width: 60px;
@@ -726,7 +485,7 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   text-align: center;
 }
 
-/* კარუსელის დამატების ქარდი */
+/* Add Carousel Card */
 .carousel-add-card {
   background: #f8f9fa;
   border: 2px dashed #dee2e6;
@@ -741,108 +500,62 @@ button, input, select, textarea, .btn, .button, .edit-btn, .delete-btn, .save-ed
   transition: all 0.3s ease;
   min-height: 300px;
 }
+.carousel-add-card:hover { border-color: #663399; background: #f0f0ff; }
+.carousel-add-card svg { width: 48px; height: 48px; color: #6c757d; margin-bottom: 16px; }
+.carousel-add-card h3 { font-size: 18px; color: #495057; margin-bottom: 8px; }
+.carousel-add-card p { font-size: 14px; color: #6c757d; margin-bottom: 20px; }
+.carousel-add-card .admin-btn { margin-top: 10px; }
 
-.carousel-add-card:hover {
-  border-color: #663399;
-  background: #f0f0ff;
-}
-
-.carousel-add-card svg {
-  width: 48px;
-  height: 48px;
-  color: #6c757d;
-  margin-bottom: 16px;
-}
-
-.carousel-add-card h3 {
-  font-size: 18px;
-  color: #495057;
-  margin-bottom: 8px;
-}
-
-.carousel-add-card p {
-  font-size: 14px;
-  color: #6c757d;
-  margin-bottom: 20px;
-}
-
-.carousel-add-card .admin-btn {
-  margin-top: 10px;
-}
-
-/* კარუსელის ფოტოების ცარიელი მდგომარეობა */
 .carousel-no-images {
   text-align: center;
   padding: 40px 20px;
   color: #6c757d;
   grid-column: 1 / -1;
 }
+.carousel-no-images svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; }
+.carousel-no-images h4 { font-size: 18px; margin-bottom: 8px; color: #495057; }
+.carousel-no-images p { font-size: 14px; color: #6c757d; }
 
-.carousel-no-images svg {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
-.carousel-no-images h4 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #495057;
-}
-
-.carousel-no-images p {
-  font-size: 14px;
-  color: #6c757d;
-}
-
-/* რესპონსივი დიზაინი კარუსელის მართვისთვის */
+/* ===== Responsive Design ===== */
 @media (max-width: 768px) {
-  .carousel-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-  }
+  .admin-header-container { flex-direction: column; gap: 15px; text-align: center; }
+  .admin-title h1 { font-size: 24px; }
+  .admin-main { padding: 20px 0; }
+  .admin-content { grid-template-columns: 1fr; gap: 30px; padding: 0 10px; }
+  .admin-section { padding: 20px; }
+  .admin-section h2 { font-size: 20px; margin-bottom: 20px; }
   
-  .carousel-card {
-    border-radius: 8px;
-  }
-  
-  .carousel-card-preview {
-    height: 150px;
-  }
-  
-  .carousel-card-info {
-    padding: 15px;
-  }
-  
-  .carousel-card-actions {
+  .card-item {
+    width: 95%;
+    min-height: 80px;
     flex-direction: column;
-    gap: 6px;
+    align-items: flex-start;
+    padding: 15px;
+    text-align: center;
   }
+  .card-preview { margin-bottom: 10px; align-self: center; }
+  .card-preview img { width: 100px; height: 75px; }
+  .card-details { margin-bottom: 10px; text-align: center; width: 100%; }
+  .card-actions { width: 100%; justify-content: center; flex-wrap: wrap; }
+  .upload-photos-btn, .edit-btn, .delete-btn { font-size: 16px; padding: 6px 10px; }
+  .upload-sections { grid-template-columns: 1fr; gap: 15px; }
+  .main-photo-section, .other-photos-section { padding: 10px; }
   
-  .carousel-card-actions button {
-    min-width: auto;
-    padding: 6px 10px;
-  }
+  .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+  .carousel-card { border-radius: 8px; }
+  .carousel-card-preview { height: 150px; }
+  .carousel-card-info { padding: 15px; }
+  .carousel-card-actions { flex-direction: column; gap: 6px; }
+  .carousel-card-actions button { min-width: auto; padding: 6px 10px; }
 }
 
 @media (max-width: 480px) {
-  .carousel-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
+  .admin-header { padding: 15px 0; }
+  .logo-svg { width: 150px; }
+  .admin-title h1 { font-size: 20px; }
+  .admin-section { padding: 15px; }
   
-  .carousel-card-preview {
-    height: 120px;
-  }
-  
-  .carousel-add-card {
-    min-height: 200px;
-    padding: 30px 15px;
-  }
+  .carousel-grid { grid-template-columns: 1fr; gap: 12px; }
+  .carousel-card-preview { height: 120px; }
+  .carousel-add-card { min-height: 200px; padding: 30px 15px; }
 }
-
-
-
-
-

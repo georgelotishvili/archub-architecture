@@ -338,13 +338,13 @@
                     </div>
                     
                     <!-- No Projects State -->
-                    <div class="no-projects" id="noProjectsState" style="display: none;">
+                    <div class="no-projects" id="noProjectsState" class="hidden">
                         <h3>ჯერ არ გაქვთ შერჩეული პროექტები</h3>
                         <p>მთავარ გვერდზე გადადით და დაიწყეთ პროექტების შერჩევა</p>
                     </div>
                     
                     <!-- Projects Grid -->
-                    <div class="projects-grid" id="likedProjectsGrid" style="display: none;">
+                    <div class="projects-grid" id="likedProjectsGrid" class="hidden">
                         <!-- Projects will be loaded here dynamically -->
                     </div>
                 </div>
@@ -413,7 +413,7 @@
             </div>
             
             <!-- No photos message -->
-            <div class="no-photos" id="galleryNoPhotos" style="display: none;">
+            <div class="no-photos" id="galleryNoPhotos" class="hidden">
                 <h3>ფოტოები არ არის</h3>
                 <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
             </div>
@@ -602,18 +602,18 @@
                     const response = await fetch('/api/user/liked-projects');
                     const data = await response.json();
                     
-                    loadingState.style.display = 'none';
+                    loadingState.classList.add('hidden');
                     
                     if (data.success && data.projects.length > 0) {
-                        projectsGrid.style.display = 'grid';
+                        projectsGrid.classList.remove('hidden');
                         displayProjects(data.projects);
                     } else {
-                        noProjectsState.style.display = 'block';
+                        noProjectsState.classList.remove('hidden');
                     }
                 } catch (error) {
                     console.error('Error loading liked projects:', error);
-                    loadingState.style.display = 'none';
-                    noProjectsState.style.display = 'block';
+                    loadingState.classList.add('hidden');
+                    noProjectsState.classList.remove('hidden');
                 }
             }
             // Expose for other scripts
@@ -694,8 +694,8 @@
                         const remainingProjects = document.querySelectorAll('.project-card');
                         if (remainingProjects.length === 0) {
                             // Show "no projects" message
-                            document.getElementById('likedProjectsGrid').style.display = 'none';
-                            document.getElementById('noProjectsState').style.display = 'block';
+                            document.getElementById('likedProjectsGrid').classList.add('hidden');
+                            document.getElementById('noProjectsState').classList.remove('hidden');
                         }
                     } else {
                         // Error handling
@@ -742,13 +742,13 @@
                 const validPhotos = allPhotos.filter(photo => photo && photo.trim() !== '');
                 
                 if (validPhotos.length === 0) {
-                    noPhotosDiv.style.display = 'block';
+                    noPhotosDiv.classList.remove('hidden');
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
                     return;
                 }
                 
-                noPhotosDiv.style.display = 'none';
+                noPhotosDiv.classList.add('hidden');
                 
                 // Create slides
                 validPhotos.forEach((photoUrl, index) => {

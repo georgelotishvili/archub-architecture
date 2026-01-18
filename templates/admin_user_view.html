@@ -292,13 +292,13 @@
             </div>
             
             <!-- No Projects State -->
-            <div class="no-projects" id="noProjectsState" style="display: none;">
+            <div class="no-projects" id="noProjectsState" class="hidden">
                 <h3>პროექტები არ არის მოწონებული</h3>
                 <p>ამ მომხმარებელს ჯერ არ აქვს მოწონებული პროექტები</p>
             </div>
             
             <!-- Projects Grid -->
-            <div class="projects-grid" id="projectsGrid" style="display: none;">
+            <div class="projects-grid" id="projectsGrid" class="hidden">
                 <!-- Projects will be loaded here dynamically -->
             </div>
         </div>
@@ -320,18 +320,18 @@
                     const response = await fetch(`/api/admin/user/${userId}/liked-projects`);
                     const data = await response.json();
                     
-                    loadingState.style.display = 'none';
+                    loadingState.classList.add('hidden');
                     
                     if (data.success && data.projects.length > 0) {
-                        projectsGrid.style.display = 'grid';
+                        projectsGrid.classList.remove('hidden');
                         displayProjects(data.projects);
                     } else {
-                        noProjectsState.style.display = 'block';
+                        noProjectsState.classList.remove('hidden');
                     }
                 } catch (error) {
                     console.error('Error loading user liked projects:', error);
-                    loadingState.style.display = 'none';
-                    noProjectsState.style.display = 'block';
+                    loadingState.classList.add('hidden');
+                    noProjectsState.classList.remove('hidden');
                 }
             }
             

@@ -202,7 +202,7 @@
                 <!-- Authentication ღილაკების კონტეინერი -->
                 <div class="auth-buttons-container">
                     <button class="auth-btn" id="authBtn">შესვლა</button>
-                    <button class="my-page-btn" id="myPageBtn" style="display: none;">ჩემი გვერდი</button>
+                    <button class="my-page-btn hidden" id="myPageBtn">ჩემი გვერდი</button>
                 </div>
             </div>
         </div>
@@ -227,7 +227,7 @@
                 <!-- მობილური Authentication ღილაკი -->
                 <button class="mobile-auth-btn" id="mobileAuthBtn">შესვლა</button>
                 <!-- მობილური My Page ღილაკი -->
-                <button class="mobile-my-page-btn" id="mobileMyPageBtn" style="display: none;">ჩემი გვერდი</button>
+                <button class="mobile-my-page-btn hidden" id="mobileMyPageBtn">ჩემი გვერდი</button>
             </nav>
         </div>
     </div>
@@ -321,7 +321,7 @@
                                 <path d="M21 21l-4.35-4.35"></path>
                             </svg>
                         </button>
-                        <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">
+                        <button class="clear-search-btn hidden" id="clearSearchBtn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -375,7 +375,7 @@
             </div>
             <!-- ფუტერის ქვედა ნაწილი -->
             <div class="footer-bottom">
-                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
+                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" class="footer-admin-link">ადმინ პანელი</a></p>
             </div>
         </div>
     </footer>
@@ -409,7 +409,7 @@
             </div>
             
             <!-- ფოტოების არარსებობის შეტყობინება -->
-            <div class="no-photos" id="galleryNoPhotos" style="display: none;">
+            <div class="no-photos hidden" id="galleryNoPhotos">
                 <h3>ფოტოები არ არის</h3>
                 <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
             </div>
@@ -433,7 +433,7 @@
                     <input type="password" id="loginPassword" required>
                 </div>
                 <button type="submit" class="contact-submit-btn">შესვლა</button>
-                <p style="text-align:center; margin-top:15px;">არ გაქვს ანგარიში? <a href="#" id="showRegisterModal">რეგისტრაცია</a></p>
+                <p class="text-center mt-15">არ გაქვს ანგარიში? <a href="#" id="showRegisterModal">რეგისტრაცია</a></p>
             </form>
         </div>
     </div>
@@ -459,7 +459,7 @@
                     <input type="password" id="registerPassword" required>
                 </div>
                 <button type="submit" class="contact-submit-btn">რეგისტრაცია</button>
-                <p style="text-align:center; margin-top:15px;">უკვე გაქვს ანგარიში? <a href="#" id="showLoginModal">შესვლა</a></p>
+                <p class="text-center mt-15">უკვე გაქვს ანგარიში? <a href="#" id="showLoginModal">შესვლა</a></p>
             </form>
         </div>
     </div>

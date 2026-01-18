@@ -1,8 +1,65 @@
-venv/
-.env
-database.db
-static/uploads/
+# ===== Python =====
 __pycache__/
-*.pyc
-run.log
-START_ARCHUB.bat
+*.py[cod]
+*$py.class
+*.so
+
+# ===== Virtual Environment =====
+venv/
+.venv/
+env/
+ENV/
+
+# ===== Environment Variables (secrets) =====
+.env
+.env.local
+.env.production
+
+# ===== Database (local SQLite - server uses PostgreSQL) =====
+*.db
+*.sqlite
+*.sqlite3
+database.db
+
+# ===== Uploads (user content - not in repo) =====
+static/uploads/
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ===== OS Files =====
+.DS_Store
+.DS_Store?
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Temporary Files =====
+tmp/
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# ===== Local Development Scripts =====
+*.bat
+START_*.bat
+
+# ===== Testing =====
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# ===== Build =====
+dist/
+build/
+*.egg-info/
