@@ -3,8 +3,9 @@
 # ეს ფაილი შეიცავს ბაზის მართვის ბრძანებებს
 # ტესტირების, მონაცემების შექმნისა და მართვისთვის
 
-from app import app, db
-from models import Project, Photo, User
+from app import app
+from app.extensions import db
+from app.models import Project, Photo, User
 
 # ===== ტესტირების მონაცემების შექმნა =====
 def create_sample_data():
@@ -19,19 +20,19 @@ def create_sample_data():
         projects_data = [
             {
                 "area": "120 კვ.მ",
-                "main_image_url": "static/photos/pro 1.png",
+                "main_image_url": "static/images/pro 1.png",
                 "photos": [
-                    "static/photos/pro 1.png",
-                    "static/photos/pro 2.jpg",
-                    "static/photos/pro 3.png"
+                    "static/images/pro 1.png",
+                    "static/images/pro 2.jpg",
+                    "static/images/pro 3.png"
                 ]
             },
             {
                 "area": "85 კვ.მ",
-                "main_image_url": "static/photos/pro 4.jpg",
+                "main_image_url": "static/images/pro 4.jpg",
                 "photos": [
-                    "static/photos/pro 4.jpg",
-                    "static/photos/pro 5.jpg"
+                    "static/images/pro 4.jpg",
+                    "static/images/pro 5.jpg"
                 ]
             }
         ]

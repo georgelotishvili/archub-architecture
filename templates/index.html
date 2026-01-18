@@ -27,8 +27,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='photos/logo 1.jpg') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='photos/logo 1.jpg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/logo 1.jpg') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/logo 1.jpg') }}">
     <meta name="apple-mobile-web-app-title" content="Archub">
     <meta name="theme-color" content="#FF6633">
 
@@ -37,14 +37,14 @@
     <meta property="og:url" content="https://archub.ge/">
     <meta property="og:title" content="Archub | არქიტექტურული კომპანია თბილისში">
     <meta property="og:description" content="პროექტირება · ნებართვები · გრგ · კონსტრუქციული/გეოლოგიური ექსპერტიზა · არქიტექტურული რენდერები">
-    <meta property="og:image" content="{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://archub.ge/">
     <meta name="twitter:title" content="Archub | არქიტექტურული კომპანია თბილისში">
     <meta name="twitter:description" content="სრული არქიტექტურული სერვისები: პროექტირება, ნებართვები, გრგ, კონსტრუქციული/გეოლოგიური სამუშაოები.">
-    <meta name="twitter:image" content="{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}">
     
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -63,7 +63,7 @@
       "@type": "ProfessionalService",
       "name": "Archub",
       "url": "https://archub.ge/",
-      "logo": "{{ url_for('static', filename='photos/logo 1.jpg', _external=True) }}",
+      "logo": "{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}",
       "telephone": "+995593222033",
       "email": "naormala@gmail.com",
       "address": {
@@ -149,7 +149,7 @@
     }
     </script>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <!-- ვებ-გვერდის ჰედერი -->
@@ -375,7 +375,7 @@
             </div>
             <!-- ფუტერის ქვედა ნაწილი -->
             <div class="footer-bottom">
-                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
+                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია. | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a></p>
             </div>
         </div>
     </footer>
@@ -465,8 +465,6 @@
     </div>
 
     <!-- მთავარი JavaScript ფაილი -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
-    <!-- deploy test 2025-10-01 -->
 </html>
-

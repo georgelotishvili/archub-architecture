@@ -1,102 +1,62 @@
 # Archub - არქიტექტურული პორტფოლიო ვებ-საიტი
 
-<!-- ===== ARCHUB - არქიტექტურული პორტფოლიო ვებ-აპლიკაცია ===== -->
-<!-- თანამედროვე Flask-ზე დაფუძნებული ვებ-აპლიკაცია არქიტექტურული პროექტების ჩვენებისთვის -->
-<!-- შეიცავს ადმინ პანელს კონტენტის მართვისთვის -->
+არქიტექტურული პროექტების პორტფოლიო ვებ-აპლიკაცია Flask-ზე.
 
-A modern Flask-based web application for showcasing architectural projects with an admin panel for content management.
+## სწრაფი გაშვება (ლოკალურად)
 
-## Features
-
-- **Main Website**: Beautiful portfolio display with project carousels
-- **Admin Panel**: Full content management system for projects
-- **API Backend**: RESTful API for project and contact form management
-- **Database Integration**: SQLite database with SQLAlchemy ORM
-- **File Upload**: Image upload and management system
-- **Contact Form**: Backend API for contact form submissions
-
-## Technology Stack
-
-- **Backend**: Flask, Flask-SQLAlchemy, Flask-Migrate
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Database**: SQLite
-- **File Storage**: Local file system
-
-## Project Structure
-
-```
-archub/
-├── app.py                 # Main Flask application
-├── requirements.txt       # Python dependencies
-├── .gitignore            # Git ignore rules
-├── README.md             # This file
-├── database.db           # SQLite database (created automatically)
-├── migrations/           # Database migration files
-├── templates/            # HTML templates
-│   ├── index.html        # Main website
-│   └── admin.html        # Admin panel
-├── static/               # Static files
-│   ├── styles.css        # Main website styles
-│   ├── admin.css         # Admin panel styles
-│   ├── script.js         # Main website JavaScript
-│   ├── admin.js          # Admin panel JavaScript
-│   ├── photos/           # Static images
-│   └── uploads/          # Uploaded files
-└── db_commands.py        # Database management commands
-```
-
-## Installation & Setup
-
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd archub
-```
-
-### 2. Create Virtual Environment
-
-**Windows:**
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-**macOS/Linux:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-
+### 1. დააყენეთ Python დამოკიდებულებები:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Initialize Database
-
+### 2. გაუშვით აპლიკაცია:
 ```bash
-# Create database tables
-python -c "from app import app, db; app.app_context().push(); db.create_all()"
-
-# Run database migrations (if needed)
-flask db upgrade
+python start.py
 ```
 
-### 5. Create Sample Data (Optional)
+სერვერი ავტომატურად:
+- შექმნის საჭირო საქაღალდეებს
+- შექმნის მონაცემთა ბაზას
+- გაუშვებს სერვერს მისამართზე: http://127.0.0.1:5000
 
-```bash
-python db_commands.py create
+## ფაილების სტრუქტურა
+
+```
+archub/
+├── start.py              # მთავარი გამშვები ფაილი
+├── app.py                # Flask აპლიკაცია
+├── config.py             # კონფიგურაცია
+├── models.py             # მონაცემთა ბაზის მოდელები
+├── requirements.txt      # Python დამოკიდებულებები
+├── .env.example          # გარემოს ცვლადების მაგალითი
+├── templates/            # HTML შაბლონები
+├── static/               # სტატიკური ფაილები
+│   ├── styles.css
+│   ├── script.js
+│   └── uploads/          # ატვირთული ფაილები
+└── hosting/              # სერვერის კონფიგურაცია
 ```
 
-### 6. Run the Application
+## სერვერზე დეპლოიმენტი (Production)
 
+### Gunicorn-ით:
 ```bash
-python app.py
+gunicorn "start:create_app()" -w 4 -b 0.0.0.0:8000
 ```
 
-The application will be available at: `http://127.0.0.1:5000`
+### Environment ცვლადები:
+დააკოპირეთ `.env.example` როგორც `.env` და შეცვალეთ მნიშვნელობები:
+```
+FLASK_ENV=production
+SECRET_KEY=თქვენი-საიდუმლო-გასაღები
+DATABASE_URL=postgresql://user:pass@localhost/archub
+```
+
+## ბმულები
+
+- **მთავარი გვერდი**: http://127.0.0.1:5000
+- **ადმინ პანელი**: http://127.0.0.1:5000/admin
+- **API**: http://127.0.0.1:5000/api/projects
 
 ## Usage
 

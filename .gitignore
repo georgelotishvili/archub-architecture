@@ -5,3 +5,4 @@ static/uploads/
 __pycache__/
 *.pyc
 run.log
+START_ARCHUB.bat

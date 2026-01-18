@@ -2,6 +2,57 @@
 // ეს ფაილი შეიცავს მთავარი გვერდის ფუნქციონალს
 // ავტორიზაცია, პროექტების ჩატვირთვა, კონტაქტ ფორმა
 
+// ===== Toast Notification სისტემა =====
+const Toast = {
+    container: null,
+    
+    init() {
+        if (this.container) return;
+        this.container = document.createElement('div');
+        this.container.className = 'toast-container';
+        document.body.appendChild(this.container);
+    },
+    
+    show(message, type = 'info', duration = 4000) {
+        this.init();
+        
+        const icons = {
+            success: '✓',
+            error: '✕',
+            warning: '⚠',
+            info: 'ℹ'
+        };
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <span class="toast-icon">${icons[type] || icons.info}</span>
+            <span class="toast-message">${message}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+        
+        this.container.appendChild(toast);
+        
+        // ავტომატური წაშლა
+        if (duration > 0) {
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        return toast;
+    },
+    
+    success(message, duration) { return this.show(message, 'success', duration); },
+    error(message, duration) { return this.show(message, 'error', duration); },
+    warning(message, duration) { return this.show(message, 'warning', duration); },
+    info(message, duration) { return this.show(message, 'info', duration); }
+};
+
+// გლობალურად ხელმისაწვდომი
+window.Toast = Toast;
+
 document.addEventListener('DOMContentLoaded', function() {
     // ===== CSRF Token-ის წამოღება =====
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -42,42 +93,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- ავტორიზაციის სტატუსის შემოწმება ---
     async function checkAuthStatus() {
         try {
-            console.log('Checking auth status...');
             const response = await fetch('/api/status');
             const data = await response.json();
-            console.log('Auth status response:', data);
             
-            if (data.logged_in) {
-                userAuthenticated = true;
-                currentUser = data.user;
-                updateAuthButtons('logout');
-                console.log('User is authenticated:', currentUser);
-            } else {
-                userAuthenticated = false;
-                currentUser = null;
-                updateAuthButtons('login');
-                console.log('User is not authenticated');
-            }
-            
-            // ავტორიზაციის სტატუსის გლობალურად ხელმისაწვდომად გაკეთება
+            userAuthenticated = data.logged_in;
+            currentUser = data.logged_in ? data.user : null;
+            updateAuthButtons(data.logged_in ? 'logout' : 'login');
             window.userAuthenticated = userAuthenticated;
-            console.log('window.userAuthenticated set to:', window.userAuthenticated);
             
-            // სექცია 2-ის მონაცემების განახლება ავტორიზაციის სტატუსის დადასტურების შემდეგ
-            if (typeof loadCardsFromAPI === 'function' && typeof renderProjectsCards === 'function') {
+            // სექცია 2 და 3-ის განახლება
+            if (typeof loadCardsFromAPI === 'function') {
                 try {
                     await loadCardsFromAPI();
                     renderProjectsCards();
-                } catch (e) {
-                    console.error('Failed to refresh Section 2 cards after auth status check:', e);
-                }
+                } catch (e) { /* ignore */ }
             }
-            // სექცია 3-ის ქარდების ხელახალი რენდერი, რათა ლაიქის ღილაკები გამოვაჩინოთ/დავმალოთ
             if (typeof initSection3Projects === 'function') {
-                initSection3Projects().catch(err => console.error('Re-init section 3 after auth:', err));
+                initSection3Projects().catch(() => {});
             }
         } catch (error) {
-            console.error('Error checking auth status:', error);
             userAuthenticated = false;
             currentUser = null;
             updateAuthButtons('login');
@@ -127,10 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- გასვლის დამუშავება ---
     async function handleLogout() {
         try {
-            const response = await secureFetch('/api/logout', {
-                method: 'POST'
-            });
-            
+            const response = await secureFetch('/api/logout', { method: 'POST' });
             const data = await response.json();
             
             if (data.success) {
@@ -138,21 +169,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentUser = null;
                 window.userAuthenticated = false;
                 updateAuthButtons('login');
-                // ლაიქების ღილაკების ხელახალი რენდერი გამოსვლის შემდეგ
                 await loadCardsFromAPI();
                 renderProjectsCards();
                 if (typeof initSection3Projects === 'function') {
-                    initSection3Projects().catch(err => console.error('Re-init section 3 after logout:', err));
+                    initSection3Projects().catch(() => {});
                 }
-                alert('წარმატებით გამოხვედით სისტემიდან!');
-                // გადამისამართება მთავარ გვერდზე, რათა თავიდან ავიცილოთ შეცდომები დაცულ გვერდებზე
-                window.location.href = '/';
+                Toast.success('წარმატებით გამოხვედით სისტემიდან!');
+                setTimeout(() => window.location.href = '/', 1500);
             } else {
-                alert('შეცდომა გასვლისას: ' + (data.error || 'უცნობი შეცდომა'));
+                Toast.error('შეცდომა გასვლისას: ' + (data.error || 'უცნობი შეცდომა'));
             }
         } catch (error) {
-            console.error('Logout error:', error);
-            alert('შეცდომა სერვერთან კავშირისას.');
+            Toast.error('შეცდომა სერვერთან კავშირისას.');
         }
     }
     
@@ -207,7 +235,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const submitBtn = loginForm.querySelector('button[type="submit"]');
@@ -226,20 +253,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentUser = result.user;
                     window.userAuthenticated = true;
                     updateAuthButtons('logout');
-                    // ლაიქების ღილაკების ხელახალი რენდერი ავტორიზაციის შემდეგ
                     await loadCardsFromAPI();
                     renderProjectsCards();
                     if (typeof initSection3Projects === 'function') {
-                        initSection3Projects().catch(err => console.error('Re-init section 3 after login:', err));
+                        initSection3Projects().catch(() => {});
                     }
-                    alert('წარმატებით შეხვედით სისტემაში!');
+                    Toast.success('წარმატებით შეხვედით სისტემაში!');
                     closeModal('loginModal');
                 } else {
-                    alert('შეცდომა: ' + result.error);
+                    Toast.error('შეცდომა: ' + result.error);
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                alert('სერვერთან დაკავშირების შეცდომა.');
+                Toast.error('სერვერთან დაკავშირების შეცდომა.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'შესვლა';
@@ -251,7 +276,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const username = document.getElementById('registerUsername').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
@@ -267,15 +291,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(result.message);
+                    Toast.success(result.message);
                     closeModal('registerModal');
                     openModal('loginModal');
                 } else {
-                    alert('შეცდომა: ' + result.error);
+                    Toast.error('შეცდომა: ' + result.error);
                 }
             } catch (error) {
-                console.error('Registration error:', error);
-                alert('სერვერთან დაკავშირების შეცდომა.');
+                Toast.error('სერვერთან დაკავშირების შეცდომა.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'რეგისტრაცია';
@@ -346,39 +369,23 @@ window.initProjectsCarousel = async function initProjectsCarousel() {
 // ===== სექცია 3 - პროექტების გრიდი =====
 window.initSection3Projects = async function initSection3Projects() {
     const projectsGrid = document.getElementById('projectsGrid');
-    
-    if (!projectsGrid) {
-        console.log('Projects grid not found');
-        return;
-    }
+    if (!projectsGrid) return;
     
     try {
-        // Load projects from API (same data as section 2)
         const response = await fetch('/api/projects');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();
         
         if (data.success && data.projects) {
-            // Clear existing content
             projectsGrid.innerHTML = '';
-            
-            // Create project cards
             data.projects.forEach(project => {
-                const cardElement = createSection3CardElement(project);
-                projectsGrid.appendChild(cardElement);
+                projectsGrid.appendChild(createSection3CardElement(project));
             });
-            
-            console.log(`Section 3: Loaded ${data.projects.length} projects`);
         } else {
-            console.error('Failed to load projects for section 3:', data.error);
             projectsGrid.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">პროექტები ვერ ჩაიტვირთა</div>';
         }
     } catch (error) {
-        console.error('Error loading projects for section 3:', error);
         projectsGrid.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">შეცდომა პროექტების ჩატვირთვისას</div>';
     }
 }
@@ -442,30 +449,18 @@ function createSection3CardElement(project) {
 async function loadCardsFromAPI() {
     try {
         const response = await fetch('/api/projects');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();
         
         if (data.success && data.projects) {
             projectsCards = data.projects.map(project => {
-                // Create photos array with main image first, then gallery photos
                 const allPhotos = [];
                 if (project.main_image_url) {
-                    allPhotos.push({
-                        url: project.main_image_url,
-                        title: 'მთავარი ფოტო'
-                    });
+                    allPhotos.push({ url: project.main_image_url, title: 'მთავარი ფოტო' });
                 }
-                if (project.photos && project.photos.length > 0) {
-                    project.photos.forEach(photoUrl => {
-                        allPhotos.push({
-                            url: photoUrl,
-                            title: 'პროექტის ფოტო'
-                        });
-                    });
+                if (project.photos?.length > 0) {
+                    project.photos.forEach(url => allPhotos.push({ url, title: 'პროექტის ფოტო' }));
                 }
                 
                 return {
@@ -481,26 +476,23 @@ async function loadCardsFromAPI() {
                 };
             });
             
-            // ძებნისთვის ყველა პროექტის შენახვა
             allProjects = [...projectsCards];
-            
             totalCards = projectsCards.length;
         } else {
             createRandomCards();
         }
     } catch (error) {
-        console.error('Error loading cards from API:', error);
         createRandomCards();
     }
 }
 
 function createRandomCards() {
     const sampleCards = [
-        { area: '120 კვ.მ', image: 'photos/pro 1.png' },
-        { area: '150 კვ.მ', image: 'photos/pro 2.jpg' },
-        { area: '90 კვ.მ', image: 'photos/pro 3.png' },
-        { area: '200 კვ.მ', image: 'photos/pro 4.jpg' },
-        { area: '180 კვ.მ', image: 'photos/pro 5.jpg' }
+        { area: '120 კვ.მ', image: 'images/pro 1.png' },
+        { area: '150 კვ.მ', image: 'images/pro 2.jpg' },
+        { area: '90 კვ.მ', image: 'images/pro 3.png' },
+        { area: '200 კვ.მ', image: 'images/pro 4.jpg' },
+        { area: '180 კვ.მ', image: 'images/pro 5.jpg' }
     ];
     
     projectsCards = sampleCards.map((card, index) => ({
@@ -524,14 +516,9 @@ function createRandomCards() {
 
 function renderProjectsCards() {
     if (!cardsContainer || !projectsCards.length) return;
-
-    console.log(`Rendering ${projectsCards.length} cards, totalCards=${totalCards}`);
     cardsContainer.innerHTML = '';
-
-    // Render a single set of cards (no cloning, no arrows)
     projectsCards.forEach((card, index) => {
-        const cardElement = createCardElement(card, index);
-        cardsContainer.appendChild(cardElement);
+        cardsContainer.appendChild(createCardElement(card, index));
     });
 }
 
@@ -764,25 +751,16 @@ function loadGalleryPhotosForModal() {
     const gallery = document.getElementById('gallery');
     const noPhotos = document.getElementById('galleryNoPhotos');
     
-    console.log('loadGalleryPhotosForModal called');
-    console.log('window.selectedCard:', window.selectedCard);
-    
     try {
-            // Use photos from the selected card
-        if (window.selectedCard && window.selectedCard.photos && window.selectedCard.photos.length > 0) {
-            console.log('Photos found:', window.selectedCard.photos.length);
+        if (window.selectedCard?.photos?.length > 0) {
             displayGalleryPhotos(window.selectedCard.photos);
             gallery.style.display = 'block';
             noPhotos.style.display = 'none';
             return;
         }
-        
-        console.log('No photos found, showing no photos message');
-        // If no selected card photos, show no photos message
         gallery.style.display = 'none';
         noPhotos.style.display = 'block';
     } catch (error) {
-        console.error('Error loading gallery photos:', error);
         gallery.style.display = 'none';
         noPhotos.style.display = 'block';
     }
@@ -805,28 +783,17 @@ function displayGalleryPhotos(photos) {
     const carouselContainer = document.getElementById('galleryCarouselContainer');
     const dotsContainer = document.getElementById('galleryDots');
     
-    console.log('displayGalleryPhotos called with:', photos);
-    console.log('carouselContainer:', carouselContainer);
-    console.log('dotsContainer:', dotsContainer);
+    if (!carouselContainer || !dotsContainer) return;
     
-    if (!carouselContainer || !dotsContainer) {
-        console.error('Gallery containers not found!');
-        return;
-    }
-    
-    // Clear existing content
     carouselContainer.innerHTML = '';
     dotsContainer.innerHTML = '';
     
-    // Create slides
     photos.forEach((photo, index) => {
         const slide = document.createElement('div');
         slide.className = `slide ${index === 0 ? 'active' : ''}`;
-        
         const photoUrl = typeof photo === 'string' ? photo : photo.url;
         
-        // Create like button HTML for gallery (only for authenticated users)
-        const likeButtonHtml = (window.userAuthenticated) ? `
+        const likeButtonHtml = window.userAuthenticated ? `
             <button class="gallery-like-btn ${window.selectedCard.is_liked ? 'liked' : ''}" data-project-id="${window.selectedCard.id}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="${window.selectedCard.is_liked ? '#ffffff' : 'none'}" stroke="#ffffff" stroke-width="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -834,32 +801,25 @@ function displayGalleryPhotos(photos) {
             </button>
         ` : '';
         
-        slide.innerHTML = `
-            <img src="${photoUrl}" alt="Photo ${index + 1}">
-            ${likeButtonHtml}
-        `;
+        slide.innerHTML = `<img src="${photoUrl}" alt="Photo ${index + 1}">${likeButtonHtml}`;
         carouselContainer.appendChild(slide);
         
-        // Create dot
         const dot = document.createElement('button');
         dot.className = `dot ${index === 0 ? 'active' : ''}`;
         dot.addEventListener('click', () => goToGallerySlide(index));
         dotsContainer.appendChild(dot);
     });
     
-    // Add like button click event listener for gallery (for all slides)
-    const galleryLikeBtns = document.querySelectorAll('.gallery-like-btn');
-    galleryLikeBtns.forEach(galleryLikeBtn => {
-        if (galleryLikeBtn && window.selectedCard) {
-            galleryLikeBtn.addEventListener('click', (e) => {
+    document.querySelectorAll('.gallery-like-btn').forEach(btn => {
+        if (btn && window.selectedCard) {
+            btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                handleLikeClick(window.selectedCard.id, galleryLikeBtn);
+                handleLikeClick(window.selectedCard.id, btn);
             });
         }
     });
     
-    // ცვლადების განახლება
     gallerySlides = document.querySelectorAll('#galleryCarouselContainer .slide');
     galleryDots = document.querySelectorAll('#galleryDots .dot');
     galleryTotalSlides = photos.length;
@@ -905,105 +865,53 @@ function goToGallerySlide(index) {
 
     // --- მოწონების ფუნქციონალი ---
 async function handleLikeClick(projectId, likeButton) {
-    console.log('handleLikeClick called with projectId:', projectId);
-    console.log('userAuthenticated:', window.userAuthenticated);
-    
     if (!window.userAuthenticated) {
-        alert('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
+        Toast.warning('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
         return;
     }
     
     try {
-        console.log('Sending like request to:', `/api/projects/${projectId}/like`);
-        const response = await secureFetch(`/api/projects/${projectId}/like`, {
-            method: 'POST'
-        });
-        
-        console.log('Response status:', response.status);
+        const response = await secureFetch(`/api/projects/${projectId}/like`, { method: 'POST' });
         const data = await response.json();
-        console.log('Response data:', data);
         
         if (response.ok && data.success) {
-            // ღილაკის ვიზუალური მდგომარეობის განახლება
             updateLikeButton(likeButton, data.liked, data.likes_count);
-            
-            // პროექტის ქარდის მონაცემების განახლება
             updateProjectCardData(projectId, data.liked, data.likes_count);
             
-            // რეალ-ტაიმ განახლება my_page-ისთვის
-            if (data.liked) {
-                // პროექტი ლაიქდა
-                localStorage.setItem('projectLiked', JSON.stringify({
-                    projectId: projectId,
-                    timestamp: Date.now()
-                }));
-                window.dispatchEvent(new CustomEvent('projectLiked', {
-                    detail: { projectId: projectId }
-                }));
-            } else {
-                // პროექტი ანლაიქდა
-                localStorage.setItem('projectUnliked', JSON.stringify({
-                    projectId: projectId,
-                    timestamp: Date.now()
-                }));
-                window.dispatchEvent(new CustomEvent('projectUnliked', {
-                    detail: { projectId: projectId }
-                }));
-            }
+            const eventName = data.liked ? 'projectLiked' : 'projectUnliked';
+            const storageKey = data.liked ? 'projectLiked' : 'projectUnliked';
+            
+            localStorage.setItem(storageKey, JSON.stringify({ projectId, timestamp: Date.now() }));
+            window.dispatchEvent(new CustomEvent(eventName, { detail: { projectId } }));
         } else {
-            // Error handling
-            const errorMessage = data.error || 'შეცდომა მოწონებისას';
             if (response.status === 401) {
-                alert('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
+                Toast.warning('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
             } else {
-                alert(`შეცდომა: ${errorMessage}`);
+                Toast.error(`შეცდომა: ${data.error || 'შეცდომა მოწონებისას'}`);
             }
         }
-        
     } catch (error) {
-        console.error('Error during like/unlike:', error);
-        alert('შეცდომა სერვერთან კავშირისას.');
+        Toast.error('შეცდომა სერვერთან კავშირისას.');
     }
 }
 
 // ყველა ლაიქის ღილაკის განახლება იგივე პროექტისთვის
 function updateAllLikeButtonsForProject(projectId, isLiked) {
-    // განაახლოს ყველა ღილაკი იგივე პროექტისთვის ორივე სექციაში და გალერეაში
-    const allLikeButtons = document.querySelectorAll(`[data-project-id="${projectId}"]`);
-    
-    allLikeButtons.forEach(button => {
-        // შეამოწმოს არის თუ არა ეს ლაიქის ღილაკი (ორივე კლასი)
+    document.querySelectorAll(`[data-project-id="${projectId}"]`).forEach(button => {
         if (button.classList.contains('like-btn') || button.classList.contains('gallery-like-btn')) {
             const svg = button.querySelector('svg');
             if (svg) {
-                if (isLiked) {
-                    button.classList.add('liked');
-                    svg.setAttribute('fill', '#ffffff');
-                    svg.setAttribute('stroke', '#ffffff');
-                } else {
-                    button.classList.remove('liked');
-                    svg.setAttribute('fill', 'none');
-                    svg.setAttribute('stroke', '#ffffff');
-                }
+                button.classList.toggle('liked', isLiked);
+                svg.setAttribute('fill', isLiked ? '#ffffff' : 'none');
+                svg.setAttribute('stroke', '#ffffff');
             }
         }
     });
-    
-    console.log(`Updated all like buttons for project ${projectId} to ${isLiked ? 'liked' : 'unliked'}`);
 }
 
 // მოწონების ღილაკის ვიზუალური მდგომარეობის განახლება
 function updateLikeButton(likeButton, isLiked, likesCount) {
-    const projectId = likeButton.getAttribute('data-project-id');
-    
-    console.log('updateLikeButton called:', {
-        buttonClass: likeButton.className,
-        projectId: projectId,
-        isLiked: isLiked
-    });
-    
-    // განაახლოს ყველა ღილაკი იგივე პროექტისთვის ორივე სექციაში და გალერეაში
-    updateAllLikeButtonsForProject(projectId, isLiked);
+    updateAllLikeButtonsForProject(likeButton.getAttribute('data-project-id'), isLiked);
 }
 
 // პროექტის ქარდის მონაცემების განახლება projectsCards მასივში
@@ -1027,42 +935,23 @@ function updateProjectCardData(projectId, isLiked, likesCount) {
 
     // --- რეალ-ტაიმ განახლების ფუნქციონალი ---
     function setupRealtimeUpdates() {
-        // მოსმენა localStorage ცვლილებების
-        window.addEventListener('storage', function(e) {
+        window.addEventListener('storage', (e) => {
             if (e.key === 'projectLiked' || e.key === 'projectUnliked') {
-                console.log('Project like status changed, updating UI...');
-                // განაახლოს ყველა ლაიქის ღილაკი
                 const data = JSON.parse(e.newValue);
                 updateAllLikeButtonsForProject(data.projectId, e.key === 'projectLiked');
             }
         });
         
-        // მოსმენა custom events-ების
-        window.addEventListener('projectLiked', function(e) {
-            console.log('Project liked event received:', e.detail);
-            updateAllLikeButtonsForProject(e.detail.projectId, true);
-        });
-        
-        window.addEventListener('projectUnliked', function(e) {
-            console.log('Project unliked event received:', e.detail);
-            updateAllLikeButtonsForProject(e.detail.projectId, false);
-        });
+        window.addEventListener('projectLiked', (e) => updateAllLikeButtonsForProject(e.detail.projectId, true));
+        window.addEventListener('projectUnliked', (e) => updateAllLikeButtonsForProject(e.detail.projectId, false));
     }
 
     // --- ყველაფრის ინიციალიზაცია ---
-    // Check authentication status on page load first
     checkAuthStatus();
-    
-    initProjectsCarousel().catch(error => {
-        console.error('Error initializing projects carousel:', error);
-    });
-    initSection3Projects().catch(error => {
-        console.error('Error initializing section 3 projects:', error);
-    });
+    initProjectsCarousel().catch(() => {});
+    initSection3Projects().catch(() => {});
     initGalleryModal();
     setupRealtimeUpdates();
-    
-    // ძებნის ფუნქციონალის ინიციალიზაცია
     initSearchFunctionality();
 });
 
@@ -1075,25 +964,16 @@ function openAdminPanel() {
 // ===== კარუსელის ფოტოების ჩატვირთვის ფუნქცია =====
 async function loadCarouselImages() {
     try {
-        console.log('Loading carousel images from API...');
         const response = await fetch('/api/carousel');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();
-        console.log('Carousel API response:', data);
-        
-        if (data.success && data.images && data.images.length > 0) {
+        if (data.success && data.images?.length > 0) {
             renderCarouselImages(data.images);
         } else {
-            console.log('No carousel images found, using default images');
             renderDefaultCarouselImages();
         }
     } catch (error) {
-        console.error('Error loading carousel images from API:', error);
-        console.log('Falling back to default carousel images');
         renderDefaultCarouselImages();
     }
 }
@@ -1121,50 +1001,10 @@ function renderDefaultCarouselImages() {
     const carouselContainer = document.getElementById('carouselContainer');
     if (!carouselContainer) return;
     
-    carouselContainer.innerHTML = `
-        <!-- კარუსელის პირველი სლაიდი (აქტიური) -->
-        <div class="carousel-slide active">
-            <img src="/static/photos/car (1).jpg">
-        </div>
-        <!-- კარუსელის მეორე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (2).jpg">
-        </div>
-        <!-- კარუსელის მესამე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (3).jpg">
-        </div>
-        <!-- კარუსელის მეოთხე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (4).jpg">
-        </div>
-        <!-- კარუსელის მეხუთე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (5).jpg">
-        </div>
-        <!-- კარუსელის მეექვსე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (6).jpg">
-        </div>
-        <!-- კარუსელის მეშვიდე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (7).jpg">
-        </div>
-        <!-- კარუსელის მერვე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (8).jpg">
-        </div>
-        <!-- კარუსელის მეცხრე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (9).jpg">
-        </div>
-        <!-- კარუსელის მეათე სლაიდი -->
-        <div class="carousel-slide">
-            <img src="/static/photos/car (10).jpg">
-        </div>
-    `;
+    carouselContainer.innerHTML = Array.from({length: 10}, (_, i) => 
+        `<div class="carousel-slide${i === 0 ? ' active' : ''}"><img src="/static/images/car (${i + 1}).jpg"></div>`
+    ).join('');
     
-    // კარუსელის ინიციალიზაცია
     initMainCarousel();
 }
 
@@ -1187,13 +1027,12 @@ function initMainCarousel() {
 }
 
 // ===== ძებნის ფუნქციონალი =====
-let allProjects = []; // ყველა პროექტი
-let filteredProjects = []; // ფილტრირებული პროექტები
-let currentSearchTerm = ''; // მიმდინარე ძებნის ტერმინი
-let searchMode = false; // ძებნის რეჟიმი
-let searchCurrentIndex = 0; // მიმდინარე ნაპოვნი პროექტის ინდექსი
+let allProjects = [];
+let filteredProjects = [];
+let currentSearchTerm = '';
+let searchMode = false;
+let searchCurrentIndex = 0;
 
-// ძებნის ფუნქციონალის ინიციალიზაცია
 function initSearchFunctionality() {
     const searchInput = document.getElementById('projectSearchInput');
     const searchBtn = document.getElementById('searchBtn');
@@ -1201,30 +1040,6 @@ function initSearchFunctionality() {
     
     if (!searchInput || !searchBtn || !clearSearchBtn) return;
     
-    // ძებნის ღილაკის event listener
-    searchBtn.addEventListener('click', performSearch);
-    
-    // წმენდის ღილაკის event listener
-    clearSearchBtn.addEventListener('click', clearSearch);
-    
-    // Enter ღილაკის event listener
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
-    });
-    
-    // რეალ-ტაიმ ძებნა
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.trim();
-        if (searchTerm.length >= 2) {
-            performSearch();
-        } else if (searchTerm.length === 0) {
-            clearSearch();
-        }
-    });
-    
-    // ძებნის შესრულება
     function performSearch() {
         const searchTerm = searchInput.value.trim().toLowerCase();
         currentSearchTerm = searchTerm;
@@ -1234,54 +1049,32 @@ function initSearchFunctionality() {
             return;
         }
         
-        // პროექტების ფილტრაცია
-        filteredProjects = allProjects.filter(project => {
-            const title = (project.title || '').toLowerCase();
-            const description = (project.description || '').toLowerCase();
-            const area = (project.area || '').toLowerCase();
-            
-            return title.includes(searchTerm) || 
-                   description.includes(searchTerm) || 
-                   area.includes(searchTerm);
-        });
+        filteredProjects = allProjects.filter(p => 
+            (p.title || '').toLowerCase().includes(searchTerm) || 
+            (p.description || '').toLowerCase().includes(searchTerm) || 
+            (p.area || '').toLowerCase().includes(searchTerm)
+        );
         
-        console.log(`Search term: "${searchTerm}"`);
-        console.log(`Found ${filteredProjects.length} projects:`, filteredProjects.map(p => p.title));
-        
-        // ძებნის რეჟიმის განახლება
         searchMode = filteredProjects.length > 0;
         searchCurrentIndex = 0;
-        
-        // შედეგების ჩვენება — badge ამოღებულია, არაფერს ვაკეთებთ
-        // updateSearchResults();
         updateCarouselDisplay();
         
-        // ძებნის ღილაკების განახლება
         searchBtn.style.display = 'none';
         clearSearchBtn.style.display = 'flex';
     }
     
-    // ძებნის წმენდა
     function clearSearch() {
         searchInput.value = '';
         currentSearchTerm = '';
         filteredProjects = [];
         searchMode = false;
         searchCurrentIndex = 0;
-        
-        // ყველა პროექტის ჩვენება — badge ამოღებულია, არაფერს ვაკეთებთ
-        // updateSearchResults();
         updateCarouselDisplay();
         
-        // ძებნის ღილაკების განახლება
         searchBtn.style.display = 'flex';
         clearSearchBtn.style.display = 'none';
     }
     
-    // ძებნის შედეგების განახლება
-    function updateSearchResults() { /* badge removed */ }
-    
-    // კარუსელის ჩვენების განახლება
     function updateCarouselDisplay() {
         const cardsContainer = document.querySelector('.cards-container');
         if (!cardsContainer) return;
@@ -1289,41 +1082,31 @@ function initSearchFunctionality() {
         const projectCards = cardsContainer.querySelectorAll('.project-card');
         
         if (searchMode && filteredProjects.length > 0) {
-            // ძებნის რეჟიმი - ყველა პროექტი ჩანს, ნაპოვნი ხაზგასმულია
-            
-            projectCards.forEach((card) => {
-                const projectId = card.dataset.projectId;
-                const isFound = filteredProjects.some(project => project.id == projectId);
-
-                if (isFound) {
-                    // ვაჩვენებთ და ვანიჭებთ კლასს
-                    card.style.display = 'block';
-                    card.classList.add('search-highlighted');
-                } else {
-                    // ვმალავთ არანაპოვნ ქარდებს
-                    card.style.display = 'none';
-                }
+            projectCards.forEach(card => {
+                const isFound = filteredProjects.some(p => p.id == card.dataset.projectId);
+                card.style.display = isFound ? 'block' : 'none';
+                card.classList.toggle('search-highlighted', isFound);
             });
             
-            // პირველი ნაპოვნი პროექტისკენ სქროლვა
             const firstFoundCard = cardsContainer.querySelector('.project-card.search-highlighted');
-            if (firstFoundCard) {
-                scrollToCard(firstFoundCard);
-            }
+            if (firstFoundCard) scrollToCard(firstFoundCard);
         } else {
-            // ჩვეულებრივი რეჟიმი - ყველა პროექტი ჩანს
-            
             projectCards.forEach(card => {
                 card.style.display = 'block';
                 card.style.opacity = '1';
                 card.classList.remove('search-highlighted');
             });
-            
-            // კარუსელის საწყის პოზიციაზე დაბრუნება
             cardsContainer.style.transform = 'translateX(0px)';
         }
     }
     
+    searchBtn.addEventListener('click', performSearch);
+    clearSearchBtn.addEventListener('click', clearSearch);
+    searchInput.addEventListener('keypress', e => { if (e.key === 'Enter') performSearch(); });
+    searchInput.addEventListener('input', function() {
+        if (this.value.trim().length >= 2) performSearch();
+        else if (this.value.trim().length === 0) clearSearch();
+    });
 }
 
 // კონკრეტულ ქარდზე სქროლვის ფუნქცია (გლობალური)
@@ -1350,71 +1133,41 @@ function initSection2Arrows() {
     
     if (!prevBtn || !nextBtn || !container) return;
     
-    // წინა ისრის მოვლენა
-    prevBtn.addEventListener('click', () => {
-        const cards = container.querySelectorAll('.project-card');
-        if (cards.length === 0) return;
-        
+    // ყველაზე ახლო ქარდის პოვნა ცენტრთან
+    function findClosestCard(cards) {
         const containerRect = container.getBoundingClientRect();
         const containerCenter = containerRect.left + containerRect.width / 2;
-        
-        // ვპოულობთ ყველაზე ახლო ქარდს ცენტრთან
-        let closestCard = null;
-        let minDistance = Infinity;
+        let closestCard = null, minDistance = Infinity;
         
         cards.forEach(card => {
             const cardRect = card.getBoundingClientRect();
-            const cardCenter = cardRect.left + cardRect.width / 2;
-            const distance = Math.abs(cardCenter - containerCenter);
-            
+            const distance = Math.abs(cardRect.left + cardRect.width / 2 - containerCenter);
             if (distance < minDistance) {
                 minDistance = distance;
                 closestCard = card;
             }
         });
-        
-        if (closestCard) {
-            // ვპოულობთ წინა ქარდს
-            const allCards = Array.from(cards);
-            const currentIndex = allCards.indexOf(closestCard);
-            const prevIndex = currentIndex > 0 ? currentIndex - 1 : allCards.length - 1;
-            
-            scrollToCard(allCards[prevIndex]);
-        }
-    });
+        return closestCard;
+    }
     
-    // შემდეგი ისრის მოვლენა
-    nextBtn.addEventListener('click', () => {
-        const cards = container.querySelectorAll('.project-card');
+    // ნავიგაცია მითითებული მიმართულებით
+    function navigate(direction) {
+        const cards = Array.from(container.querySelectorAll('.project-card'));
         if (cards.length === 0) return;
         
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
+        const closestCard = findClosestCard(cards);
+        if (!closestCard) return;
         
-        // ვპოულობთ ყველაზე ახლო ქარდს ცენტრთან
-        let closestCard = null;
-        let minDistance = Infinity;
+        const currentIndex = cards.indexOf(closestCard);
+        const newIndex = direction === -1 
+            ? (currentIndex > 0 ? currentIndex - 1 : cards.length - 1)
+            : (currentIndex < cards.length - 1 ? currentIndex + 1 : 0);
         
-        cards.forEach(card => {
-            const cardRect = card.getBoundingClientRect();
-            const cardCenter = cardRect.left + cardRect.width / 2;
-            const distance = Math.abs(cardCenter - containerCenter);
-            
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestCard = card;
-            }
-        });
-        
-        if (closestCard) {
-            // ვპოულობთ შემდეგ ქარდს
-            const allCards = Array.from(cards);
-            const currentIndex = allCards.indexOf(closestCard);
-            const nextIndex = currentIndex < allCards.length - 1 ? currentIndex + 1 : 0;
-            
-            scrollToCard(allCards[nextIndex]);
-        }
-    });
+        scrollToCard(cards[newIndex]);
+    }
+    
+    prevBtn.addEventListener('click', () => navigate(-1));
+    nextBtn.addEventListener('click', () => navigate(1));
 }
 
 function escapeHtml(s) {
