@@ -418,12 +418,21 @@ function createSection3CardElement(project) {
         e.preventDefault();
         e.stopPropagation();
         
+        // Build photos array including main image
+        const allPhotos = [];
+        if (project.main_image_url) {
+            allPhotos.push({ url: project.main_image_url, title: 'მთავარი ფოტო' });
+        }
+        if (project.photos?.length > 0) {
+            project.photos.forEach(url => allPhotos.push({ url, title: 'პროექტის ფოტო' }));
+        }
+        
         // Create project object with photos array
         const projectWithPhotos = {
             id: project.id,
             area: project.area,
             main_image_url: project.main_image_url,
-            photos: project.photos || [],
+            photos: allPhotos,
             is_liked: project.is_liked,
             likes_count: project.likes_count
         };

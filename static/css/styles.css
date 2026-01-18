@@ -114,7 +114,7 @@ html {
 body {
   line-height: 1.6;
   color: var(--color-black);
-  background: url(/static/images/zaha%202.jpg) center/cover fixed no-repeat;
+  background: url('/static/images/mtavari foni.jpg') center/cover fixed no-repeat;
   overflow-x: hidden;
 }
 
@@ -392,12 +392,133 @@ body {
   object-fit: cover;
 }
 
+/* ===== Energy Efficiency Banner ===== */
+.energy-banner {
+  width: calc(100% - 16px);
+  height: 100px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px 0 0;
+  box-sizing: border-box;
+  margin: 8px 8px 50px 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.energy-banner-left {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.energy-logo-img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
+.energy-banner-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.energy-text {
+  font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #009A00;
+  letter-spacing: 0.5px;
+  transform: translateY(6px);
+}
+
+.energy-banner-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.energy-phone {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  font-size: 30px;
+  transition: color 0.2s;
+}
+
+.energy-phone:hover {
+  color: #28a745;
+}
+
+.phone-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border-radius: 50%;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.phone-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.energy-phone:hover .phone-icon {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.phone-number {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .energy-banner {
+    height: auto;
+    min-height: 80px;
+    padding: 15px 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .energy-logo-img { height: 60px; }
+  .energy-text { font-size: 16px; text-align: center; }
+  .energy-phone { font-size: 14px; gap: 8px; }
+  .phone-icon { width: 36px; height: 36px; }
+  .phone-icon svg { width: 14px; height: 14px; }
+}
+
+@media (max-width: 500px) {
+  .energy-banner {
+    flex-direction: column;
+    padding: 15px;
+  }
+  .energy-banner-left,
+  .energy-banner-center,
+  .energy-banner-right {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ===== Section 1 - Services ===== */
 .section-1 {
   width: 94%;
-  min-height: 700px;
+  min-height: 850px;
   display: flex;
   align-items: center;
+  align-content: flex-start;
   justify-content: space-around;
   flex-wrap: wrap;
   background-color: var(--color-white-80);
