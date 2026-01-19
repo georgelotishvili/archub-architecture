@@ -75,13 +75,6 @@ function loadCardsList() {
     cardsGrid.querySelectorAll('.card-item').forEach(card => card.remove());
     cardsGrid.querySelectorAll('[style*="text-align: center"]').forEach(msg => msg.remove());
     
-    if (projectsCards.length === 0) {
-        const noCardsMessage = document.createElement('div');
-        noCardsMessage.style.cssText = 'text-align: center; color: #666; padding: 40px; font-size: 18px; width: 90%; margin: 0 auto;';
-        noCardsMessage.textContent = 'ქარდები არ არის დამატებული';
-        cardsGrid.appendChild(noCardsMessage);
-        return;
-    }
     
     projectsCards.forEach((card, index) => {
         const cardItem = document.createElement('div');
@@ -761,22 +754,12 @@ function renderCarouselImages() {
     
     if (carouselImages.length === 0) {
         carouselGrid.innerHTML = `
-            <div class="carousel-no-images">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21,15 16,10 5,21"></polyline>
-                </svg>
-                <h4>კარუსელის ფოტოები არ არის</h4>
-                <p>დაამატეთ პირველი ფოტო ქვემოთ მოცემული ღილაკის გამოყენებით</p>
-            </div>
             <div class="carousel-add-card" onclick="showCarouselUploadModal()">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
                 <h3>ახალი ფოტოს დამატება</h3>
-                <p>დააჭირეთ აქ კარუსელში ახალი ფოტოს დასამატებლად</p>
             </div>
         `;
         return;
