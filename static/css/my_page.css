@@ -1,0 +1,310 @@
+/* ===== ARCHUB - My Page სპეციფიკური სტილები ===== */
+
+/* Profile Page Container */
+.profile-page {
+    width: 94%;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    margin: 50px auto 0px auto;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Profile Header */
+.profile-header {
+    width: 100%;
+    min-height: 160px;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px;
+    position: relative;
+}
+
+.profile-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url(/static/images/brick%203.jpg) center/cover;
+    opacity: 0.3;
+    border-radius: 16px;
+}
+
+.profile-header .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+    font-weight: 400;
+    line-height: 1.2;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.profile-header h3 {
+    font-size: 1.2rem;
+    margin: 0;
+    font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+    font-weight: 400;
+    opacity: 0.9;
+    line-height: 1.2;
+}
+
+/* Profile Content */
+.profile-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 20px;
+}
+
+/* Header Bottom Line Button Override */
+.header-bottom-line .auth-btn {
+    width: 150px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 25px;
+    background: var(--color-yellow);
+    color: var(--color-black);
+    border: 2px solid var(--color-black);
+}
+
+.header-bottom-line .auth-btn:hover {
+    background: #e6b000;
+}
+
+/* Back to Home Button */
+.back-to-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--color-yellow);
+    color: var(--color-black);
+    padding: 10px 24px;
+    border-radius: 25px;
+    border: 2px solid var(--color-black);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+}
+
+.back-to-home:hover {
+    background: #e6b000;
+    color: var(--color-black);
+    border-color: var(--color-black);
+}
+
+/* Liked Projects Section */
+.liked-projects-section {
+    margin-top: 50px;
+}
+
+/* Projects Grid - My Page Override */
+.profile-page .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+    justify-items: center;
+    justify-content: center;
+}
+
+/* Project Card - My Page Override */
+.profile-page .project-card {
+    width: 310px;
+    height: auto;
+    aspect-ratio: 4/3;
+    background: #ffffff;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.profile-page .project-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.profile-page .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+    transition: transform 0.4s ease;
+}
+
+.profile-page .project-card:hover .card-image {
+    transform: scale(1.05);
+}
+
+.profile-page .card-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+    color: #ffffff;
+    padding: 40px 20px 20px;
+}
+
+.profile-page .card-area {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* No Projects State */
+.no-projects {
+    text-align: center;
+    padding: 80px 20px;
+    color: #666;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.no-projects h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #242424;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.no-projects p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* Loading State */
+.loading {
+    text-align: center;
+    padding: 80px 20px;
+    color: #666;
+}
+
+.loading h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #242424;
+}
+
+/* ===== Responsive Design ===== */
+
+/* Tablet (max-width: 900px) */
+@media (max-width: 900px) {
+    .header-bottom-line .auth-btn {
+        display: none;
+    }
+    
+    .profile-header h1 {
+        font-size: 2rem;
+        font-family: 'BPG Nino Mtavruli Bold', sans-serif;
+        font-weight: 400;
+    }
+    
+    .profile-header p {
+        font-size: 1rem;
+    }
+    
+    .profile-page .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        padding: 0 20px;
+    }
+    
+    .profile-page .project-card {
+        width: 100%;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+    
+    .back-to-home {
+        display: flex;
+        margin: 10px auto;
+        text-align: center;
+        width: fit-content;
+    }
+}
+
+/* Mobile (max-width: 600px) */
+@media (max-width: 600px) {
+    .profile-page {
+        width: 100%;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 0;
+    }
+
+    .profile-header {
+        min-height: 120px;
+        padding: 20px 15px;
+        border-radius: 12px;
+    }
+
+    .profile-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .profile-header h3 {
+        font-size: 1rem;
+    }
+
+    .header-bottom-line h1 {
+        font-size: 14px;
+    }
+    
+    .header-bottom-line .auth-btn {
+        height: 36px;
+        font-size: 12px;
+        padding: 0 15px;
+    }
+
+    .profile-content {
+        padding: 25px 10px;
+    }
+    
+    .profile-page .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 10px;
+    }
+    
+    .profile-page .project-card {
+        width: 100%;
+        max-width: 310px;
+        margin: 0 auto;
+    }
+    
+    .back-to-home {
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+}

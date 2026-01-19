@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- ავტორიზაციის ღილაკების განახლება ---
     function updateAuthButtons(state) {
         const userStatus = document.getElementById('userStatus');
+        const mobileUserStatus = document.getElementById('mobileUserStatus');
         
         if (state === 'logout') {
             if (authBtn) {
@@ -151,6 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (userStatus && currentUser) {
                 userStatus.textContent = currentUser.username;
             }
+            if (mobileUserStatus && currentUser) {
+                mobileUserStatus.textContent = currentUser.username;
+            }
         } else {
             if (authBtn) {
                 authBtn.textContent = 'შესვლა';
@@ -170,6 +174,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // "გაიარეთ ავტორიზაცია" ტექსტის ჩვენება
             if (userStatus) {
                 userStatus.textContent = 'გაიარეთ ავტორიზაცია';
+            }
+            if (mobileUserStatus) {
+                mobileUserStatus.textContent = 'გაიარეთ ავტორიზაცია';
             }
         }
     }

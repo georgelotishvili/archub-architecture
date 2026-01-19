@@ -208,13 +208,13 @@ def delete_uploaded_file(file_url):
 # მთავარი გვერდი - პორტფოლიო
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', is_my_page=False)
 
 # მომხმარებლის პროფილის გვერდი (ავტორიზაცია საჭირო)
 @app.route('/my-page')
 @login_required
 def my_page():
-    return render_template('my_page.html')
+    return render_template('my_page.html', is_my_page=True)
 
 # ადმინ პანელი (ავტორიზაცია და ადმინ უფლებები საჭირო)
 @app.route('/admin')
@@ -1017,7 +1017,7 @@ def reset_password_page():
     """პაროლის აღდგენის გვერდი"""
     token = request.args.get('token')
     if not token:
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     
     # შევამოწმოთ ტოკენი ვალიდურია
     user = User.query.filter_by(reset_token=token).first()
