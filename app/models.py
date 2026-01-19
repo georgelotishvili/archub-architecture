@@ -19,10 +19,15 @@ project_likes = db.Table('project_likes',
 class User(UserMixin, db.Model):
     """მომხმარებლის მოდელი - შეიცავს მომხმარებლის ძირითად ინფორმაციას"""
     id = db.Column(db.Integer, primary_key=True)  # უნიკალური ID
-    username = db.Column(db.String(150), unique=True, nullable=False)  # მომხმარებლის სახელი
+    username = db.Column(db.String(150), unique=True, nullable=False)  # მომხმარებლის სახელი (გენერირდება ავტომატურად)
     email = db.Column(db.String(150), unique=True, nullable=False)  # ელ-ფოსტა
     password_hash = db.Column(db.String(256), nullable=False)  # დაშიფრული პაროლი
     is_admin = db.Column(db.Boolean, default=False)  # ადმინისტრატორის სტატუსი
+    
+    # მომხმარებლის პირადი ინფორმაცია
+    first_name = db.Column(db.String(100), nullable=True)  # სახელი
+    last_name = db.Column(db.String(100), nullable=True)  # გვარი
+    phone = db.Column(db.String(50), nullable=True)  # ტელეფონის ნომერი
     
     # პაროლის აღდგენის ველები
     reset_token = db.Column(db.String(100), unique=True, nullable=True)

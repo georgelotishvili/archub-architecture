@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>მომხმარებლების მართვა - ადმინისტრაცია</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <style>
@@ -130,6 +131,23 @@
             background: #e68a00;
         }
         
+        .delete-user-btn {
+            background: #c87878;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-family: 'Noto Serif Georgian', sans-serif;
+        }
+        
+        .delete-user-btn:hover {
+            background: #b56868;
+        }
+        
         .stats-row {
             background: #f8f9fa;
             font-weight: 600;
@@ -184,6 +202,7 @@
                     <th>ელ-ფოსტა</th>
                     <th>სტატუსი</th>
                     <th>მოწონებული პროექტები</th>
+                    <th>მოქმედება</th>
                 </tr>
             </thead>
             <tbody>
@@ -212,6 +231,9 @@
                             <a href="/admin/user/{{ user.id }}" class="view-user-btn">გვერდის ნახვა</a>
                         {% endif %}
                     </td>
+                    <td>
+                        <button class="delete-user-btn" onclick="deleteUser({{ user.id }}, '{{ user.username }}')">წაშლა</button>
+                    </td>
                 </tr>
                 {% endfor %}
                 
@@ -223,5 +245,38 @@
             </tbody>
         </table>
     </div>
+    
+    <script>
+        // Get CSRF token from meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        async function deleteUser(userId, username) {
+            if (!confirm(`ნამდვილად გსურთ მომხმარებელის "${username}" წაშლა? ეს მოქმედება შეუქცევადია და წაშლის ყველა მის მონაცემს.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/delete-user/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('მომხმარებელი წარმატებით წაიშალა');
+                    location.reload();
+                } else {
+                    alert('შეცდომა: ' + (result.error || 'უცნობი შეცდომა'));
+                }
+            } catch (error) {
+                alert('სერვერთან კავშირის შეცდომა');
+                console.error(error);
+            }
+        }
+    </script>
 </body>
 </html>

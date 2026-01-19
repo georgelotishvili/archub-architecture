@@ -127,6 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // --- ავტორიზაციის ღილაკების განახლება ---
     function updateAuthButtons(state) {
+        const userStatus = document.getElementById('userStatus');
+        
         if (state === 'logout') {
             if (authBtn) {
                 authBtn.textContent = 'გასვლა';
@@ -145,6 +147,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileMyPageBtn.classList.remove('hidden');
                 mobileMyPageBtn.onclick = () => window.location.href = '/my-page';
             }
+            // მომხმარებლის სახელის ჩვენება
+            if (userStatus && currentUser) {
+                userStatus.textContent = currentUser.username;
+            }
         } else {
             if (authBtn) {
                 authBtn.textContent = 'შესვლა';
@@ -161,11 +167,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mobileMyPageBtn) {
                 mobileMyPageBtn.classList.add('hidden');
             }
+            // "გაიარეთ ავტორიზაცია" ტექსტის ჩვენება
+            if (userStatus) {
+                userStatus.textContent = 'გაიარეთ ავტორიზაცია';
+            }
         }
     }
     
     // --- გასვლის დამუშავება ---
     async function handleLogout() {
+        // გაფრთხილება გასვლის წინ
+        if (!confirm('ნამდვილად გსურთ სისტემიდან გასვლა?')) {
+            return;
+        }
+        
         try {
             const response = await secureFetch('/api/logout', { method: 'POST' });
             const data = await response.json();
@@ -289,8 +304,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('registerUsername').value;
+            const first_name = document.getElementById('registerFirstName').value;
+            const last_name = document.getElementById('registerLastName').value;
             const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
             const password = document.getElementById('registerPassword').value;
             const submitBtn = registerForm.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
@@ -299,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const response = await secureFetch('/api/register', {
                     method: 'POST',
-                    body: JSON.stringify({ username, email, password })
+                    body: JSON.stringify({ first_name, last_name, email, phone, password })
                 });
                 const result = await response.json();
 

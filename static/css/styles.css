@@ -325,6 +325,15 @@ body {
   flex-shrink: 0;
 }
 
+/* User Status */
+.user-status {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 15px;
+  white-space: nowrap;
+}
+
 /* Auth Buttons */
 .auth-buttons-container {
   display: flex;
@@ -1632,8 +1641,9 @@ body {
   .logo-svg { width: 150px; }
   .header-bottom-line h1 { font-size: 18px; }
   
-  /* Hide header auth buttons on mobile - they're in burger menu */
+  /* Hide header auth buttons and user status on mobile - they're in burger menu */
   .auth-buttons-container { display: none; }
+  .user-status { display: none; }
   .header-bottom-line-container { justify-content: center; }
   
   .section-2 { --s2-card-w: 280px; }

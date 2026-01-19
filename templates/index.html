@@ -205,6 +205,8 @@
                     </svg>
                     +995 593 222 033
                 </h1>
+                <!-- მომხმარებლის სტატუსი -->
+                <span class="user-status" id="userStatus">გაიარეთ ავტორიზაცია</span>
                 <!-- Authentication ღილაკების კონტეინერი -->
                 <div class="auth-buttons-container">
                     <button class="auth-btn" id="authBtn">შესვლა</button>
@@ -520,16 +522,24 @@
             </div>
             <form class="auth-form" id="registerForm">
                 <div class="form-group">
-                    <label for="registerUsername">მომხმარებლის სახელი:</label>
-                    <input type="text" id="registerUsername" required>
+                    <label for="registerFirstName">სახელი:</label>
+                    <input type="text" id="registerFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerLastName">გვარი:</label>
+                    <input type="text" id="registerLastName" required>
                 </div>
                 <div class="form-group">
                     <label for="registerEmail">ელ-ფოსტა:</label>
                     <input type="email" id="registerEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="registerPassword">პაროლი:</label>
-                    <input type="password" id="registerPassword" required>
+                    <label for="registerPhone">ტელეფონი:</label>
+                    <input type="tel" id="registerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">პაროლი (მინ. 6 სიმბოლო):</label>
+                    <input type="password" id="registerPassword" minlength="6" required>
                 </div>
                 <button type="submit" class="contact-submit-btn">რეგისტრაცია</button>
                 <p class="text-center mt-15">უკვე გაქვს ანგარიში? <a href="#" id="showLoginModal">შესვლა</a></p>

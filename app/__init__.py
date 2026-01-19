@@ -802,20 +802,46 @@ def delete_project_photo_by_url(project_id):
 @limiter.limit('5 per minute')
 def register():
     data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
+    first_name = data.get('first_name', '').strip()
+    last_name = data.get('last_name', '').strip()
+    email = data.get('email', '').strip()
+    phone = data.get('phone', '').strip()
+    password = data.get('password', '')
 
-    if not username or not email or not password:
+    # ველების ვალიდაცია
+    if not first_name or not last_name or not email or not phone or not password:
         return jsonify({'success': False, 'error': 'ყველა ველის შევსება აუცილებელია'}), 400
 
+    # პაროლის სიგრძის შემოწმება (მინიმუმ 6 სიმბოლო)
+    if len(password) < 6:
+        return jsonify({'success': False, 'error': 'პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო'}), 400
+
+    # ელ-ფოსტის ფორმატის შემოწმება
+    try:
+        validate_email(email)
+    except EmailNotValidError:
+        return jsonify({'success': False, 'error': 'არასწორი ელ-ფოსტის ფორმატი'}), 400
+
+    # შევამოწმოთ ელ-ფოსტა უკვე გამოყენებულია თუ არა
     if User.query.filter_by(email=email).first():
         return jsonify({'success': False, 'error': 'მომხმარებელი ამ ელ-ფოსტით უკვე არსებობს'}), 409
 
-    if User.query.filter_by(username=username).first():
-        return jsonify({'success': False, 'error': 'მომხმარებელი ამ სახელით უკვე არსებობს'}), 409
+    # username-ის ავტომატური გენერაცია სახელიდან და გვარიდან
+    base_username = f"{first_name} {last_name}"
+    username = base_username
+    counter = 1
+    while User.query.filter_by(username=username).first():
+        username = f"{base_username} {counter}"
+        counter += 1
 
-    new_user = User(username=username, email=email)
+    # ახალი მომხმარებლის შექმნა
+    new_user = User(
+        username=username,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        phone=phone
+    )
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
@@ -1229,6 +1255,60 @@ def get_admin_user_liked_projects(user_id):
         return jsonify({
             'success': False,
             'error': 'მომხმარებლის მოწონებული პროექტების ჩატვირთვა ვერ მოხერხდა'
+        }), 500
+
+# API route to delete a user completely
+@app.route('/api/admin/delete-user/<int:user_id>', methods=['DELETE'])
+@admin_required
+def delete_user(user_id):
+    try:
+        # Find the user
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({
+                'success': False,
+                'error': f'მომხმარებელი ID {user_id} ვერ მოიძებნა'
+            }), 404
+        
+        # Don't allow deleting yourself
+        if user.id == current_user.id:
+            return jsonify({
+                'success': False,
+                'error': 'საკუთარი თავის წაშლა არ შეიძლება'
+            }), 400
+        
+        # Store username for response
+        deleted_username = user.username
+        deleted_email = user.email
+        
+        # Delete all liked projects associations (from project_likes table)
+        # This will be handled by cascade, but let's be explicit
+        db.session.execute(
+            project_likes.delete().where(project_likes.c.user_id == user_id)
+        )
+        
+        # Delete the user
+        db.session.delete(user)
+        db.session.commit()
+        
+        logger.info(f'User {deleted_username} (ID: {user_id}) deleted by admin {current_user.username}')
+        
+        return jsonify({
+            'success': True,
+            'message': f'მომხმარებელი "{deleted_username}" წარმატებით წაიშალა',
+            'deleted_user': {
+                'id': user_id,
+                'username': deleted_username,
+                'email': deleted_email
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f'Error deleting user {user_id}: {e}')
+        return jsonify({
+            'success': False,
+            'error': 'მომხმარებლის წაშლა ვერ მოხერხდა'
         }), 500
 
 # Contact form API endpoint
