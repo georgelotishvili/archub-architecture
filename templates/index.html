@@ -406,7 +406,7 @@
             </div>
             <!-- ფუტერის ქვედა ნაწილი -->
             <div class="footer-bottom">
-                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია.{% if current_user.is_authenticated and current_user.is_admin %} | <a href="#" onclick="openAdminPanel()" class="footer-admin-link">ადმინ პანელი</a>{% endif %}</p>
+                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია.<span id="adminLinkContainer" class="{% if not (current_user.is_authenticated and current_user.is_admin) %}hidden{% endif %}"> | <a href="#" onclick="openAdminPanel()" class="footer-admin-link">ადმინ პანელი</a></span></p>
             </div>
         </div>
     </footer>

@@ -264,6 +264,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (typeof initSection3Projects === 'function') {
                         initSection3Projects().catch(() => {});
                     }
+                    // ადმინის ლინკის ჩვენება თუ ადმინია
+                    if (result.user && result.user.is_admin) {
+                        const adminLinkContainer = document.getElementById('adminLinkContainer');
+                        if (adminLinkContainer) {
+                            adminLinkContainer.classList.remove('hidden');
+                        }
+                    }
                     Toast.success('წარმატებით შეხვედით სისტემაში!');
                     closeModal('loginModal');
                 } else {
