@@ -77,6 +77,8 @@
                 <li><a href="{% if is_my_page %}/#footer{% else %}#footer{% endif %}" class="mobile-nav-link">კონტაქტი</a></li>
             </ul>
             {% if is_my_page %}
+            <span class="mobile-user-status" id="mobileUserStatus"></span>
+            <a href="/" class="mobile-my-page-btn">მთავარი გვერდი</a>
             <button class="mobile-auth-btn" id="mobileLogoutBtn">გამოსვლა</button>
             {% else %}
             <span class="mobile-user-status" id="mobileUserStatus">გაიარეთ ავტორიზაცია</span>

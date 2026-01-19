@@ -179,6 +179,12 @@
                     userAuthenticated = true;
                     currentUser = data.user;
                     window.userAuthenticated = true;
+                    
+                    // მობილური მენიუში მომხმარებლის სახელის ჩვენება
+                    const mobileUserStatus = document.getElementById('mobileUserStatus');
+                    if (mobileUserStatus) {
+                        mobileUserStatus.textContent = escapeHtml(data.user.username);
+                    }
                 } else {
                     userAuthenticated = false;
                     currentUser = null;
@@ -294,63 +300,30 @@
             galleryCurrentSlide = index;
         }
         
-        // ===== ბურგერ მენიუს ფუნქციონალი =====
-        function initBurgerMenu() {
-            const burgerMenu = document.getElementById('burgerMenu');
-            const mobileNavPanel = document.getElementById('mobileNavPanel');
-            const mobileNavClose = document.getElementById('mobileNavClose');
-            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        // ===== მობილური მენიუს გამოსვლის ღილაკი =====
+        // შენიშვნა: ბურგერ მენიუს ძირითადი ლოგიკა არის script.js-ში
+        // აქ მხოლოდ გამოსვლის ღილაკის ლოგიკაა
+        function initMobileLogout() {
             const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
             
-            if (burgerMenu && mobileNavPanel) {
-                // ბურგერ მენიუს კლიკი
-                burgerMenu.addEventListener('click', function() {
-                    const burgerIcon = this.querySelector('.burger-icon');
-                    burgerIcon.classList.toggle('active');
-                    mobileNavPanel.classList.toggle('active');
-                    document.body.style.overflow = mobileNavPanel.classList.contains('active') ? 'hidden' : '';
-                });
-                
-                // დახურვის ღილაკი
-                if (mobileNavClose) {
-                    mobileNavClose.addEventListener('click', function() {
-                        const burgerIcon = burgerMenu.querySelector('.burger-icon');
-                        burgerIcon.classList.remove('active');
-                        mobileNavPanel.classList.remove('active');
-                        document.body.style.overflow = '';
-                    });
-                }
-                
-                // ნავიგაციის ლინკებზე კლიკი - მენიუს დახურვა
-                mobileNavLinks.forEach(link => {
-                    link.addEventListener('click', function() {
-                        const burgerIcon = burgerMenu.querySelector('.burger-icon');
-                        burgerIcon.classList.remove('active');
-                        mobileNavPanel.classList.remove('active');
-                        document.body.style.overflow = '';
-                    });
-                });
-                
-                // გამოსვლის ღილაკი
-                if (mobileLogoutBtn) {
-                    mobileLogoutBtn.addEventListener('click', async function() {
-                        try {
-                            const response = await secureFetch('/api/logout', { method: 'POST' });
-                            const data = await response.json();
-                            if (data.success) {
-                                window.location.href = '/';
-                            }
-                        } catch (error) {
-                            console.error('Logout error:', error);
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.addEventListener('click', async function() {
+                    try {
+                        const response = await secureFetch('/api/logout', { method: 'POST' });
+                        const data = await response.json();
+                        if (data.success) {
+                            window.location.href = '/';
                         }
-                    });
-                }
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                    }
+                });
             }
         }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
-            initBurgerMenu();
+            initMobileLogout();
             checkAuthStatus().then(() => {
                 if (!userAuthenticated) {
                     // Redirect to main page if not authenticated
