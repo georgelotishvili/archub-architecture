@@ -70,6 +70,84 @@ def favicon():
     from base64 import b64decode
     return app.response_class(b64decode(transparent_png), mimetype='image/png')
 
+# ===== SEO ROUTES =====
+# robots.txt for search engine crawlers
+@app.route('/robots.txt')
+def robots_txt():
+    robots_content = """User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /my-page
+
+# Sitemap
+Sitemap: https://archub.ge/sitemap.xml
+
+# Crawl-delay (optional, be polite to crawlers)
+Crawl-delay: 1
+"""
+    return app.response_class(robots_content, mimetype='text/plain')
+
+# sitemap.xml for search engine indexing
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    from datetime import datetime
+    
+    # Base URL
+    base_url = "https://archub.ge"
+    
+    # Current date for lastmod
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    # Build sitemap XML
+    sitemap = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    
+    <!-- Main Page -->
+    <url>
+        <loc>{base_url}/</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    
+    <!-- Main Page Sections (anchor links for better SEO) -->
+    <url>
+        <loc>{base_url}/#home</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <url>
+        <loc>{base_url}/#section2</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <url>
+        <loc>{base_url}/#section3</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <url>
+        <loc>{base_url}/#footer</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+</urlset>"""
+    
+    return app.response_class(sitemap, mimetype='application/xml')
+
 # ===== გაფართოებების ინიციალიზაცია =====
 # SQLAlchemy ბაზის ინიციალიზაცია
 from app.extensions import db
