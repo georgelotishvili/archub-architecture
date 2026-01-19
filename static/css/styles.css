@@ -29,10 +29,10 @@
   word-wrap: break-word;
 }
 
-.toast.success { background: linear-gradient(135deg, #28a745, #20c997); }
-.toast.error { background: linear-gradient(135deg, #dc3545, #e74c3c); }
-.toast.warning { background: linear-gradient(135deg, #ffc107, #fd7e14); color: #212529; }
-.toast.info { background: linear-gradient(135deg, #17a2b8, #6f42c1); }
+.toast.success { background: #3b82f6; }
+.toast.error { background: #ef4444; }
+.toast.warning { background: #f59e0b; color: #212529; }
+.toast.info { background: #6366f1; }
 .toast.hiding { animation: toastSlideOut 0.3s ease forwards; }
 
 .toast-icon { font-size: 18px; flex-shrink: 0; }
@@ -319,9 +319,10 @@ body {
   gap: 10px;
 }
 
-.header-bottom-line h1::before {
-  content: '📞';
-  font-size: 18px;
+.phone-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
 }
 
 /* Auth Buttons */
@@ -332,7 +333,12 @@ body {
 }
 
 .auth-btn, .my-page-btn {
-  padding: 10px 24px;
+  width: 140px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   color: var(--color-white);
   border: 2px solid rgba(255, 255, 255, 0.6);
@@ -346,12 +352,18 @@ body {
 }
 
 .auth-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--color-white);
   border-color: var(--color-white);
 }
 
 .my-page-btn {
+  width: 150px;
+  height: 42px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--color-yellow);
   border: 2px solid var(--color-black);
   color: var(--color-black);
@@ -562,8 +574,7 @@ body {
   box-sizing: border-box;
   margin: 8px 8px 50px 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  border: 2px solid rgba(0, 0, 0, 0.259);
-  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.259);
 }
 
 .energy-banner-left {
@@ -571,7 +582,7 @@ body {
   display: flex;
   align-items: center;
   height: 100%;
-  margin-left: 3px;
+  margin-left: 1px;
 }
 
 .energy-logo-img {
@@ -709,7 +720,6 @@ body {
   flex-wrap: wrap;
   background-color: var(--color-white-80);
   margin: 50px auto 0;
-  border-radius: 10px;
 }
 
 .section-1-left {
@@ -1147,7 +1157,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 2px;
   background: var(--gradient-accent);
 }
 
@@ -1376,7 +1386,7 @@ body {
 .auth-form button[type="submit"] {
   width: 100%;
   height: 50px;
-  background: #1a1a1a;
+  background: #3b82f6;
   border: none;
   border-radius: 4px;
   color: white;
@@ -1388,11 +1398,11 @@ body {
 }
 
 .auth-form button[type="submit"]:hover {
-  background: #2d2d2d;
+  background: #2563eb;
 }
 
 .auth-form button[type="submit"]:active { 
-  background: #111;
+  background: #1d4ed8;
 }
 
 .auth-form button[type="submit"]:disabled {
@@ -1406,12 +1416,12 @@ body {
 }
 
 .auth-form p a {
-  color: var(--color-purple);
+  color: #3b82f6;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 .auth-form p a:hover {
-  color: #1a1a1a;
+  color: #2563eb;
   text-decoration: underline;
 }
 
