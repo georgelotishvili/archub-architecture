@@ -1021,19 +1021,26 @@ function goToGallerySlide(index) {
     }
 }
 
-    // --- მოწონების ფუნქციონალი ---
+    // --- მოწონების ფუნქციონალი (Optimistic UI) ---
 async function handleLikeClick(projectId, likeButton) {
     if (!window.userAuthenticated) {
         Toast.warning('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
         return;
     }
     
+    // მიმდინარე მდგომარეობა (revert-ისთვის)
+    const wasLiked = likeButton.classList.contains('liked');
+    const newLikedState = !wasLiked;
+    
+    // 🚀 Optimistic Update - მაშინვე ვიზუალური განახლება
+    updateAllLikeButtonsForProject(projectId, newLikedState);
+    
     try {
         const response = await secureFetch(`/api/projects/${projectId}/like`, { method: 'POST' });
         const data = await response.json();
         
         if (response.ok && data.success) {
-            updateLikeButton(likeButton, data.liked, data.likes_count);
+            // სერვერის პასუხით განახლება (likes_count სწორი იქნება)
             updateProjectCardData(projectId, data.liked, data.likes_count);
             
             const eventName = data.liked ? 'projectLiked' : 'projectUnliked';
@@ -1042,6 +1049,9 @@ async function handleLikeClick(projectId, likeButton) {
             localStorage.setItem(storageKey, JSON.stringify({ projectId, timestamp: Date.now() }));
             window.dispatchEvent(new CustomEvent(eventName, { detail: { projectId } }));
         } else {
+            // ❌ შეცდომა - დავაბრუნოთ წინა მდგომარეობა
+            updateAllLikeButtonsForProject(projectId, wasLiked);
+            
             if (response.status === 401) {
                 Toast.warning('შესვლა გჭირდებათ პროექტის მოსაწონებლად.');
             } else {
@@ -1049,6 +1059,8 @@ async function handleLikeClick(projectId, likeButton) {
             }
         }
     } catch (error) {
+        // ❌ შეცდომა - დავაბრუნოთ წინა მდგომარეობა
+        updateAllLikeButtonsForProject(projectId, wasLiked);
         Toast.error('შეცდომა სერვერთან კავშირისას.');
     }
 }
