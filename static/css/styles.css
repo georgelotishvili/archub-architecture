@@ -585,7 +585,6 @@ body {
 .projects-scroll-1 .project-card {
   overflow: visible;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  will-change: transform, box-shadow;
   transform-origin: center;
   scroll-snap-align: center;
   flex: 0 0 auto;
@@ -595,12 +594,14 @@ body {
   background-repeat: no-repeat;
   border-radius: 10px;
   border: 2px solid rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .projects-scroll-1 .project-card:hover {
   transform: scale(1.03) translateY(-5px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   z-index: 5;
+  will-change: transform, box-shadow;
 }
 
 .card-info {
@@ -622,12 +623,6 @@ body {
   border: 3px solid var(--color-yellow);
   box-shadow: 0 0 20px rgba(255, 196, 0, 0.6);
   transform: scale(1.02);
-  animation: searchGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes searchGlow {
-  0% { box-shadow: 0 0 20px rgba(255, 196, 0, 0.6); }
-  100% { box-shadow: 0 0 30px rgba(255, 196, 0, 0.9); }
 }
 
 /* Like Button */

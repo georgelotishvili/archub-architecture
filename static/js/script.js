@@ -495,6 +495,24 @@ let projectsIsTransitioning = false;
 let cardsContainer = null;
 let totalCards = 0;
 
+// Lazy loading observer სურათებისთვის
+const lazyImageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const element = entry.target;
+            const bgImage = element.dataset.bgImage;
+            if (bgImage) {
+                element.style.backgroundImage = `url('${bgImage}')`;
+                element.removeAttribute('data-bg-image');
+                lazyImageObserver.unobserve(element);
+            }
+        }
+    });
+}, {
+    rootMargin: '100px', // იწყებს ჩატვირთვას 100px-ით ადრე
+    threshold: 0.01
+});
+
 window.initProjectsCarousel = async function initProjectsCarousel() {
     // Use the existing Section 2 container directly
     cardsContainer = document.getElementById('cardsWrapper');
@@ -547,7 +565,7 @@ function createSection3CardElement(project) {
     ` : '';
     
     cardElement.innerHTML = `
-        <img src="${project.main_image_url}" class="card-image" alt="${escapeHtml(project.area)}">
+        <img src="${project.main_image_url}" class="card-image" alt="${escapeHtml(project.area)}" loading="lazy">
         <div class="card-info">
             <div class="card-area">${escapeHtml(project.area)}</div>
         </div>
@@ -677,12 +695,15 @@ function createCardElement(card, index) {
     cardElement.className = 'project-card';
     cardElement.setAttribute('data-original-index', index);
     cardElement.setAttribute('data-project-id', card.id);
-    // Use background image for the card
+    
+    // Lazy loading - სურათი ჩაიტვირთება როცა ხილული გახდება
     if (card.image) {
-        cardElement.style.backgroundImage = `url('${card.image}')`;
+        cardElement.dataset.bgImage = card.image;
         cardElement.style.backgroundSize = 'cover';
         cardElement.style.backgroundPosition = 'center';
         cardElement.style.backgroundRepeat = 'no-repeat';
+        cardElement.style.backgroundColor = '#e0e0e0'; // placeholder ფერი
+        lazyImageObserver.observe(cardElement);
     }
     
     // Create like button HTML (only for authenticated users)
@@ -732,15 +753,9 @@ function moveCarousel(direction) {
     const projectCards = cardsContainer.querySelectorAll('.project-card');
     if (!projectCards.length) return;
     
-    // infinite: allow index to move, but clamp the element index we scroll to
-    currentCardIndex += direction;
-    const clampedIndex = Math.max(0, Math.min(projectCards.length - 1, currentCardIndex));
-    projectCards[clampedIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-
-    // After scroll animation, snap back to middle clone range
-    setTimeout(() => {
-        resetCarouselPositionIfNeeded();
-    }, 360);
+    // მარტივი ნავიგაცია - ინდექსი შემოფარგლული ქარდების რაოდენობით
+    currentCardIndex = Math.max(0, Math.min(projectCards.length - 1, currentCardIndex + direction));
+    projectCards[currentCardIndex].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
 
 // ძებნის რეჟიმში შემდეგ/წინა ნაპოვნ პროექტზე გადასვლა
@@ -775,38 +790,7 @@ function moveToNextFoundProject(direction) {
     }, 500);
 }
 
-function resetCarouselPositionIfNeeded() {
-    if (!cardsContainer) return;
-    const projectCards = cardsContainer.querySelectorAll('.project-card');
-    const original = totalCards;
-    if (original === 0 || projectCards.length === 0) return;
-
-    const minMiddle = original; // first index of the middle set
-    const maxMiddle = original * 2 - 1; // last index of the middle set
-
-    // helper: compute total width (card + gap)
-    const getCardStep = () => {
-        if (projectCards.length < 2) {
-            // fallback to measured width or default gap 30
-            const w = projectCards[0]?.getBoundingClientRect().width || 450;
-            return w + 30;
-        }
-        const r1 = projectCards[0].getBoundingClientRect();
-        const r2 = projectCards[1].getBoundingClientRect();
-        return Math.round(r2.left - r1.left);
-    };
-
-    const segmentWidth = getCardStep() * original;
-
-    if (currentCardIndex > maxMiddle) {
-        // move the scroll by exactly one segment to keep the same visual card
-        currentCardIndex = currentCardIndex - original;
-        cardsContainer.scrollLeft -= segmentWidth;
-    } else if (currentCardIndex < minMiddle) {
-        currentCardIndex = currentCardIndex + original;
-        cardsContainer.scrollLeft += segmentWidth;
-    }
-}
+// resetCarouselPositionIfNeeded წაშლილია - აღარ არის საჭირო მარტივი კარუსელისთვის
 
 function updateCarouselPosition() {
     if (!cardsContainer) return;
@@ -951,7 +935,7 @@ function displayGalleryPhotos(photos) {
             </button>
         ` : '';
         
-        slide.innerHTML = `<img src="${photoUrl}" alt="Photo ${index + 1}">${likeButtonHtml}`;
+        slide.innerHTML = `<img src="${photoUrl}" alt="Photo ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}">${likeButtonHtml}`;
         carouselContainer.appendChild(slide);
         
         const dot = document.createElement('button');
@@ -1137,7 +1121,7 @@ function renderCarouselImages(images) {
     
     carouselContainer.innerHTML = sortedImages.map((image, index) => `
         <div class="carousel-slide ${index === 0 ? 'active' : ''}">
-            <img src="${image.url}" alt="კარუსელის ფოტო">
+            <img src="${image.url}" alt="კარუსელის ფოტო" loading="${index === 0 ? 'eager' : 'lazy'}">
         </div>
     `).join('');
     
