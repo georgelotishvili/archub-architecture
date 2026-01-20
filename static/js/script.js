@@ -1121,10 +1121,18 @@ async function loadCarouselImages() {
         if (data.success && data.images?.length > 0) {
             renderCarouselImages(data.images);
         } else {
-            renderDefaultCarouselImages();
+            hideCarousel();
         }
     } catch (error) {
-        renderDefaultCarouselImages();
+        hideCarousel();
+    }
+}
+
+// კარუსელის დამალვა როცა ფოტოები არ არის
+function hideCarousel() {
+    const carousel = document.querySelector('.carousel');
+    if (carousel) {
+        carousel.style.display = 'none';
     }
 }
 
@@ -1146,24 +1154,19 @@ function renderCarouselImages(images) {
     initMainCarousel();
 }
 
-// ნაგულისხმები კარუსელის ფოტოების რენდერი
-function renderDefaultCarouselImages() {
-    const carouselContainer = document.getElementById('carouselContainer');
-    if (!carouselContainer) return;
-    
-    carouselContainer.innerHTML = Array.from({length: 10}, (_, i) => 
-        `<div class="carousel-slide${i === 0 ? ' active' : ''}"><img src="/static/images/car (${i + 1}).jpg"></div>`
-    ).join('');
-    
-    initMainCarousel();
-}
-
 // მთავარი კარუსელის ინიციალიზაცია
+let carouselInterval = null;
+
 function initMainCarousel() {
     const slides = document.querySelectorAll('.carousel-slide');
     let currentSlide = 0;
     
     if (slides.length === 0) return;
+    
+    // წინა interval-ის გასუფთავება (memory leak-ის თავიდან აცილება)
+    if (carouselInterval) {
+        clearInterval(carouselInterval);
+    }
     
     // ავტომატური სლაიდების შეცვლა
     function nextSlide() {
@@ -1173,7 +1176,7 @@ function initMainCarousel() {
     }
     
     // კარუსელის ავტომატური გაშვება (5 წამში ერთხელ)
-    setInterval(nextSlide, 5000);
+    carouselInterval = setInterval(nextSlide, 5000);
 }
 
 // ===== ძებნის ფუნქციონალი =====

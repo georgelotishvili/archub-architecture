@@ -2,6 +2,54 @@
 // ეს ფაილი შეიცავს ადმინ პანელის ფუნქციონალს
 // პროექტების CRUD ოპერაციები, ფოტოების ატვირთვა, API კომუნიკაცია
 
+// ===== სურათის კომპრესია ატვირთვამდე =====
+async function compressImage(file, maxWidth = 1920, quality = 0.8) {
+    return new Promise((resolve) => {
+        // თუ ფაილი პატარაა (500KB-ზე ნაკლები), არ დავკომპრესოთ
+        if (file.size < 500 * 1024) {
+            resolve(file);
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // შევამციროთ ზომა თუ საჭიროა
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                canvas.toBlob((blob) => {
+                    const compressedFile = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+                    resolve(compressedFile);
+                }, 'image/jpeg', quality);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// რამდენიმე სურათის კომპრესია
+async function compressImages(files) {
+    return Promise.all(files.map(file => compressImage(file)));
+}
+
 // ===== გლობალური ცვლადები =====
 let projectsCards = [];  // პროექტების მასივი
 let galleryPhotos = [];  // გალერეის ფოტოების მასივი
@@ -538,8 +586,11 @@ function addPhotosToProject(projectId) {
         if (files.length === 0) return;
         
         try {
+            // კომპრესია ატვირთვამდე
+            const compressedFiles = await compressImages(files);
+            
             const formData = new FormData();
-            files.forEach(file => formData.append('photos', file));
+            compressedFiles.forEach(file => formData.append('photos', file));
             
             const response = await secureFetch(`/api/projects/${projectId}/photos`, { method: 'POST', body: formData });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -607,8 +658,11 @@ function changeMainImage(projectId) {
         if (!file) return;
         
         try {
+            // კომპრესია ატვირთვამდე
+            const compressedFile = await compressImage(file);
+            
             const formData = new FormData();
-            formData.append('main_image', file);
+            formData.append('main_image', compressedFile);
             
             const response = await secureFetch(`/api/projects/${projectId}/main-image`, { method: 'PUT', body: formData });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -804,9 +858,27 @@ function renderCarouselImages() {
 // კარუსელის ფოტოს დამატება
 async function addCarouselImage() {
     const form = document.getElementById('carouselUploadForm');
-    const formData = new FormData(form);
+    const fileInput = form.querySelector('input[type="file"]');
+    const file = fileInput?.files[0];
+    
+    if (!file) {
+        showCarouselError('გთხოვთ აირჩიოთ ფოტო');
+        return;
+    }
     
     try {
+        // კომპრესია ატვირთვამდე
+        const compressedFile = await compressImage(file);
+        
+        const formData = new FormData();
+        formData.append('image', compressedFile);
+        
+        // დავამატოთ სხვა ველებიც თუ არსებობს
+        const orderInput = form.querySelector('input[name="order"]');
+        if (orderInput) {
+            formData.append('order', orderInput.value);
+        }
+        
         const response = await secureFetch('/api/carousel', { method: 'POST', body: formData });
         const data = await response.json();
         
