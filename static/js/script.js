@@ -577,20 +577,30 @@ function createSection3CardElement(project) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Build photos array including main image
-        const allPhotos = [];
-        if (project.main_image_url) {
-            allPhotos.push({ url: project.main_image_url, title: 'მთავარი ფოტო' });
-        }
+        // ფოტოების მასივის აწყობა - მთავარი ფოტო ყოველთვის პირველი
+        let allPhotos = [];
+        const mainUrl = project.main_image_url;
+        
         if (project.photos?.length > 0) {
-            project.photos.forEach(url => allPhotos.push({ url, title: 'პროექტის ფოტო' }));
+            if (mainUrl && project.photos.includes(mainUrl)) {
+                allPhotos.push({ url: mainUrl, title: 'მთავარი ფოტო' });
+                project.photos.forEach(url => {
+                    if (url !== mainUrl) {
+                        allPhotos.push({ url, title: 'პროექტის ფოტო' });
+                    }
+                });
+            } else {
+                allPhotos = project.photos.map(url => ({ url, title: 'პროექტის ფოტო' }));
+            }
+        } else if (mainUrl) {
+            allPhotos.push({ url: mainUrl, title: 'მთავარი ფოტო' });
         }
         
         // Create project object with photos array
         const projectWithPhotos = {
             id: project.id,
             area: project.area,
-            main_image_url: project.main_image_url,
+            main_image_url: mainUrl,
             photos: allPhotos,
             is_liked: project.is_liked,
             likes_count: project.likes_count
@@ -623,12 +633,26 @@ async function loadCardsFromAPI() {
         
         if (data.success && data.projects) {
             projectsCards = data.projects.map(project => {
-                const allPhotos = [];
-                if (project.main_image_url) {
-                    allPhotos.push({ url: project.main_image_url, title: 'მთავარი ფოტო' });
-                }
+                // ფოტოების მასივის აწყობა - მთავარი ფოტო ყოველთვის პირველი
+                let allPhotos = [];
+                const mainUrl = project.main_image_url;
+                
                 if (project.photos?.length > 0) {
-                    project.photos.forEach(url => allPhotos.push({ url, title: 'პროექტის ფოტო' }));
+                    // ჯერ მთავარი ფოტო (თუ არის და photos-ში შედის)
+                    if (mainUrl && project.photos.includes(mainUrl)) {
+                        allPhotos.push({ url: mainUrl, title: 'მთავარი ფოტო' });
+                        // დანარჩენი ფოტოები (მთავარის გარდა)
+                        project.photos.forEach(url => {
+                            if (url !== mainUrl) {
+                                allPhotos.push({ url, title: 'პროექტის ფოტო' });
+                            }
+                        });
+                    } else {
+                        // თუ main_image_url არ არის photos-ში, უბრალოდ photos
+                        allPhotos = project.photos.map(url => ({ url, title: 'პროექტის ფოტო' }));
+                    }
+                } else if (mainUrl) {
+                    allPhotos.push({ url: mainUrl, title: 'მთავარი ფოტო' });
                 }
                 
                 return {
@@ -636,7 +660,7 @@ async function loadCardsFromAPI() {
                     title: project.title || '',
                     description: project.description || '',
                     area: project.area,
-                    image: project.main_image_url,
+                    image: mainUrl,
                     link: `card-detail.html?id=${project.id}`,
                     is_liked: project.is_liked,
                     likes_count: project.likes_count,

@@ -2,7 +2,69 @@
 // ეს ფაილი შეიცავს ადმინ პანელის ფუნქციონალს
 // პროექტების CRUD ოპერაციები, ფოტოების ატვირთვა, API კომუნიკაცია
 
-// ===== სურათის კომპრესია ატვირთვამდე =====
+// ===== სურათის დამუშავება პროექტებისთვის (1280x720, 16:9, ნაცრისფერი letterboxing) =====
+async function processProjectImage(file, quality = 0.85) {
+    const TARGET_WIDTH = 1280;
+    const TARGET_HEIGHT = 720;
+    const LETTERBOX_COLOR = '#e0e0e0'; // ნაცრისფერი
+    
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = TARGET_WIDTH;
+                canvas.height = TARGET_HEIGHT;
+                
+                const ctx = canvas.getContext('2d');
+                
+                // შევავსოთ ნაცრისფერით (letterboxing)
+                ctx.fillStyle = LETTERBOX_COLOR;
+                ctx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                
+                // გამოვთვალოთ ფოტოს ზომა და პოზიცია 16:9 ჩარჩოში
+                const imgRatio = img.width / img.height;
+                const targetRatio = TARGET_WIDTH / TARGET_HEIGHT;
+                
+                let drawWidth, drawHeight, drawX, drawY;
+                
+                if (imgRatio > targetRatio) {
+                    // ფოტო უფრო განიერია - letterbox ზემოთ/ქვემოთ
+                    drawWidth = TARGET_WIDTH;
+                    drawHeight = TARGET_WIDTH / imgRatio;
+                    drawX = 0;
+                    drawY = (TARGET_HEIGHT - drawHeight) / 2;
+                } else {
+                    // ფოტო უფრო მაღალია - pillarbox გვერდებზე
+                    drawHeight = TARGET_HEIGHT;
+                    drawWidth = TARGET_HEIGHT * imgRatio;
+                    drawX = (TARGET_WIDTH - drawWidth) / 2;
+                    drawY = 0;
+                }
+                
+                ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+                
+                canvas.toBlob((blob) => {
+                    const processedFile = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+                    resolve(processedFile);
+                }, 'image/jpeg', quality);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// რამდენიმე სურათის დამუშავება პროექტებისთვის
+async function processProjectImages(files) {
+    return Promise.all(files.map(file => processProjectImage(file)));
+}
+
+// ===== სურათის კომპრესია ჰედერის კარუსელისთვის (ორიგინალი პროპორცია) =====
 async function compressImage(file, maxWidth = 1920, quality = 0.8) {
     return new Promise((resolve) => {
         // თუ ფაილი პატარაა (500KB-ზე ნაკლები), არ დავკომპრესოთ
@@ -45,7 +107,7 @@ async function compressImage(file, maxWidth = 1920, quality = 0.8) {
     });
 }
 
-// რამდენიმე სურათის კომპრესია
+// რამდენიმე სურათის კომპრესია (ჰედერის კარუსელისთვის)
 async function compressImages(files) {
     return Promise.all(files.map(file => compressImage(file)));
 }
@@ -190,16 +252,37 @@ async function deleteCard(projectId) {
     }
 }
 
+// ===== რედაქტირების მოდალის გლობალური სტეიტი =====
+let editModalState = {
+    projectId: null,
+    originalPhotos: [],      // თავდაპირველი ფოტოები
+    currentPhotos: [],       // მიმდინარე ფოტოები (რიგითობით)
+    mainPhotoIndex: 0,       // მთავარი ფოტოს ინდექსი
+    originalMainIndex: 0,    // თავდაპირველი მთავარი ფოტოს ინდექსი
+    originalArea: '',        // თავდაპირველი ფართობი
+    hasChanges: false,       // არის თუ არა ცვლილება
+    draggedItem: null        // გადასათრევი ელემენტი
+};
+
 // ქარდის რედაქტირება - მოდალური ფანჯრის გახსნა
 function editCard(projectId) {
-    // იპოვოს პროექტი projectsCards მასივიდან
     const project = projectsCards.find(p => p.id === projectId);
     if (!project) {
         showError('პროექტი ვერ მოიძებნა');
         return;
     }
     
-    // შექმნას მოდალური ფანჯარა
+    // სტეიტის ინიციალიზაცია
+    editModalState.projectId = projectId;
+    editModalState.originalPhotos = [...(project.photos || [])];
+    editModalState.currentPhotos = [...(project.photos || [])];
+    editModalState.mainPhotoIndex = project.main_image_url ? 
+        (project.photos || []).findIndex(p => p === project.main_image_url) : 0;
+    if (editModalState.mainPhotoIndex === -1) editModalState.mainPhotoIndex = 0;
+    editModalState.originalMainIndex = editModalState.mainPhotoIndex;
+    editModalState.originalArea = project.area || '';
+    editModalState.hasChanges = false;
+    
     const modal = document.createElement('div');
     modal.id = 'editModal';
     modal.style.cssText = `
@@ -208,7 +291,7 @@ function editCard(projectId) {
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.6);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -216,106 +299,128 @@ function editCard(projectId) {
     `;
     
     modal.innerHTML = `
-        <div style="
+        <div class="edit-modal-content" style="
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
             width: 95%;
             max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
+            position: relative;
         ">
-            <h2 style="margin-top: 0; color: #333; text-align: center;">პროექტის რედაქტირება</h2>
-            
-            <div style="margin-bottom: 20px;">
-                <label for="editArea" style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">ფართობი:</label>
-                <input 
-                    type="text" 
-                    id="editArea" 
-                    value="" 
-                    style="
-                        width: 100%;
-                        padding: 12px;
-                        border: 2px solid #ddd;
-                        border-radius: 5px;
-                        font-size: 16px;
-                        box-sizing: border-box;
-                    "
-                    placeholder="შეიყვანეთ ფართობი"
-                >
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">მთავარი ფოტო:</label>
-                <div id="mainImageContainer" style="text-align: center; margin-bottom: 10px; position: relative; display: inline-block;">
-                    ${project.main_image_url && project.main_image_url.trim() !== '' ? 
-                        `<img src="${project.main_image_url}" alt="მთავარი ფოტო" style="max-width: 200px; max-height: 150px; border-radius: 5px; border: 2px solid #ddd;">
-                        <button onclick="deleteMainImage(${projectId})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;" title="მთავარი ფოტოს წაშლა">&times;</button>` :
-                        `<div style="width: 200px; height: 150px; border: 2px dashed #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #666; background: #f8f9fa;">
-                            <span>მთავარი ფოტო არ არის</span>
-                        </div>`
-                    }
-                </div>
-                <div style="text-align: center;">
-                    <button 
-                        onclick="changeMainImage(${projectId})" 
-                        style="
-                            background: #28a745;
-                            color: white;
-                            border: none;
-                            padding: 8px 16px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                            font-size: 16px;
-                        "
-                    >
-                        ${project.main_image_url && project.main_image_url.trim() !== '' ? 'მთავარი ფოტოს შეცვლა' : 'მთავარი ფოტოს დამატება'}
-                    </button>
-                </div>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">გალერეის ფოტოები:</label>
-                <div id="editGalleryPhotos" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
-                    <!-- გალერეის ფოტოები აქ ჩაიტვირთება -->
-                </div>
-                <div style="text-align: center;">
-                    <button 
-                        onclick="addPhotosToProject(${projectId})" 
-                        style="
-                            background: #007bff;
-                            color: white;
-                            border: none;
-                            padding: 8px 16px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            margin-right: 10px;
-                        "
-                    >
-                        ფოტოების დამატება
-                    </button>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 25px;">
+            <!-- ჰედერი X ღილაკით -->
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px 25px;
+                border-bottom: 1px solid #e0e0e0;
+                background: #f8f9fa;
+            ">
+                <h2 style="margin: 0; color: #333; font-size: 20px;">პროექტის რედაქტირება</h2>
                 <button 
-                    onclick="saveProjectUpdate(${projectId})" 
+                    onclick="closeEditModal()"
                     style="
-                        background: #28a745;
-                        color: white;
+                        background: none;
                         border: none;
-                        padding: 12px 25px;
-                        border-radius: 5px;
+                        font-size: 28px;
                         cursor: pointer;
-                        font-size: 16px;
-                        margin-right: 10px;
-                        font-weight: bold;
+                        color: #666;
+                        padding: 0;
+                        width: 36px;
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 50%;
+                        transition: all 0.2s;
                     "
-                >
-                    შენახვა
-                </button>
+                    onmouseover="this.style.background='#e0e0e0'; this.style.color='#333';"
+                    onmouseout="this.style.background='none'; this.style.color='#666';"
+                    title="დახურვა"
+                >×</button>
+            </div>
+            
+            <!-- კონტენტი -->
+            <div style="padding: 25px; max-height: calc(90vh - 160px); overflow-y: auto;">
+                <!-- ფართობის ველი -->
+                <div style="margin-bottom: 25px;">
+                    <label for="editArea" style="display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 14px;">ფართობი:</label>
+                    <input 
+                        type="text" 
+                        id="editArea" 
+                        value=""
+                        oninput="markEditModalChanged()"
+                        style="
+                            width: 100%;
+                            padding: 12px 15px;
+                            border: 2px solid #ddd;
+                            border-radius: 8px;
+                            font-size: 16px;
+                            box-sizing: border-box;
+                            transition: border-color 0.2s;
+                        "
+                        onfocus="this.style.borderColor='#007bff';"
+                        onblur="this.style.borderColor='#ddd';"
+                        placeholder="მაგ: 120 კვ.მ"
+                    >
+                </div>
+                
+                <!-- ფოტოების სექცია -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <label style="font-weight: 600; color: #444; font-size: 14px;">
+                            ფოტოები <span style="color: #888; font-weight: normal;">(გადაათრიეთ რიგის შესაცვლელად)</span>
+                        </label>
+                        <button 
+                            onclick="addPhotosToProject(${projectId})" 
+                            style="
+                                background: #007bff;
+                                color: white;
+                                border: none;
+                                padding: 10px 20px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 500;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                transition: background 0.2s;
+                            "
+                            onmouseover="this.style.background='#0056b3';"
+                            onmouseout="this.style.background='#007bff';"
+                        >
+                            <span style="font-size: 18px;">+</span> ფოტოების დამატება
+                        </button>
+                    </div>
+                    
+                    <div id="editGalleryPhotos" style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                        gap: 15px;
+                        min-height: 100px;
+                        padding: 15px;
+                        background: #f8f9fa;
+                        border-radius: 10px;
+                        border: 2px dashed #ddd;
+                    ">
+                        <!-- ფოტოები აქ ჩაიტვირთება -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ფუტერი შენახვის ღილაკით -->
+            <div style="
+                padding: 20px 25px;
+                border-top: 1px solid #e0e0e0;
+                background: #f8f9fa;
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+            ">
                 <button 
                     onclick="closeEditModal()" 
                     style="
@@ -323,47 +428,97 @@ function editCard(projectId) {
                         color: white;
                         border: none;
                         padding: 12px 25px;
-                        border-radius: 5px;
+                        border-radius: 8px;
                         cursor: pointer;
-                        font-size: 16px;
-                        font-weight: bold;
+                        font-size: 15px;
+                        font-weight: 500;
+                        transition: background 0.2s;
                     "
+                    onmouseover="this.style.background='#5a6268';"
+                    onmouseout="this.style.background='#6c757d';"
                 >
-                    დახურვა
+                    გაუქმება
+                </button>
+                <button 
+                    onclick="saveProjectUpdate(${projectId})" 
+                    style="
+                        background: #28a745;
+                        color: white;
+                        border: none;
+                        padding: 12px 30px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 15px;
+                        font-weight: 600;
+                        transition: background 0.2s;
+                    "
+                    onmouseover="this.style.background='#1e7e34';"
+                    onmouseout="this.style.background='#28a745';"
+                >
+                    შენახვა
                 </button>
             </div>
         </div>
     `;
     
-    // დაემატოს მოდალი DOM-ში
     document.body.appendChild(modal);
     
-    // უსაფრთხოების გაუმჯობესება: XSS-ისგან დაცვა
+    // ფართობის მნიშვნელობის დაყენება
     const editAreaInput = document.getElementById('editArea');
-    if (editAreaInput) editAreaInput.value = project.area;
+    if (editAreaInput) editAreaInput.value = project.area || '';
 
-    // ჩატვირთოს გალერეის ფოტოები
-    loadEditGalleryPhotos(project);
+    // ფოტოების ჩატვირთვა
+    renderEditGalleryPhotos();
     
-    // ფოკუსი input ველზე
+    // ფოკუსი
     setTimeout(() => {
-        const areaInput = document.getElementById('editArea');
-        if (areaInput) {
-            areaInput.focus();
-            areaInput.select();
+        if (editAreaInput) {
+            editAreaInput.focus();
+            editAreaInput.select();
         }
     }, 100);
 }
 
-// მოდალის დახურვა
+// ცვლილების მარკირება
+function markEditModalChanged() {
+    editModalState.hasChanges = true;
+}
+
+// მოდალის დახურვა (გაფრთხილებით)
 function closeEditModal() {
+    // შევამოწმოთ არის თუ არა ცვლილება
+    const areaInput = document.getElementById('editArea');
+    const currentArea = areaInput ? areaInput.value : '';
+    
+    const hasAreaChange = currentArea !== editModalState.originalArea;
+    const hasOrderChange = JSON.stringify(editModalState.currentPhotos) !== JSON.stringify(editModalState.originalPhotos);
+    const hasMainChange = editModalState.mainPhotoIndex !== editModalState.originalMainIndex;
+    
+    if (hasAreaChange || hasOrderChange || hasMainChange || editModalState.hasChanges) {
+        if (!confirm('გაქვთ შეუნახავი ცვლილებები. ნამდვილად გსურთ დახურვა?')) {
+            return;
+        }
+    }
+    
     const modal = document.getElementById('editModal');
     if (modal) {
         modal.remove();
     }
+    
+    // სტეიტის გასუფთავება
+    editModalState = {
+        projectId: null,
+        originalPhotos: [],
+        currentPhotos: [],
+        mainPhotoIndex: 0,
+        originalMainIndex: 0,
+        originalArea: '',
+        hasChanges: false,
+        draggedItem: null
+    };
 }
 
-// პროექტის განახლების შენახვა
+// პროექტის განახლების შენახვა (ფართობი, ფოტოების რიგი, მთავარი ფოტო)
 async function saveProjectUpdate(projectId) {
     const areaInput = document.getElementById('editArea');
     if (!areaInput) {
@@ -381,6 +536,11 @@ async function saveProjectUpdate(projectId) {
         const formData = new FormData();
         formData.append('area', newArea);
         
+        // ფოტოების რიგი და მთავარი ფოტო
+        formData.append('photos_order', JSON.stringify(editModalState.currentPhotos));
+        const mainPhotoUrl = editModalState.currentPhotos[editModalState.mainPhotoIndex] || '';
+        formData.append('main_image_url', mainPhotoUrl);
+        
         const response = await secureFetch(`${API_BASE_URL}/${projectId}`, { method: 'PUT', body: formData });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
@@ -388,7 +548,21 @@ async function saveProjectUpdate(projectId) {
         
         if (data.success) {
             showSuccess(`პროექტი "${data.project.area}" წარმატებით განახლდა`);
-            closeEditModal();
+            
+            // სტეიტის გასუფთავება პირდაპირ (გაფრთხილების გარეშე)
+            const modal = document.getElementById('editModal');
+            if (modal) modal.remove();
+            editModalState = {
+                projectId: null,
+                originalPhotos: [],
+                currentPhotos: [],
+                mainPhotoIndex: 0,
+                originalMainIndex: 0,
+                originalArea: '',
+                hasChanges: false,
+                draggedItem: null
+            };
+            
             await loadCardsFromAPI();
             refreshMainPageIfOpen();
         } else {
@@ -397,6 +571,281 @@ async function saveProjectUpdate(projectId) {
     } catch (error) {
         showError('შეცდომა API-თან კავშირისას: ' + error.message);
     }
+}
+
+// ===== ფოტოების რენდერინგი drag & drop-ით =====
+function renderEditGalleryPhotos() {
+    const galleryContainer = document.getElementById('editGalleryPhotos');
+    if (!galleryContainer) return;
+    
+    galleryContainer.innerHTML = '';
+    
+    if (editModalState.currentPhotos.length === 0) {
+        galleryContainer.innerHTML = `
+            <div style="
+                grid-column: 1 / -1;
+                text-align: center;
+                color: #888;
+                padding: 40px 20px;
+                font-size: 15px;
+            ">
+                <div style="font-size: 40px; margin-bottom: 10px;">📷</div>
+                ფოტოები არ არის დამატებული.<br>
+                დააჭირეთ "ფოტოების დამატება" ღილაკს.
+            </div>
+        `;
+        return;
+    }
+    
+    editModalState.currentPhotos.forEach((photoUrl, index) => {
+        const photoDiv = document.createElement('div');
+        photoDiv.className = 'photo-item';
+        photoDiv.draggable = true;
+        photoDiv.dataset.index = index;
+        
+        const isMain = index === editModalState.mainPhotoIndex;
+        
+        photoDiv.style.cssText = `
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+            ${isMain ? 'border: 3px solid #28a745;' : 'border: 2px solid #e0e0e0;'}
+        `;
+        
+        photoDiv.innerHTML = `
+            <!-- ფოტო -->
+            <div style="
+                width: 100%;
+                aspect-ratio: 16/9;
+                background-image: url('${photoUrl}');
+                background-size: cover;
+                background-position: center;
+            "></div>
+            
+            <!-- კონტროლები -->
+            <div style="
+                padding: 10px;
+                background: #fafafa;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            ">
+                <!-- რადიო ბუტონი მთავარი ფოტოსთვის -->
+                <label style="
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    color: ${isMain ? '#28a745' : '#666'};
+                    font-weight: ${isMain ? '600' : '400'};
+                ">
+                    <input 
+                        type="radio" 
+                        name="mainPhoto" 
+                        ${isMain ? 'checked' : ''}
+                        onchange="setMainPhoto(${index})"
+                        style="cursor: pointer; accent-color: #28a745;"
+                    >
+                    ${isMain ? 'მთავარი' : 'მთავარად'}
+                </label>
+                
+                <!-- ღილაკები -->
+                <div style="display: flex; gap: 8px;">
+                    <!-- ჩამოტვირთვა -->
+                    <button 
+                        onclick="downloadPhoto('${photoUrl}', ${index})"
+                        style="
+                            background: #17a2b8;
+                            color: white;
+                            border: none;
+                            width: 28px;
+                            height: 28px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 14px;
+                        "
+                        title="ჩამოტვირთვა"
+                    >⬇</button>
+                    
+                    <!-- წაშლა -->
+                    <button 
+                        onclick="removePhotoFromEdit(${index})"
+                        style="
+                            background: #dc3545;
+                            color: white;
+                            border: none;
+                            width: 28px;
+                            height: 28px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 16px;
+                            font-weight: bold;
+                        "
+                        title="წაშლა"
+                    >×</button>
+                </div>
+            </div>
+            
+            ${isMain ? `
+                <div style="
+                    position: absolute;
+                    top: 8px;
+                    left: 8px;
+                    background: #28a745;
+                    color: white;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-size: 11px;
+                    font-weight: 600;
+                ">მთავარი</div>
+            ` : ''}
+        `;
+        
+        // Drag & Drop ივენთები
+        photoDiv.addEventListener('dragstart', handleDragStart);
+        photoDiv.addEventListener('dragend', handleDragEnd);
+        photoDiv.addEventListener('dragover', handleDragOver);
+        photoDiv.addEventListener('drop', handleDrop);
+        photoDiv.addEventListener('dragenter', handleDragEnter);
+        photoDiv.addEventListener('dragleave', handleDragLeave);
+        
+        galleryContainer.appendChild(photoDiv);
+    });
+}
+
+// მთავარი ფოტოს დაყენება
+function setMainPhoto(index) {
+    editModalState.mainPhotoIndex = index;
+    editModalState.hasChanges = true;
+    renderEditGalleryPhotos();
+}
+
+// ფოტოს წაშლა (მოდალიდან)
+async function removePhotoFromEdit(index) {
+    if (!confirm('ნამდვილად გსურთ ამ ფოტოს წაშლა?')) return;
+    
+    const photoUrl = editModalState.currentPhotos[index];
+    
+    try {
+        // სერვერიდან წაშლა
+        const formData = new FormData();
+        formData.append('photo_url', photoUrl);
+        
+        const response = await secureFetch(`/api/projects/${editModalState.projectId}/photos`, { 
+            method: 'DELETE', 
+            body: formData 
+        });
+        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // ლოკალური სტეიტის განახლება
+            editModalState.currentPhotos.splice(index, 1);
+            
+            // მთავარი ფოტოს ინდექსის კორექტირება
+            if (editModalState.mainPhotoIndex >= editModalState.currentPhotos.length) {
+                editModalState.mainPhotoIndex = Math.max(0, editModalState.currentPhotos.length - 1);
+            } else if (editModalState.mainPhotoIndex > index) {
+                editModalState.mainPhotoIndex--;
+            }
+            
+            editModalState.hasChanges = true;
+            renderEditGalleryPhotos();
+            showSuccess('ფოტო წაშლილია');
+        } else {
+            showError('შეცდომა ფოტოს წაშლისას: ' + data.error);
+        }
+    } catch (error) {
+        showError('შეცდომა API-თან კავშირისას: ' + error.message);
+    }
+}
+
+// ფოტოს ჩამოტვირთვა
+function downloadPhoto(photoUrl, index) {
+    const link = document.createElement('a');
+    link.href = photoUrl;
+    link.download = `photo_${index + 1}.jpg`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ===== Drag & Drop ფუნქციები =====
+function handleDragStart(e) {
+    editModalState.draggedItem = this;
+    this.style.opacity = '0.5';
+    this.style.cursor = 'grabbing';
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', this.dataset.index);
+}
+
+function handleDragEnd(e) {
+    this.style.opacity = '1';
+    this.style.cursor = 'grab';
+    
+    // ყველა ელემენტიდან drag-over კლასის მოხსნა
+    document.querySelectorAll('.photo-item').forEach(item => {
+        item.style.transform = '';
+        item.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+    });
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragEnter(e) {
+    e.preventDefault();
+    if (this !== editModalState.draggedItem) {
+        this.style.transform = 'scale(1.02)';
+        this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+    }
+}
+
+function handleDragLeave(e) {
+    this.style.transform = '';
+    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    
+    if (this === editModalState.draggedItem) return;
+    
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    const toIndex = parseInt(this.dataset.index);
+    
+    // მასივში ელემენტების გადაადგილება
+    const photos = editModalState.currentPhotos;
+    const [movedPhoto] = photos.splice(fromIndex, 1);
+    photos.splice(toIndex, 0, movedPhoto);
+    
+    // მთავარი ფოტოს ინდექსის კორექტირება
+    if (editModalState.mainPhotoIndex === fromIndex) {
+        editModalState.mainPhotoIndex = toIndex;
+    } else if (fromIndex < editModalState.mainPhotoIndex && toIndex >= editModalState.mainPhotoIndex) {
+        editModalState.mainPhotoIndex--;
+    } else if (fromIndex > editModalState.mainPhotoIndex && toIndex <= editModalState.mainPhotoIndex) {
+        editModalState.mainPhotoIndex++;
+    }
+    
+    editModalState.hasChanges = true;
+    renderEditGalleryPhotos();
 }
 
 // ფორმის გასუფთავება
@@ -525,57 +974,7 @@ async function addNewCard() {
 }
 
 
-// რედაქტირების მოდალში გალერეის ფოტოების ჩატვირთვა
-function loadEditGalleryPhotos(project) {
-    const galleryContainer = document.getElementById('editGalleryPhotos');
-    if (!galleryContainer) return;
-    
-    // გასუფთავება
-    galleryContainer.innerHTML = '';
-    
-    if (!project.photos || project.photos.length === 0) {
-        const noPhotosMessage = document.createElement('div');
-        noPhotosMessage.style.cssText = 'text-align: center; color: #666; padding: 20px; font-size: 16px; width: 100%;';
-        noPhotosMessage.textContent = 'გალერეის ფოტოები არ არის დამატებული';
-        galleryContainer.appendChild(noPhotosMessage);
-        return;
-    }
-    
-    // ჩატვირთოს ყველა ფოტო
-    project.photos.forEach((photoUrl, index) => {
-        const photoDiv = document.createElement('div');
-        photoDiv.style.cssText = 'position: relative; display: inline-block; margin: 5px;';
-        photoDiv.innerHTML = `
-            <img src="${photoUrl}" alt="გალერეის ფოტო" style="width: 120px; height: 120px; object-fit: cover; border-radius: 5px; border: 2px solid #ddd;">
-            <button 
-                onclick="deletePhotoFromProject(${project.id}, ${index})" 
-                style="
-                    position: absolute;
-                    top: -5px;
-                    right: -5px;
-                    background: #dc3545;
-                    color: white;
-                    border: none;
-                    width: 25px;
-                    height: 25px;
-                    border-radius: 50%;
-                    cursor: pointer;
-                    font-size: 12px;
-                    font-weight: bold;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                "
-                title="ფოტოს წაშლა"
-            >
-                ×
-            </button>
-        `;
-        galleryContainer.appendChild(photoDiv);
-    });
-}
-
-// პროექტში ფოტოების დამატება
+// პროექტში ფოტოების დამატება (ახალი - 1280x720 letterboxing-ით)
 function addPhotosToProject(projectId) {
     const input = document.createElement('input');
     input.type = 'file';
@@ -585,38 +984,65 @@ function addPhotosToProject(projectId) {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
         
+        // Loading ინდიკატორი
+        const galleryContainer = document.getElementById('editGalleryPhotos');
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = 'uploadLoading';
+        loadingDiv.style.cssText = `
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        `;
+        loadingDiv.innerHTML = `
+            <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+            <div>იტვირთება ${files.length} ფოტო...</div>
+            <div style="font-size: 12px; color: #888; margin-top: 5px;">ზომის კორექტირება და კომპრესია</div>
+        `;
+        if (galleryContainer) galleryContainer.appendChild(loadingDiv);
+        
         try {
-            // კომპრესია ატვირთვამდე
-            const compressedFiles = await compressImages(files);
+            // დამუშავება: 1280x720 + ნაცრისფერი letterboxing
+            const processedFiles = await processProjectImages(files);
             
             const formData = new FormData();
-            compressedFiles.forEach(file => formData.append('photos', file));
+            processedFiles.forEach(file => formData.append('photos', file));
             
             const response = await secureFetch(`/api/projects/${projectId}/photos`, { method: 'POST', body: formData });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
             const data = await response.json();
             
+            // Loading-ის წაშლა
+            const loading = document.getElementById('uploadLoading');
+            if (loading) loading.remove();
+            
             if (data.success) {
-                showSuccess(data.message);
-                const project = projectsCards.find(p => p.id === projectId);
-                if (project) {
-                    project.photos = data.project.photos;
-                    loadEditGalleryPhotos(project);
+                showSuccess(`${files.length} ფოტო წარმატებით აიტვირთა`);
+                
+                // სტეიტის განახლება
+                editModalState.currentPhotos = data.project.photos || [];
+                editModalState.hasChanges = true;
+                
+                // თუ მთავარი ფოტო არ იყო, პირველი გახდეს მთავარი
+                if (editModalState.currentPhotos.length > 0 && editModalState.mainPhotoIndex >= editModalState.currentPhotos.length) {
+                    editModalState.mainPhotoIndex = 0;
                 }
-                await loadCardsFromAPI();
-                refreshMainPageIfOpen();
+                
+                renderEditGalleryPhotos();
             } else {
                 showError('შეცდომა ფოტოების დამატებისას: ' + data.error);
             }
         } catch (error) {
+            const loading = document.getElementById('uploadLoading');
+            if (loading) loading.remove();
             showError('შეცდომა API-თან კავშირისას: ' + error.message);
         }
     };
     input.click();
 }
 
-// პროექტიდან ფოტოს წაშლა
+// პროექტიდან ფოტოს წაშლა (ძველი ფუნქცია - თავსებადობისთვის)
 async function deletePhotoFromProject(projectId, photoIndex) {
     const project = projectsCards.find(p => p.id === projectId);
     if (!project?.photos || photoIndex >= project.photos.length) {

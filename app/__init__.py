@@ -351,8 +351,8 @@ def get_projects():
         # Create JSON response
         projects_data = []
         for project, likes_count in projects_with_counts:
-            # Get all photo URLs for this project
-            photo_urls = [photo.url for photo in project.photos]
+            # Get all photo URLs for this project (ordered)
+            photo_urls = [photo.url for photo in sorted(project.photos, key=lambda p: p.order or 0)]
 
             # Check if current user has liked this project
             is_liked = project.id in liked_ids if current_user.is_authenticated else False
@@ -593,11 +593,34 @@ def update_project(project_id):
         # Update the project's area field
         project.area = new_area
         
+        # Handle main_image_url update
+        main_image_url = request.form.get('main_image_url')
+        if main_image_url is not None:
+            project.main_image_url = main_image_url if main_image_url.strip() else None
+        
+        # Handle photos_order (JSON string of photo URLs in new order)
+        photos_order_json = request.form.get('photos_order')
+        if photos_order_json:
+            import json
+            try:
+                new_order = json.loads(photos_order_json)
+                if isinstance(new_order, list):
+                    # Get existing photo objects
+                    existing_photos = {photo.url: photo for photo in project.photos}
+                    
+                    # Update order based on new_order list
+                    for idx, url in enumerate(new_order):
+                        if url in existing_photos:
+                            existing_photos[url].order = idx
+                    
+            except json.JSONDecodeError:
+                pass  # Ignore invalid JSON
+        
         # Save changes to database
         db.session.commit()
         
-        # Get all photos for this project
-        photo_urls = [photo.url for photo in project.photos]
+        # Get all photos for this project (ordered)
+        photo_urls = [photo.url for photo in sorted(project.photos, key=lambda p: p.order or 0)]
         
         # Return updated project in JSON format
         return jsonify({
@@ -649,14 +672,19 @@ def add_project_photos(project_id):
         
         saved_photos = []
         
-        # Save each photo
+        # Get max order for existing photos
+        max_order = max([p.order for p in project.photos], default=-1)
+        
+        # Save each photo with incremented order
         for photo_file in photos:
             if photo_file and photo_file.filename != '':
                 photo_url = save_uploaded_file(photo_file, 'gallery')
                 if photo_url:
+                    max_order += 1
                     photo = Photo(
                         url=photo_url,
-                        project_id=project.id
+                        project_id=project.id,
+                        order=max_order
                     )
                     db.session.add(photo)
                     saved_photos.append(photo_url)
@@ -664,8 +692,8 @@ def add_project_photos(project_id):
         # Commit all changes
         db.session.commit()
         
-        # Get all photos for this project
-        all_photos = [photo.url for photo in project.photos]
+        # Get all photos for this project (ordered)
+        all_photos = [photo.url for photo in sorted(project.photos, key=lambda p: p.order or 0)]
         
         return jsonify({
             'success': True,
@@ -733,8 +761,8 @@ def update_project_main_image(project_id):
         # Commit changes
         db.session.commit()
         
-        # Get all photos for this project
-        all_photos = [photo.url for photo in project.photos]
+        # Get all photos for this project (ordered)
+        all_photos = [photo.url for photo in sorted(project.photos, key=lambda p: p.order or 0)]
         
         return jsonify({
             'success': True,

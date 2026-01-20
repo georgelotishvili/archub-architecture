@@ -86,6 +86,7 @@ class Photo(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # უნიკალური ID
     url = db.Column(db.String(200), nullable=False)  # ფოტოს URL
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)  # პროექტის ID
+    order = db.Column(db.Integer, default=0)  # ფოტოს რიგითობა პროექტში
     
     def __repr__(self):
         return f'<Photo {self.id}: {self.url}>'
