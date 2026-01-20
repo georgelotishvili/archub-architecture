@@ -1101,6 +1101,14 @@ body {
   object-fit: cover;
 }
 
+/* მობილურზე სრული ფოტო ჩანდეს, არა ჩამოჭრილი */
+@media (max-width: 768px) {
+  .slide img {
+    object-fit: contain;
+    background-color: #1a1a1a;
+  }
+}
+
 .close-icon {
   position: absolute;
   top: 5px;
