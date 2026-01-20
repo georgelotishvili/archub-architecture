@@ -391,6 +391,26 @@ body {
 }
 .projects-btn:hover { transform: scale(1.05); }
 
+.gipc-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.gipc-buttons .projects-btn {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  color: var(--color-black);
+}
+
+/* gipc.org.ge ღილაკი - გამჭვირვალე ფონით */
+.gipc-buttons .projects-btn:last-child {
+  background: transparent;
+  color: var(--color-black);
+  border: 2px solid var(--color-black);
+}
+
 /* Section 1 - Responsive */
 @media (max-width: 900px) {
   .section-1 {

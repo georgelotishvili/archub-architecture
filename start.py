@@ -156,11 +156,13 @@ def run_development_server():
     
     try:
         from app import app
+        # use_reloader=False - Windows-ზე reloader-ს პრობლემები აქვს
+        # ცვლილებების შემდეგ სერვერი ხელით უნდა გადატვირთოთ
         app.run(
             debug=True,
             host='127.0.0.1',
             port=5000,
-            use_reloader=True
+            use_reloader=False
         )
     except KeyboardInterrupt:
         print("\n\n[i] სერვერი გაითიშა მომხმარებლის მოთხოვნით")
@@ -188,11 +190,53 @@ def check_dependencies():
     return True
 
 
+# ===== ძველი პროცესების გასუფთავება =====
+def kill_existing_flask_processes():
+    """თიშავს ძველ Flask პროცესებს პორტ 5000-ზე"""
+    if os.name == 'nt':  # Windows
+        import subprocess
+        try:
+            # ვპოულობთ პროცესებს რომლებიც იყენებენ პორტ 5000-ს
+            result = subprocess.run(
+                ['netstat', '-ano'],
+                capture_output=True, text=True, timeout=5
+            )
+            
+            pids_to_kill = set()
+            for line in result.stdout.split('\n'):
+                if ':5000' in line and 'LISTENING' in line:
+                    parts = line.split()
+                    if parts:
+                        try:
+                            pid = int(parts[-1])
+                            if pid != os.getpid():  # არ გავთიშოთ საკუთარი თავი
+                                pids_to_kill.add(pid)
+                        except ValueError:
+                            pass
+            
+            if pids_to_kill:
+                print(f"[i] ითიშება ძველი პროცესები: {pids_to_kill}")
+                for pid in pids_to_kill:
+                    try:
+                        subprocess.run(['taskkill', '/F', '/PID', str(pid)], 
+                                      capture_output=True, timeout=5)
+                    except:
+                        pass
+                import time
+                time.sleep(1)
+                print("[OK] ძველი პროცესები გაითიშა")
+        except Exception as e:
+            pass  # თუ ვერ გავთიშეთ, გავაგრძელოთ მაინც
+
+
 # ===== მთავარი გაშვების წერტილი =====
 if __name__ == '__main__':
     print("")
     print("[...] ARCHUB იწყება...")
     print("")
+    
+    # ძველი პროცესების გასუფთავება
+    kill_existing_flask_processes()
     
     # პაკეტების შემოწმება
     if not check_dependencies():

@@ -474,13 +474,8 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', closeMobileMenu);
     });
 
-    // --- პროექტების ღილაკი ---
-    const projectsBtn = document.querySelector('.projects-btn');
-    if (projectsBtn) {
-        projectsBtn.addEventListener('click', () => {
-            window.open('https://gipc.ge', '_blank');
-        });
-    }
+    // --- პროექტების ღილაკები (gipc.ge, gipc.ogr.ge) ---
+    // ღილაკები არის <a> ტეგები href-ით, დამატებითი JS არ სჭირდება
 
     // Close mobile menu on window resize
     window.addEventListener('resize', () => {
