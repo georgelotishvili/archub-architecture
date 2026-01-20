@@ -1115,24 +1115,15 @@ function openAdminPanel() {
 async function loadCarouselImages() {
     try {
         const response = await fetch('/api/carousel');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) throw new Error('API error');
         
         const data = await response.json();
         if (data.success && data.images?.length > 0) {
             renderCarouselImages(data.images);
-        } else {
-            hideCarousel();
         }
+        // თუ ფოტოები არ არის, კარუსელი უბრალოდ ცარიელი რჩება
     } catch (error) {
-        hideCarousel();
-    }
-}
-
-// კარუსელის დამალვა როცა ფოტოები არ არის
-function hideCarousel() {
-    const carousel = document.querySelector('.carousel');
-    if (carousel) {
-        carousel.style.display = 'none';
+        // შეცდომის შემთხვევაში არაფერი არ ვაკეთოთ
     }
 }
 
