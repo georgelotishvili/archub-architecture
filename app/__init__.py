@@ -1221,21 +1221,42 @@ def status():
 @login_required
 def like_project(project_id):
     try:
-        project = Project.query.get_or_404(project_id)
+        # პირდაპირი query - უფრო სწრაფი ვიდრე ORM relationship
+        existing_like = db.session.query(project_likes).filter_by(
+            user_id=current_user.id, 
+            project_id=project_id
+        ).first()
         
-        if project in current_user.liked_projects:
-            current_user.liked_projects.remove(project)
+        if existing_like:
+            # წავშალოთ like
+            db.session.execute(
+                project_likes.delete().where(
+                    (project_likes.c.user_id == current_user.id) & 
+                    (project_likes.c.project_id == project_id)
+                )
+            )
             liked = False
         else:
-            current_user.liked_projects.append(project)
+            # დავამატოთ like
+            db.session.execute(
+                project_likes.insert().values(
+                    user_id=current_user.id, 
+                    project_id=project_id
+                )
+            )
             liked = True
         
         db.session.commit()
         
+        # likes_count პირდაპირი count query-ით
+        likes_count = db.session.query(func.count(project_likes.c.user_id)).filter(
+            project_likes.c.project_id == project_id
+        ).scalar() or 0
+        
         return jsonify({
             'success': True, 
             'liked': liked, 
-            'likes_count': project.liked_by_users.count()
+            'likes_count': likes_count
         })
         
     except Exception as e:
