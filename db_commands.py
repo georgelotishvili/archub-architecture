@@ -16,26 +16,11 @@ def create_sample_data():
             print("Sample data already exists!")
             return
         
-        # Create sample projects
-        projects_data = [
-            {
-                "area": "120 კვ.მ",
-                "main_image_url": "static/images/pro 1.png",
-                "photos": [
-                    "static/images/pro 1.png",
-                    "static/images/pro 2.jpg",
-                    "static/images/pro 3.png"
-                ]
-            },
-            {
-                "area": "85 კვ.მ",
-                "main_image_url": "static/images/pro 4.jpg",
-                "photos": [
-                    "static/images/pro 4.jpg",
-                    "static/images/pro 5.jpg"
-                ]
-            }
-        ]
+        # Sample projects - ცარიელი (პროექტები ადმინიდან ემატება)
+        projects_data = []
+        
+        print("პროექტები ადმინ პანელიდან დაამატეთ!")
+        return
         
         for project_data in projects_data:
             # Create project

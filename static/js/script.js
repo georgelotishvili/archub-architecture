@@ -674,31 +674,16 @@ async function loadCardsFromAPI() {
 }
 
 function createRandomCards() {
-    const sampleCards = [
-        { area: '120 კვ.მ', image: 'images/pro 1.png' },
-        { area: '150 კვ.მ', image: 'images/pro 2.jpg' },
-        { area: '90 კვ.მ', image: 'images/pro 3.png' },
-        { area: '200 კვ.მ', image: 'images/pro 4.jpg' },
-        { area: '180 კვ.მ', image: 'images/pro 5.jpg' }
-    ];
+    // პროექტები არ არის - ცარიელი მასივი
+    projectsCards = [];
+    allProjects = [];
+    totalCards = 0;
     
-    projectsCards = sampleCards.map((card, index) => ({
-        id: `card-${index}`,
-        title: `პროექტი ${index + 1}`,
-        description: `ეს არის ${index + 1}-ე პროექტის აღწერა`,
-        area: card.area,
-        image: card.image,
-        link: `card-detail.html?id=card-${index}`,
-        photos: [{
-            url: card.image,
-            title: 'მთავარი ფოტო'
-        }]
-    }));
-    
-    // ძებნისთვის ყველა პროექტის შენახვა
-    allProjects = [...projectsCards];
-    
-    totalCards = projectsCards.length;
+    // შეტყობინების ჩვენება
+    const container = document.getElementById('cardsWrapper');
+    if (container) {
+        container.innerHTML = '<p style="text-align:center; padding:40px; color:#666;">პროექტები ჯერ არ არის დამატებული</p>';
+    }
 }
 
 function renderProjectsCards() {
