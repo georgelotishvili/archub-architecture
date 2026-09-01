@@ -49,7 +49,7 @@
     <meta property="og:url" content="https://archub.ge/">
     <meta property="og:title" content="შენობების ენერგოეფექტურობის სერტიფიკატი | Archub - არქიტექტურული კომპანია თბილისში">
     <meta property="og:description" content="ენერგოეფექტურობის სერტიფიკატი ✓ ენერგოაუდიტი ✓ არქიტექტურული პროექტირება ✓ გრგ ✓ მშენებლობის ნებართვა ✓ 30+ წლის გამოცდილება თბილისში და საქართველოში">
-    <meta property="og:image" content="{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}">
+    <meta property="og:image" content="{{ url_for('static', filename='images/logo-1.jpg', _external=True) }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
 
@@ -58,7 +58,7 @@
     <meta name="twitter:url" content="https://archub.ge/">
     <meta name="twitter:title" content="შენობების ენერგოეფექტურობის სერტიფიკატი თბილისში | Archub">
     <meta name="twitter:description" content="ენერგოსერტიფიკატი, ენერგოაუდიტი, არქიტექტურული პროექტირება, გრგ, მშენებლობის ნებართვა - 30+ წლის გამოცდილება საქართველოში. ☎ +995 593 222 033">
-    <meta name="twitter:image" content="{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/logo-1.jpg', _external=True) }}">
     
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@100;200;300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -78,7 +78,7 @@
       "name": "Archub",
       "alternateName": ["არქჰაბი", "Archub.ge", "არქიტექტურული კომპანია Archub"],
       "url": "https://archub.ge/",
-      "logo": "{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}",
+      "logo": "{{ url_for('static', filename='images/logo-1.jpg', _external=True) }}",
       "telephone": "+995593222033",
       "email": "naormala@gmail.com",
       "foundingDate": "1994",
@@ -117,7 +117,7 @@
       "@type": "LocalBusiness",
       "@id": "https://archub.ge/#localbusiness",
       "name": "Archub - არქიტექტურული კომპანია",
-      "image": "{{ url_for('static', filename='images/logo 1.jpg', _external=True) }}",
+      "image": "{{ url_for('static', filename='images/logo-1.jpg', _external=True) }}",
       "url": "https://archub.ge/",
       "telephone": "+995593222033",
       "email": "naormala@gmail.com",
@@ -445,7 +445,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
 </head>
-<body>
+<body data-reset-error="{{ reset_error|default('', true)|e }}">
     {% include '_header.html' %}
 
     <!-- SEO Hidden Content - Detailed Service Descriptions for Search Engines -->
@@ -777,11 +777,11 @@
                 <input type="hidden" id="resetToken" value="">
                 <div class="form-group">
                     <label for="newPassword">ახალი პაროლი:</label>
-                    <input type="password" id="newPassword" required minlength="6">
+                    <input type="password" id="newPassword" required minlength="8" maxlength="128">
                 </div>
                 <div class="form-group">
                     <label for="confirmPassword">გაიმეორეთ პაროლი:</label>
-                    <input type="password" id="confirmPassword" required minlength="6">
+                    <input type="password" id="confirmPassword" required minlength="8" maxlength="128">
                 </div>
                 <button type="submit" class="contact-submit-btn">შეცვლა</button>
             </form>
@@ -813,8 +813,8 @@
                     <input type="tel" id="registerPhone" required>
                 </div>
                 <div class="form-group">
-                    <label for="registerPassword">პაროლი (მინ. 6 სიმბოლო):</label>
-                    <input type="password" id="registerPassword" minlength="6" required>
+                    <label for="registerPassword">პაროლი (8–128 სიმბოლო):</label>
+                    <input type="password" id="registerPassword" minlength="8" maxlength="128" required>
                 </div>
                 <button type="submit" class="contact-submit-btn">რეგისტრაცია</button>
                 <p class="text-center mt-15">უკვე გაქვს ანგარიში? <a href="#" id="showLoginModal">შესვლა</a></p>

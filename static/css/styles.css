@@ -147,7 +147,7 @@ html {
 body {
   line-height: 1.6;
   color: var(--color-black);
-  background: url('/static/images/mtavari foni.jpg') center/cover fixed no-repeat;
+  background: url('/static/images/mtavari-foni.jpg') center/cover fixed no-repeat;
   overflow-x: hidden;
 }
 
@@ -283,10 +283,10 @@ body {
   position: absolute;
 }
 
-.photo-1 { background-image: url(/static/images/logo%201.jpg); top: 0; left: 0; }
-.photo-2 { background-image: url(/static/images/logo%202.jpg); top: 0; right: 0; }
-.photo-3 { background-image: url(/static/images/logo%203.jpg); bottom: 0; left: 0; }
-.photo-4 { background-image: url(/static/images/logo%204.jpg); bottom: 0; right: 0; }
+.photo-1 { background-image: url(/static/images/logo-1.jpg); top: 0; left: 0; }
+.photo-2 { background-image: url(/static/images/logo-2.jpg); top: 0; right: 0; }
+.photo-3 { background-image: url(/static/images/logo-3.jpg); bottom: 0; left: 0; }
+.photo-4 { background-image: url(/static/images/logo-4.jpg); bottom: 0; right: 0; }
 
 .overlay-element {
   width: 280px;

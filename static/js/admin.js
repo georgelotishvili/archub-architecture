@@ -116,6 +116,103 @@ async function compressImages(files) {
 let projectsCards = [];  // პროექტების მასივი
 let galleryPhotos = [];  // გალერეის ფოტოების მასივი
 
+function getSafeAdminUploadedImageUrl(value) {
+    if (typeof value !== 'string') return null;
+    const rawValue = value.trim().replace(/\\/g, '/');
+    if (!rawValue || rawValue.startsWith('//')) return null;
+
+    try {
+        const decodedRawPath = decodeURIComponent(rawValue).split(/[?#]/, 1)[0];
+        if (decodedRawPath.split('/').includes('..')) return null;
+
+        const candidate = new URL(rawValue, window.location.origin);
+        if (candidate.origin !== window.location.origin || candidate.username || candidate.password) {
+            return null;
+        }
+        const pathname = decodeURIComponent(candidate.pathname);
+        const allowedUpload = /^\/static\/uploads\/(?:main|gallery|carousel)\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:jpe?g|png|gif|webp)$/i;
+        return allowedUpload.test(pathname) ? pathname : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function createAdminUploadedImage(value, altText, className = '') {
+    const safeUrl = getSafeAdminUploadedImageUrl(value);
+    if (!safeUrl) return null;
+    const image = document.createElement('img');
+    image.src = safeUrl;
+    image.alt = String(altText || '');
+    image.loading = 'lazy';
+    if (className) image.className = className;
+    image.addEventListener('error', () => {
+        if (image.parentNode) {
+            image.replaceWith(createAdminImagePlaceholder('ფოტო ვერ ჩაიტვირთა'));
+        }
+    }, { once: true });
+    return image;
+}
+
+function createAdminImagePlaceholder(message = 'ფოტო არ არის') {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'image-placeholder';
+    placeholder.textContent = message;
+    placeholder.style.cssText = 'width: 100%; min-height: 160px; background: #f8f9fa; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px; box-sizing: border-box;';
+    return placeholder;
+}
+
+function createAdminTextButton(text, className, clickHandler) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = className;
+    button.textContent = text;
+    button.addEventListener('click', clickHandler);
+    return button;
+}
+
+function getSafeNumericId(value) {
+    const numericId = Number(value);
+    return Number.isSafeInteger(numericId) && numericId > 0 ? numericId : null;
+}
+
+function createCarouselAddCard(includeDescription = false) {
+    const addCard = document.createElement('div');
+    addCard.className = 'carousel-add-card';
+    addCard.setAttribute('role', 'button');
+    addCard.tabIndex = 0;
+    const svgNamespace = 'http://www.w3.org/2000/svg';
+    const icon = document.createElementNS(svgNamespace, 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.setAttribute('stroke-width', '1');
+    const verticalLine = document.createElementNS(svgNamespace, 'line');
+    verticalLine.setAttribute('x1', '12'); verticalLine.setAttribute('y1', '5');
+    verticalLine.setAttribute('x2', '12'); verticalLine.setAttribute('y2', '19');
+    const horizontalLine = document.createElementNS(svgNamespace, 'line');
+    horizontalLine.setAttribute('x1', '5'); horizontalLine.setAttribute('y1', '12');
+    horizontalLine.setAttribute('x2', '19'); horizontalLine.setAttribute('y2', '12');
+    icon.append(verticalLine, horizontalLine);
+    addCard.appendChild(icon);
+    const title = document.createElement('h3');
+    title.textContent = 'ახალი ფოტოს დამატება';
+    addCard.appendChild(title);
+    if (includeDescription) {
+        const description = document.createElement('p');
+        description.textContent = 'დააჭირეთ აქ კარუსელში ახალი ფოტოს დასამატებლად';
+        addCard.appendChild(description);
+    }
+    const openModal = () => showCarouselUploadModal();
+    addCard.addEventListener('click', openModal);
+    addCard.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openModal();
+        }
+    });
+    return addCard;
+}
+
 // ===== API კონფიგურაცია და უსაფრთხო fetch =====
 const API_BASE_URL = '/api/projects';  // API-ის ძირითადი URL
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -185,48 +282,64 @@ function loadCardsList() {
     cardsGrid.querySelectorAll('.card-item').forEach(card => card.remove());
     cardsGrid.querySelectorAll('[style*="text-align: center"]').forEach(msg => msg.remove());
     
-    
-    projectsCards.forEach((card, index) => {
+    projectsCards.forEach(card => {
         const cardItem = document.createElement('div');
         cardItem.className = 'card-item';
-        
-        // Check if project has main image
-        const hasMainImage = card.main_image_url && card.main_image_url.trim() !== '';
-        const imageHtml = hasMainImage 
-            ? `<img src="${card.main_image_url}" alt="ქარდი">`
-            : `<div style="width: 100%; height: 200px; background: #f8f9fa; border: 2px dashed #ddd; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px;">ფოტო არ არის</div>`;
-        
-        cardItem.innerHTML = `
-            <div class="card-preview">
-                ${imageHtml}
-            </div>
-            <div class="card-details">
-                <div class="card-area">${card.area}</div>
-            </div>
-            <div class="card-actions">
-                <button class="edit-btn" onclick="editCard(${card.id})">რედაქტირება</button>
-                <button class="delete-btn" onclick="deleteCard(${card.id})">წაშლა</button>
-            </div>
-        `;
+
+        const preview = document.createElement('div');
+        preview.className = 'card-preview';
+        const image = createAdminUploadedImage(card.main_image_url, 'ქარდი');
+        preview.appendChild(image || createAdminImagePlaceholder());
+
+        const details = document.createElement('div');
+        details.className = 'card-details';
+        const area = document.createElement('div');
+        area.className = 'card-area';
+        area.textContent = String(card.area || '');
+        details.appendChild(area);
+
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+        const projectId = getSafeNumericId(card.id);
+        if (projectId) {
+            actions.append(
+                createAdminTextButton('რედაქტირება', 'edit-btn', () => editCard(projectId)),
+                createAdminTextButton('წაშლა', 'delete-btn', () => deleteCard(projectId))
+            );
+        }
+
+        cardItem.append(preview, details, actions);
         cardsGrid.appendChild(cardItem);
     });
     
     // Add the "Add Project" button as a card-like element after all projects
     const addCardItem = document.createElement('div');
     addCardItem.className = 'card-item';
-    addCardItem.innerHTML = `
-        <div class="card-preview">
-            <div style="width: 100%; height: 200px; background: #f8f9fa; border: 2px dashed #007bff; display: flex; align-items: center; justify-content: center; color: #007bff; font-size: 16px; font-weight: bold; cursor: pointer;" onclick="addNewCard()">
-                + პროექტის დამატება
-            </div>
-        </div>
-        <div class="card-details">
-            <div class="card-area" style="color: #007bff; font-weight: bold;">ახალი პროექტი</div>
-        </div>
-        <div class="card-actions">
-            <button class="edit-btn" onclick="addNewCard()" style="background: #007bff;">დამატება</button>
-        </div>
-    `;
+    const addPreview = document.createElement('div');
+    addPreview.className = 'card-preview';
+    const addPrompt = createAdminImagePlaceholder('+ პროექტის დამატება');
+    addPrompt.style.borderColor = '#007bff';
+    addPrompt.style.color = '#007bff';
+    addPrompt.style.fontWeight = 'bold';
+    addPrompt.style.cursor = 'pointer';
+    addPrompt.addEventListener('click', addNewCard);
+    addPreview.appendChild(addPrompt);
+
+    const addDetails = document.createElement('div');
+    addDetails.className = 'card-details';
+    const addArea = document.createElement('div');
+    addArea.className = 'card-area';
+    addArea.style.cssText = 'color: #007bff; font-weight: bold;';
+    addArea.textContent = 'ახალი პროექტი';
+    addDetails.appendChild(addArea);
+
+    const addActions = document.createElement('div');
+    addActions.className = 'card-actions';
+    const addButton = createAdminTextButton('დამატება', 'edit-btn', addNewCard);
+    addButton.style.background = '#007bff';
+    addActions.appendChild(addButton);
+
+    addCardItem.append(addPreview, addDetails, addActions);
     cardsGrid.appendChild(addCardItem);
 }
 
@@ -274,10 +387,15 @@ function editCard(projectId) {
     
     // სტეიტის ინიციალიზაცია
     editModalState.projectId = projectId;
-    editModalState.originalPhotos = [...(project.photos || [])];
-    editModalState.currentPhotos = [...(project.photos || [])];
-    editModalState.mainPhotoIndex = project.main_image_url ? 
-        (project.photos || []).findIndex(p => p === project.main_image_url) : 0;
+    const safePhotos = (Array.isArray(project.photos) ? project.photos : [])
+        .map(getSafeAdminUploadedImageUrl)
+        .filter(Boolean);
+    const safeMainImageUrl = getSafeAdminUploadedImageUrl(project.main_image_url);
+    editModalState.originalPhotos = [...safePhotos];
+    editModalState.currentPhotos = [...safePhotos];
+    editModalState.mainPhotoIndex = safeMainImageUrl
+        ? safePhotos.findIndex(photoUrl => photoUrl === safeMainImageUrl)
+        : 0;
     if (editModalState.mainPhotoIndex === -1) editModalState.mainPhotoIndex = 0;
     editModalState.originalMainIndex = editModalState.mainPhotoIndex;
     editModalState.originalArea = project.area || '';
@@ -577,141 +695,79 @@ async function saveProjectUpdate(projectId) {
 function renderEditGalleryPhotos() {
     const galleryContainer = document.getElementById('editGalleryPhotos');
     if (!galleryContainer) return;
-    
-    galleryContainer.innerHTML = '';
-    
+
+    galleryContainer.replaceChildren();
+
     if (editModalState.currentPhotos.length === 0) {
-        galleryContainer.innerHTML = `
-            <div style="
-                grid-column: 1 / -1;
-                text-align: center;
-                color: #888;
-                padding: 40px 20px;
-                font-size: 15px;
-            ">
-                <div style="font-size: 40px; margin-bottom: 10px;">📷</div>
-                ფოტოები არ არის დამატებული.<br>
-                დააჭირეთ "ფოტოების დამატება" ღილაკს.
-            </div>
-        `;
+        const emptyState = document.createElement('div');
+        emptyState.style.cssText = 'grid-column: 1 / -1; text-align: center; color: #888; padding: 40px 20px; font-size: 15px;';
+        const icon = document.createElement('div');
+        icon.style.cssText = 'font-size: 40px; margin-bottom: 10px;';
+        icon.textContent = '📷';
+        const message = document.createElement('div');
+        message.textContent = 'ფოტოები არ არის დამატებული. დააჭირეთ „ფოტოების დამატება“ ღილაკს.';
+        emptyState.append(icon, message);
+        galleryContainer.appendChild(emptyState);
         return;
     }
-    
+
     editModalState.currentPhotos.forEach((photoUrl, index) => {
         const photoDiv = document.createElement('div');
         photoDiv.className = 'photo-item';
         photoDiv.draggable = true;
-        photoDiv.dataset.index = index;
-        
+        photoDiv.dataset.index = String(index);
+
         const isMain = index === editModalState.mainPhotoIndex;
-        
-        photoDiv.style.cssText = `
-            position: relative;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: grab;
-            transition: transform 0.2s, box-shadow 0.2s;
-            ${isMain ? 'border: 3px solid #28a745;' : 'border: 2px solid #e0e0e0;'}
-        `;
-        
-        photoDiv.innerHTML = `
-            <!-- ფოტო -->
-            <div style="
-                width: 100%;
-                aspect-ratio: 16/9;
-                background-image: url('${photoUrl}');
-                background-size: cover;
-                background-position: center;
-            "></div>
-            
-            <!-- კონტროლები -->
-            <div style="
-                padding: 10px;
-                background: #fafafa;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            ">
-                <!-- რადიო ბუტონი მთავარი ფოტოსთვის -->
-                <label style="
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    cursor: pointer;
-                    font-size: 12px;
-                    color: ${isMain ? '#28a745' : '#666'};
-                    font-weight: ${isMain ? '600' : '400'};
-                ">
-                    <input 
-                        type="radio" 
-                        name="mainPhoto" 
-                        ${isMain ? 'checked' : ''}
-                        onchange="setMainPhoto(${index})"
-                        style="cursor: pointer; accent-color: #28a745;"
-                    >
-                    ${isMain ? 'მთავარი' : 'მთავარად'}
-                </label>
-                
-                <!-- ღილაკები -->
-                <div style="display: flex; gap: 8px;">
-                    <!-- ჩამოტვირთვა -->
-                    <button 
-                        onclick="downloadPhoto('${photoUrl}', ${index})"
-                        style="
-                            background: #17a2b8;
-                            color: white;
-                            border: none;
-                            width: 28px;
-                            height: 28px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 14px;
-                        "
-                        title="ჩამოტვირთვა"
-                    >⬇</button>
-                    
-                    <!-- წაშლა -->
-                    <button 
-                        onclick="removePhotoFromEdit(${index})"
-                        style="
-                            background: #dc3545;
-                            color: white;
-                            border: none;
-                            width: 28px;
-                            height: 28px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 16px;
-                            font-weight: bold;
-                        "
-                        title="წაშლა"
-                    >×</button>
-                </div>
-            </div>
-            
-            ${isMain ? `
-                <div style="
-                    position: absolute;
-                    top: 8px;
-                    left: 8px;
-                    background: #28a745;
-                    color: white;
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                    font-size: 11px;
-                    font-weight: 600;
-                ">მთავარი</div>
-            ` : ''}
-        `;
-        
+        photoDiv.style.cssText = `position: relative; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: grab; transition: transform 0.2s, box-shadow 0.2s; border: ${isMain ? '3px solid #28a745' : '2px solid #e0e0e0'};`;
+
+        const safePhotoUrl = getSafeAdminUploadedImageUrl(photoUrl);
+        const preview = document.createElement('div');
+        preview.style.cssText = 'width: 100%; aspect-ratio: 16/9; overflow: hidden;';
+        if (safePhotoUrl) {
+            const image = createAdminUploadedImage(safePhotoUrl, `პროექტის ფოტო ${index + 1}`);
+            image.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+            preview.appendChild(image);
+        } else {
+            preview.appendChild(createAdminImagePlaceholder('არასწორი ფოტო'));
+        }
+
+        const controls = document.createElement('div');
+        controls.style.cssText = 'padding: 10px; background: #fafafa; display: flex; align-items: center; justify-content: space-between;';
+
+        const mainLabel = document.createElement('label');
+        mainLabel.style.cssText = `display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; color: ${isMain ? '#28a745' : '#666'}; font-weight: ${isMain ? '600' : '400'};`;
+        const mainRadio = document.createElement('input');
+        mainRadio.type = 'radio';
+        mainRadio.name = 'mainPhoto';
+        mainRadio.checked = isMain;
+        mainRadio.style.cssText = 'cursor: pointer; accent-color: #28a745;';
+        mainRadio.addEventListener('change', () => setMainPhoto(index));
+        const mainLabelText = document.createElement('span');
+        mainLabelText.textContent = isMain ? 'მთავარი' : 'მთავარად';
+        mainLabel.append(mainRadio, mainLabelText);
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display: flex; gap: 8px;';
+        const downloadButton = createAdminTextButton('⬇', '', () => {
+            if (safePhotoUrl) downloadPhoto(safePhotoUrl, index);
+        });
+        downloadButton.title = 'ჩამოტვირთვა';
+        downloadButton.disabled = !safePhotoUrl;
+        downloadButton.style.cssText = 'background: #17a2b8; color: white; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 14px;';
+        const removeButton = createAdminTextButton('×', '', () => removePhotoFromEdit(index));
+        removeButton.title = 'წაშლა';
+        removeButton.style.cssText = 'background: #dc3545; color: white; border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;';
+        buttons.append(downloadButton, removeButton);
+        controls.append(mainLabel, buttons);
+        photoDiv.append(preview, controls);
+
+        if (isMain) {
+            const badge = document.createElement('div');
+            badge.style.cssText = 'position: absolute; top: 8px; left: 8px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;';
+            badge.textContent = 'მთავარი';
+            photoDiv.appendChild(badge);
+        }
+
         // Drag & Drop ივენთები
         photoDiv.addEventListener('dragstart', handleDragStart);
         photoDiv.addEventListener('dragend', handleDragEnd);
@@ -719,7 +775,7 @@ function renderEditGalleryPhotos() {
         photoDiv.addEventListener('drop', handleDrop);
         photoDiv.addEventListener('dragenter', handleDragEnter);
         photoDiv.addEventListener('dragleave', handleDragLeave);
-        
+
         galleryContainer.appendChild(photoDiv);
     });
 }
@@ -736,30 +792,36 @@ async function removePhotoFromEdit(index) {
     if (!confirm('ნამდვილად გსურთ ამ ფოტოს წაშლა?')) return;
     
     const photoUrl = editModalState.currentPhotos[index];
+    const removingMainPhoto = index === editModalState.mainPhotoIndex;
     
     try {
-        // სერვერიდან წაშლა
-        const formData = new FormData();
-        formData.append('photo_url', photoUrl);
-        
-        const response = await secureFetch(`/api/projects/${editModalState.projectId}/photos`, { 
-            method: 'DELETE', 
-            body: formData 
-        });
+        const endpoint = removingMainPhoto
+            ? `/api/projects/${editModalState.projectId}/main-image`
+            : `/api/projects/${editModalState.projectId}/photos`;
+        const requestOptions = { method: 'DELETE' };
+        if (!removingMainPhoto) {
+            const formData = new FormData();
+            formData.append('photo_url', photoUrl);
+            requestOptions.body = formData;
+        }
+        const response = await secureFetch(endpoint, requestOptions);
         
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();
         
         if (data.success) {
-            // ლოკალური სტეიტის განახლება
-            editModalState.currentPhotos.splice(index, 1);
-            
-            // მთავარი ფოტოს ინდექსის კორექტირება
-            if (editModalState.mainPhotoIndex >= editModalState.currentPhotos.length) {
-                editModalState.mainPhotoIndex = Math.max(0, editModalState.currentPhotos.length - 1);
-            } else if (editModalState.mainPhotoIndex > index) {
-                editModalState.mainPhotoIndex--;
+            editModalState.currentPhotos = (
+                Array.isArray(data.project?.photos) ? data.project.photos : []
+            ).map(getSafeAdminUploadedImageUrl).filter(Boolean);
+            const safeMainUrl = getSafeAdminUploadedImageUrl(
+                data.project?.main_image_url
+            );
+            editModalState.mainPhotoIndex = safeMainUrl
+                ? editModalState.currentPhotos.indexOf(safeMainUrl)
+                : 0;
+            if (editModalState.mainPhotoIndex < 0) {
+                editModalState.mainPhotoIndex = 0;
             }
             
             editModalState.hasChanges = true;
@@ -775,10 +837,11 @@ async function removePhotoFromEdit(index) {
 
 // ფოტოს ჩამოტვირთვა
 function downloadPhoto(photoUrl, index) {
+    const safePhotoUrl = getSafeAdminUploadedImageUrl(photoUrl);
+    if (!safePhotoUrl) return;
     const link = document.createElement('a');
-    link.href = photoUrl;
+    link.href = safePhotoUrl;
     link.download = `photo_${index + 1}.jpg`;
-    link.target = '_blank';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -875,7 +938,7 @@ function loadGalleryPhotosList() {
     const galleryContainer = document.getElementById('galleryPhotosContainer');
     if (!galleryContainer) return;
     
-    galleryContainer.innerHTML = '';
+    galleryContainer.replaceChildren();
     
     if (galleryPhotos.length === 0) {
         const noPhotosMessage = document.createElement('div');
@@ -889,12 +952,23 @@ function loadGalleryPhotosList() {
         const photoDiv = document.createElement('div');
         photoDiv.className = 'gallery-photo-item';
         photoDiv.style.cssText = 'margin: 10px; display: inline-block; text-align: center;';
-        photoDiv.innerHTML = `
-            <img src="${photo.url}" alt="გალერიის ფოტო" style="width: 150px; height: 150px; object-fit: cover; border-radius: 5px; border: 2px solid #ddd;">
-            <div style="margin-top: 5px;">
-                <button onclick="removeGalleryPhoto(${index})" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">წაშლა</button>
-            </div>
-        `;
+
+        const image = createAdminUploadedImage(photo?.url, 'გალერიის ფოტო');
+        if (image) {
+            image.style.cssText = 'width: 150px; height: 150px; object-fit: cover; border-radius: 5px; border: 2px solid #ddd;';
+            photoDiv.appendChild(image);
+        } else {
+            const placeholder = createAdminImagePlaceholder('არასწორი ფოტო');
+            placeholder.style.cssText += 'width: 150px; height: 150px;';
+            photoDiv.appendChild(placeholder);
+        }
+
+        const actions = document.createElement('div');
+        actions.style.marginTop = '5px';
+        const removeButton = createAdminTextButton('წაშლა', '', () => removeGalleryPhoto(index));
+        removeButton.style.cssText = 'background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;';
+        actions.appendChild(removeButton);
+        photoDiv.appendChild(actions);
         galleryContainer.appendChild(photoDiv);
     });
 }
@@ -994,11 +1068,15 @@ function addPhotosToProject(projectId) {
             padding: 30px;
             color: #666;
         `;
-        loadingDiv.innerHTML = `
-            <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
-            <div>იტვირთება ${files.length} ფოტო...</div>
-            <div style="font-size: 12px; color: #888; margin-top: 5px;">ზომის კორექტირება და კომპრესია</div>
-        `;
+        const loadingIcon = document.createElement('div');
+        loadingIcon.style.cssText = 'font-size: 24px; margin-bottom: 10px;';
+        loadingIcon.textContent = '⏳';
+        const loadingMessage = document.createElement('div');
+        loadingMessage.textContent = `იტვირთება ${files.length} ფოტო...`;
+        const loadingDetails = document.createElement('div');
+        loadingDetails.style.cssText = 'font-size: 12px; color: #888; margin-top: 5px;';
+        loadingDetails.textContent = 'ზომის კორექტირება და კომპრესია';
+        loadingDiv.append(loadingIcon, loadingMessage, loadingDetails);
         if (galleryContainer) galleryContainer.appendChild(loadingDiv);
         
         try {
@@ -1021,7 +1099,9 @@ function addPhotosToProject(projectId) {
                 showSuccess(`${files.length} ფოტო წარმატებით აიტვირთა`);
                 
                 // სტეიტის განახლება
-                editModalState.currentPhotos = data.project.photos || [];
+                editModalState.currentPhotos = (Array.isArray(data.project?.photos) ? data.project.photos : [])
+                    .map(getSafeAdminUploadedImageUrl)
+                    .filter(Boolean);
                 editModalState.hasChanges = true;
                 
                 // თუ მთავარი ფოტო არ იყო, პირველი გახდეს მთავარი
@@ -1143,64 +1223,52 @@ async function deleteMainImage(projectId) {
 function updateMainImageDisplay(projectId, newImageUrl) {
     const mainImageContainer = document.getElementById('mainImageContainer');
     if (!mainImageContainer) return;
-    
-    const project = projectsCards.find(p => p.id === projectId);
+
+    const safeProjectId = getSafeNumericId(projectId);
+    const project = projectsCards.find(p => p.id === safeProjectId);
     if (!project) return;
-    
+
+    const safeImageUrl = getSafeAdminUploadedImageUrl(newImageUrl);
     // განაახლოს პროექტის მონაცემები
-    project.main_image_url = newImageUrl;
-    
-    // მთლიანად განაახლოს HTML
-    if (newImageUrl && newImageUrl.trim() !== '') {
-        mainImageContainer.parentElement.innerHTML = `
-            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">მთავარი ფოტო:</label>
-            <div id="mainImageContainer" style="text-align: center; margin-bottom: 10px; position: relative; display: inline-block;">
-                <img src="${newImageUrl}" alt="მთავარი ფოტო" style="max-width: 200px; max-height: 150px; border-radius: 5px; border: 2px solid #ddd;">
-                <button onclick="deleteMainImage(${projectId})" style="position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;" title="მთავარი ფოტოს წაშლა">&times;</button>
-            </div>
-            <div style="text-align: center;">
-                <button 
-                    onclick="changeMainImage(${projectId})" 
-                    style="
-                        background: #28a745;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-size: 16px;
-                    "
-                >
-                    მთავარი ფოტოს შეცვლა
-                </button>
-            </div>
-        `;
+    project.main_image_url = safeImageUrl || '';
+
+    const wrapper = mainImageContainer.parentElement;
+    if (!wrapper) return;
+    wrapper.replaceChildren();
+
+    const label = document.createElement('label');
+    label.style.cssText = 'display: block; margin-bottom: 8px; font-weight: bold; color: #555;';
+    label.textContent = 'მთავარი ფოტო:';
+
+    const display = document.createElement('div');
+    display.id = 'mainImageContainer';
+    display.style.cssText = 'text-align: center; margin-bottom: 10px; position: relative; display: inline-block;';
+
+    if (safeImageUrl) {
+        const image = createAdminUploadedImage(safeImageUrl, 'მთავარი ფოტო');
+        image.style.cssText = 'max-width: 200px; max-height: 150px; border-radius: 5px; border: 2px solid #ddd;';
+        display.appendChild(image);
+
+        const deleteButton = createAdminTextButton('×', '', () => deleteMainImage(safeProjectId));
+        deleteButton.title = 'მთავარი ფოტოს წაშლა';
+        deleteButton.style.cssText = 'position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;';
+        display.appendChild(deleteButton);
     } else {
-        mainImageContainer.parentElement.innerHTML = `
-            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">მთავარი ფოტო:</label>
-            <div id="mainImageContainer" style="text-align: center; margin-bottom: 10px; position: relative; display: inline-block;">
-                <div style="width: 200px; height: 150px; border: 2px dashed #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #666; background: #f8f9fa;">
-                    <span>მთავარი ფოტო არ არის</span>
-                </div>
-            </div>
-            <div style="text-align: center;">
-                <button 
-                    onclick="changeMainImage(${projectId})" 
-                    style="
-                        background: #28a745;
-                        color: white;
-                        border: none;
-                        padding: 8px 16px;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-size: 16px;
-                    "
-                >
-                    მთავარი ფოტოს დამატება
-                </button>
-            </div>
-        `;
+        const placeholder = createAdminImagePlaceholder('მთავარი ფოტო არ არის');
+        placeholder.style.cssText += 'width: 200px; height: 150px; border-radius: 5px;';
+        display.appendChild(placeholder);
     }
+
+    const actions = document.createElement('div');
+    actions.style.textAlign = 'center';
+    const changeButton = createAdminTextButton(
+        safeImageUrl ? 'მთავარი ფოტოს შეცვლა' : 'მთავარი ფოტოს დამატება',
+        '',
+        () => changeMainImage(safeProjectId)
+    );
+    changeButton.style.cssText = 'background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 16px;';
+    actions.appendChild(changeButton);
+    wrapper.append(label, display, actions);
 }
 
 // ===== კარუსელის მართვის ფუნქციები =====
@@ -1209,7 +1277,7 @@ let carouselImages = [];  // კარუსელის ფოტოები�
 // კარუსელის ფოტოების ჩატვირთვა API-დან
 async function loadCarouselImages() {
     try {
-        const response = await secureFetch('/api/carousel');
+        const response = await secureFetch('/api/carousel/all');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();
@@ -1231,54 +1299,68 @@ async function loadCarouselImages() {
 function renderCarouselImages() {
     const carouselGrid = document.getElementById('carouselGrid');
     if (!carouselGrid) return;
-    
+
+    carouselGrid.replaceChildren();
     if (carouselImages.length === 0) {
-        carouselGrid.innerHTML = `
-            <div class="carousel-add-card" onclick="showCarouselUploadModal()">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <h3>ახალი ფოტოს დამატება</h3>
-            </div>
-        `;
+        carouselGrid.appendChild(createCarouselAddCard());
         return;
     }
-    
+
     // დალაგება რიგის მიხედვით
-    const sortedImages = carouselImages.sort((a, b) => a.order - b.order);
-    
-    carouselGrid.innerHTML = sortedImages.map(image => `
-        <div class="carousel-card" data-image-id="${image.id}">
-            <img src="${image.url}" alt="კარუსელის ფოტო" class="carousel-card-preview">
-            <div class="carousel-card-info">
-                <div class="carousel-card-title">
-                    <span class="carousel-card-order">რიგი: ${image.order}</span>
-                    <span class="carousel-card-status ${image.is_active ? 'active' : 'inactive'}">
-                        ${image.is_active ? 'აქტიური' : 'არააქტიური'}
-                    </span>
-                </div>
-                <div class="carousel-card-details">
-                    ID: ${image.id}<br>
-                    შექმნილი: ${new Date(image.created_at).toLocaleDateString('ka-GE')}
-                </div>
-                <div class="carousel-card-actions">
-                    <button class="edit-order-btn" onclick="editCarouselImageOrder(${image.id})">რიგი</button>
-                    <button class="toggle-status-btn" onclick="toggleCarouselImageStatus(${image.id})">${image.is_active ? 'გათიშვა' : 'ჩართვა'}</button>
-                    <button class="delete-btn" onclick="deleteCarouselImage(${image.id})">წაშლა</button>
-                </div>
-            </div>
-        </div>
-    `).join('') + `
-        <div class="carousel-add-card" onclick="showCarouselUploadModal()">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <h3>ახალი ფოტოს დამატება</h3>
-            <p>დააჭირეთ აქ კარუსელში ახალი ფოტოს დასამატებლად</p>
-        </div>
-    `;
+    const sortedImages = [...carouselImages].sort(
+        (a, b) => Number(a.order || 0) - Number(b.order || 0)
+    );
+
+    sortedImages.forEach(imageData => {
+        const imageId = getSafeNumericId(imageData.id);
+        if (!imageId) return;
+
+        const card = document.createElement('div');
+        card.className = 'carousel-card';
+        card.dataset.imageId = String(imageId);
+
+        const image = createAdminUploadedImage(imageData.url, 'კარუსელის ფოტო', 'carousel-card-preview');
+        card.appendChild(image || createAdminImagePlaceholder('არასწორი ფოტო'));
+
+        const info = document.createElement('div');
+        info.className = 'carousel-card-info';
+        const title = document.createElement('div');
+        title.className = 'carousel-card-title';
+        const order = document.createElement('span');
+        order.className = 'carousel-card-order';
+        order.textContent = `რიგი: ${Number(imageData.order || 0)}`;
+        const status = document.createElement('span');
+        status.className = 'carousel-card-status';
+        status.classList.add(imageData.is_active ? 'active' : 'inactive');
+        status.textContent = imageData.is_active ? 'აქტიური' : 'არააქტიური';
+        title.append(order, status);
+
+        const details = document.createElement('div');
+        details.className = 'carousel-card-details';
+        const createdDate = new Date(imageData.created_at);
+        const createdText = Number.isNaN(createdDate.getTime())
+            ? '—'
+            : createdDate.toLocaleDateString('ka-GE');
+        details.textContent = `ID: ${imageId} · შექმნილი: ${createdText}`;
+
+        const actions = document.createElement('div');
+        actions.className = 'carousel-card-actions';
+        actions.append(
+            createAdminTextButton('რიგი', 'edit-order-btn', () => editCarouselImageOrder(imageId)),
+            createAdminTextButton(
+                imageData.is_active ? 'გათიშვა' : 'ჩართვა',
+                'toggle-status-btn',
+                () => toggleCarouselImageStatus(imageId)
+            ),
+            createAdminTextButton('წაშლა', 'delete-btn', () => deleteCarouselImage(imageId))
+        );
+
+        info.append(title, details, actions);
+        card.appendChild(info);
+        carouselGrid.appendChild(card);
+    });
+
+    carouselGrid.appendChild(createCarouselAddCard(true));
 }
 
 // კარუსელის ფოტოს დამატება
@@ -1323,29 +1405,32 @@ async function addCarouselImage() {
 
 // კარუსელის ფოტოს რიგის რედაქტირება
 function editCarouselImageOrder(imageId) {
-    const imageCard = document.querySelector(`[data-image-id="${imageId}"]`);
-    const actionsDiv = imageCard.querySelector('.carousel-card-actions');
+    const safeImageId = getSafeNumericId(imageId);
+    if (!safeImageId) return;
+    const imageCard = Array.from(document.querySelectorAll('[data-image-id]'))
+        .find(card => card.dataset.imageId === String(safeImageId));
+    const actionsDiv = imageCard?.querySelector('.carousel-card-actions');
+    if (!actionsDiv) return;
     
     const orderInput = document.createElement('input');
     orderInput.type = 'number';
     orderInput.className = 'carousel-order-input';
-    orderInput.value = carouselImages.find(img => img.id === imageId)?.order || 0;
+    orderInput.value = carouselImages.find(img => img.id === safeImageId)?.order || 0;
     orderInput.min = '0';
     
     const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
     saveBtn.className = 'save-order-btn';
-    saveBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>შენახვა`;
-    saveBtn.onclick = () => saveCarouselImageOrder(imageId, orderInput.value);
+    saveBtn.textContent = '✓ შენახვა';
+    saveBtn.onclick = () => saveCarouselImageOrder(safeImageId, orderInput.value);
     
     const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
     cancelBtn.className = 'cancel-order-btn';
-    cancelBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>გაუქმება`;
+    cancelBtn.textContent = '× გაუქმება';
     cancelBtn.onclick = () => loadCarouselImages();
     
-    actionsDiv.innerHTML = '';
-    actionsDiv.appendChild(orderInput);
-    actionsDiv.appendChild(saveBtn);
-    actionsDiv.appendChild(cancelBtn);
+    actionsDiv.replaceChildren(orderInput, saveBtn, cancelBtn);
 }
 
 // კარუსელის ფოტოს რიგის შენახვა
@@ -1412,8 +1497,7 @@ function showCarouselError(message) {
         const errorDiv = document.createElement('div');
         errorDiv.style.cssText = 'text-align: center; color: #dc3545; padding: 20px; font-size: 16px; width: 90%; margin: 0 auto; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px;';
         errorDiv.textContent = message;
-        carouselGrid.innerHTML = '';
-        carouselGrid.appendChild(errorDiv);
+        carouselGrid.replaceChildren(errorDiv);
     }
 }
 

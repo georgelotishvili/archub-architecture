@@ -1,32 +1,37 @@
-===== Archub Production Environment Example =====
+# Archub production environment example
+# Copy this file to .env, chmod 600 it, and fill secrets locally.
 
-# Flask environment
 FLASK_ENV=production
-SECRET_KEY=change-this-to-a-strong-random-string
+SECRET_KEY=
+BASE_URL=https://archub.ge
+CORS_ORIGIN=https://archub.ge
 
-# Database
-# For SQLite (local file)
+# SQLite is the default when DATABASE_URL is omitted. Optional explicit forms:
 # DATABASE_URL=sqlite:////opt/archub/database.db
-
-# For PostgreSQL (recommended in production)
 # DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/archub
 
-# CORS origin (production)
-CORS_ORIGIN=https://archub.example.com
+# Omit RATELIMIT_STORAGE_URI for the safe app-specific SQLite default.
+# cPanel: /home/archubge/private/archub/rate_limits.db
+# /opt deployments: /opt/archub/rate_limits.db
+# A shared Redis URI may be used when Redis and its Python client are available.
+# RATELIMIT_STORAGE_URI=redis://127.0.0.1:6379/0
 
-# Mail settings (optional)
+# Mail settings are optional. Leave credentials blank when unused.
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
+
+# Set true only when every request reaches the app through a trusted reverse
+# proxy such as the included Nginx configuration. Keep false for cPanel.
+TRUST_PROXY_HEADERS=false
+
 MAIL_USE_TLS=true
 MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_DEFAULT_SENDER=noreply@archub.ge
 
-# Gunicorn overrides (optional)
-GUNICORN_WORKERS=3
+# Gunicorn overrides (ignored by Passenger).
+GUNICORN_WORKERS=1
 GUNICORN_THREADS=2
 GUNICORN_LOGLEVEL=info
 GUNICORN_HOST=127.0.0.1
 GUNICORN_PORT=8000
-
-

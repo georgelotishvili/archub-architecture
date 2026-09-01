@@ -16,13 +16,41 @@ branch_labels = None
 depends_on = None
 
 
+def _column_names(table_name):
+    """Read the live schema so this historical migration tolerates drift."""
+    inspector = sa.inspect(op.get_bind())
+    return {column['name'] for column in inspector.get_columns(table_name)}
+
+
 def upgrade():
-    # Add reset_token and reset_token_expiry columns to user table
-    op.add_column('user', sa.Column('reset_token', sa.String(100), unique=True, nullable=True))
-    op.add_column('user', sa.Column('reset_token_expiry', sa.DateTime(), nullable=True))
+    # These columns were added manually to some deployed SQLite databases.
+    # Inline UNIQUE is deliberately avoided because SQLite cannot add that
+    # constraint with ALTER TABLE. A post-merge revision creates a named index.
+    columns = _column_names('user')
+    if 'reset_token' not in columns:
+        op.add_column(
+            'user',
+            sa.Column('reset_token', sa.String(length=100), nullable=True),
+        )
+    if 'reset_token_expiry' not in columns:
+        op.add_column(
+            'user',
+            sa.Column('reset_token_expiry', sa.DateTime(), nullable=True),
+        )
 
 
 def downgrade():
-    # Remove reset_token and reset_token_expiry columns from user table
-    op.drop_column('user', 'reset_token_expiry')
-    op.drop_column('user', 'reset_token')
+    columns = _column_names('user')
+    if not {'reset_token', 'reset_token_expiry'} & columns:
+        return
+
+    inspector = sa.inspect(op.get_bind())
+    index_names = {index['name'] for index in inspector.get_indexes('user')}
+    if 'ux_user_reset_token' in index_names:
+        op.drop_index('ux_user_reset_token', table_name='user')
+
+    with op.batch_alter_table('user', schema=None) as batch_op:
+        if 'reset_token_expiry' in columns:
+            batch_op.drop_column('reset_token_expiry')
+        if 'reset_token' in columns:
+            batch_op.drop_column('reset_token')

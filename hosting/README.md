@@ -1,74 +1,134 @@
-Archub Hosting Guide
+# Archub production hosting guide
 
-This folder contains production deployment templates for running the app online. Choose the scenario that matches your hosting environment.
+This folder contains deployment templates for two supported production modes:
 
-What’s included
-- wsgi.py: WSGI entrypoint (app object) for Gunicorn or any WSGI server
-- gunicorn.conf.py: Production Gunicorn settings
-- nginx.conf: Example Nginx site config (reverse proxy, static files)
-- archub.service: Example systemd unit to run Gunicorn as a service
-- ENV_EXAMPLE.txt: Environment variables required in production
-- Procfile: For platforms that use Procfile (Heroku-like)
+- Gunicorn behind Nginx: `hosting.wsgi:application`
+- cPanel/Passenger: `hosting/wsgi.py`, which exports `application`
 
-Quick start (Ubuntu server)
-1) Install system packages
-   - Python 3.10+, venv, Nginx
-   - Optionally PostgreSQL if you won’t use SQLite
+Both WSGI entry points select `FLASK_ENV=production` before importing the Flask
+application. Production startup fails closed when `SECRET_KEY` is absent, weak,
+or still uses a development placeholder.
 
-2) Upload the project to /opt/archub (or any folder)
+## Files
 
-3) Create and activate venv, then install dependencies
+- `wsgi.py` — Gunicorn/WSGI entry point
+- `gunicorn.conf.py` — Gunicorn process settings
+- `nginx.conf` — HTTPS reverse proxy and static-file template
+- `archub.service` — systemd service template
+- `cpanel.htaccess` — account-specific cPanel/Passenger template
+- `ENV_EXAMPLE.txt` — valid, secret-free dotenv example
+- `Procfile` — process definition for Procfile-compatible platforms
+
+## Ubuntu: Gunicorn and Nginx
+
+The tested dependency baseline supports Python 3.10+. Python 3.11 or newer is
+recommended for a new server.
+
+1. Put the application in `/opt/archub` and create a dedicated virtualenv:
+
+   ```bash
+   cd /opt/archub
+   python3 -m venv venv
+   venv/bin/python -m pip install --upgrade pip
+   venv/bin/python -m pip install -r requirements.txt
+   venv/bin/python -m pip check
+   ```
+
+2. Create the production environment file and restrict its permissions:
+
+   ```bash
+   cp hosting/ENV_EXAMPLE.txt .env
+   chmod 600 .env
+   python3 -c "import secrets; print(secrets.token_urlsafe(48))"
+   ```
+
+   Paste the generated value into `SECRET_KEY=`. Keep `.env` outside version
+   control and never send it in screenshots or support messages.
+
+3. Apply database migrations before restarting the application:
+
+   ```bash
+   venv/bin/python -m flask --app app db upgrade
+   ```
+
+   SQLite is supported and is the current default. Back up `database.db` before
+   every deployment. PostgreSQL remains an optional alternative through
+   `DATABASE_URL`; migrate data deliberately rather than changing the URL on a
+   live installation.
+
+4. Verify the WSGI entry point:
+
+   ```bash
+   venv/bin/gunicorn --check-config \
+     -c hosting/gunicorn.conf.py hosting.wsgi:application
+   ```
+
+5. Install `hosting/archub.service` as `/etc/systemd/system/archub.service`,
+   then run:
+
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now archub
+   sudo systemctl status archub
+   ```
+
+6. Install `hosting/nginx.conf` as the site configuration, provision a TLS
+   certificate for `archub.ge` and `www.archub.ge`, and validate before reload:
+
+   ```bash
+   sudo nginx -t
+   sudo systemctl reload nginx
+   curl --fail https://archub.ge/healthz
+   ```
+
+The Nginx template and Flask both enforce a 16 MB request limit. Keep those
+values synchronized if the application limit changes.
+
+## cPanel/Passenger
+
+For this account, the app root is `/home/archubge/public_html/archub` and the
+Python 3.11 virtualenv is `/home/archubge/virtualenv/public_html/archub/3.11`.
+Do not overwrite the working domain-root `.htaccess` during an application
+deploy. It is host-managed runtime configuration, is backed up separately, and
+currently includes the account-specific `PassengerAppLogFile`. The file
+`hosting/cpanel.htaccess` is a reference for a new installation only: merge it
+with the provider-approved live configuration and verify every Passenger path
+before any manual replacement. The automated deploy deliberately preserves the
+live file. The startup file is `hosting/wsgi.py`, which exports `application`
+and selects production before importing the app.
+
+After changing Python files or dependencies, restart Passenger from cPanel or:
+
+```bash
+mkdir -p tmp
+touch tmp/restart.txt
 ```
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+
+The service account must be able to write `static/uploads/`, the SQLite database
+(when used), and the application log directory. It does not need root access.
+
+## Procfile-compatible platforms
+
+The included Procfile runs:
+
+```text
+web: gunicorn -c hosting/gunicorn.conf.py hosting.wsgi:application
 ```
 
-4) Copy env example and edit values
-```
-cp hosting/ENV_EXAMPLE.txt .env
-```
-Edit .env values (SECRET_KEY, DATABASE_URL, etc.).
+Set all values from `ENV_EXAMPLE.txt` in the platform's secret/environment
+manager; do not commit a populated `.env` file.
 
-5) Initialize the database (first time)
-```
-python -c "from app import app, db; app.app_context().push(); db.create_all()"
-```
-or if you use migrations:
-```
-flask db upgrade
-```
+## Pre-deployment verification
 
-6) Test locally with Gunicorn
-```
-gunicorn -c hosting/gunicorn.conf.py hosting.wsgi:app
+Install development tooling in a clean virtualenv and run:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pip check
+python -m pip_audit --strict
+python -m pytest -q
 ```
 
-7) Configure Nginx
-   - Copy hosting/nginx.conf to /etc/nginx/sites-available/archub
-   - ln -s /etc/nginx/sites-available/archub /etc/nginx/sites-enabled/
-   - sudo nginx -t && sudo systemctl reload nginx
-
-8) Run as a service (recommended)
-   - Copy hosting/archub.service to /etc/systemd/system/archub.service
-   - sudo systemctl daemon-reload
-   - sudo systemctl enable --now archub
-
-Heroku-like platforms (optional)
-- Use hosting/Procfile to define the web process:
-  web: gunicorn -c hosting/gunicorn.conf.py hosting.wsgi:app
-
-Paths referenced (update if different)
-- Project root: /opt/archub
-- Virtualenv: /opt/archub/venv
-- Socket file (if using UDS): /opt/archub/run/gunicorn.sock
-- Static files: /opt/archub/static
-
-Security and production notes
-- Set FLASK_ENV=production and a strong SECRET_KEY.
-- Prefer PostgreSQL in production and set DATABASE_URL accordingly.
-- Ensure static/uploads is writable by the app service user.
-- Configure HTTPS in Nginx (use Certbot or your CA certificates).
-- Consider moving user uploads to object storage (e.g., S3) for scalability.
-
-
+Also verify that `BASE_URL` and `CORS_ORIGIN` are exactly `https://archub.ge`,
+HTTPS is active, `/healthz` returns HTTP 200, and a current database/upload backup
+exists before replacing production files.

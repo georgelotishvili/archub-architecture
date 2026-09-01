@@ -15,11 +15,12 @@ ENV/
 .env.local
 .env.production
 
-# ===== Database (local SQLite - server uses PostgreSQL) =====
+# ===== Databases (runtime SQLite files stay outside Git) =====
 *.db
 *.sqlite
 *.sqlite3
 database.db
+*.db-*
 
 # ===== Uploads (user content - not in repo) =====
 static/uploads/

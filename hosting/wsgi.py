@@ -22,8 +22,8 @@ if str(PROJECT_ROOT) not in sys.path:
 # შევცვალოთ working directory
 os.chdir(PROJECT_ROOT)
 
-# Production რეჟიმის დაყენება
-os.environ.setdefault("FLASK_ENV", "production")
+# Never inherit a stale development value from the process manager.
+os.environ["FLASK_ENV"] = "production"
 
 # აპლიკაციის იმპორტი start.py-დან
 from start import create_app

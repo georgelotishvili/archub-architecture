@@ -4,6 +4,7 @@
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
 from datetime import datetime, timedelta
 from app.extensions import db
 import secrets
@@ -30,8 +31,12 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(50), nullable=True)  # ტელეფონის ნომერი
     
     # პაროლის აღდგენის ველები
-    reset_token = db.Column(db.String(100), unique=True, nullable=True)
+    reset_token = db.Column(db.String(100), nullable=True)
     reset_token_expiry = db.Column(db.DateTime, nullable=True)
+    __table_args__ = (
+        db.Index('ux_user_reset_token', 'reset_token', unique=True),
+        db.Index('ux_user_email_lower', db.func.lower(email), unique=True),
+    )
 
     # კავშირი მოწონებულ პროექტებთან (მრავალ-მრავალ კავშირი)
     liked_projects = db.relationship('Project', secondary=project_likes, lazy='dynamic',
@@ -45,15 +50,26 @@ class User(UserMixin, db.Model):
         """პაროლის შემოწმება"""
         return check_password_hash(self.password_hash, password)
     
+    @classmethod
+    def reset_token_digest(cls, token):
+        """Return the stable digest stored in the database for a raw token."""
+        if not isinstance(token, str):
+            return None
+        return hashlib.sha256(token.encode('utf-8')).hexdigest()
+
     def generate_reset_token(self):
         """პაროლის აღდგენის ტოკენის გენერირება (მოქმედებს 1 საათი)"""
-        self.reset_token = secrets.token_urlsafe(32)
+        raw_token = secrets.token_urlsafe(32)
+        self.reset_token = self.reset_token_digest(raw_token)
         self.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
-        return self.reset_token
+        return raw_token
     
     def verify_reset_token(self, token):
         """ტოკენის შემოწმება"""
-        if self.reset_token != token:
+        token_digest = self.reset_token_digest(token)
+        if not self.reset_token or not token_digest:
+            return False
+        if not secrets.compare_digest(self.reset_token, token_digest):
             return False
         if self.reset_token_expiry is None or datetime.utcnow() > self.reset_token_expiry:
             return False

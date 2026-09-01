@@ -82,31 +82,19 @@ def setup_directories():
 
 
 def setup_database():
-    """შექმნის მონაცემთა ბაზას თუ არ არსებობს"""
-    db_path = PROJECT_ROOT / 'database.db'
-    
-    # თუ production-ში ვართ და PostgreSQL გამოიყენება, გამოვტოვოთ SQLite შემოწმება
-    if is_production() and 'postgresql' in os.environ.get('DATABASE_URL', '').lower():
-        print("[i] Production რეჟიმი: PostgreSQL ბაზა გამოიყენება")
-        return True
-    
-    if not db_path.exists():
-        print("[...] მონაცემთა ბაზა იქმნება...")
-        try:
-            from app import app
-            from app.extensions import db
-            
-            with app.app_context():
-                db.create_all()
-            print("[OK] მონაცემთა ბაზა შეიქმნა წარმატებით")
-        except Exception as e:
-            print(f"[ERROR] მონაცემთა ბაზის შექმნა ვერ მოხერხდა: {e}")
-            return False
-    else:
-        print("[OK] მონაცემთა ბაზა უკვე არსებობს")
-    
-    return True
+    """Bring the development database to the recorded migration head."""
+    print("[...] მონაცემთა ბაზის მიგრაციები მოწმდება...")
+    try:
+        from app import app
+        from flask_migrate import upgrade
 
+        with app.app_context():
+            upgrade()
+        print("[OK] მონაცემთა ბაზის მიგრაციები დასრულდა")
+        return True
+    except Exception as error:
+        print(f"[ERROR] მონაცემთა ბაზის მიგრაცია ვერ მოხერხდა: {error}")
+        return False
 
 def create_app():
     """

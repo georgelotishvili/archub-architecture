@@ -106,7 +106,7 @@
             </div>
             <!-- ფუტერის ქვედა ნაწილი -->
             <div class="footer-bottom">
-                <p>© 2025 არქჰაბი. ყველა უფლება დაცულია.{% if current_user.is_authenticated and current_user.is_admin %} | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a>{% endif %}</p>
+                <p>© {{ now().year }} არქჰაბი. ყველა უფლება დაცულია.{% if current_user.is_authenticated and current_user.is_admin %} | <a href="#" onclick="openAdminPanel()" style="color: rgba(255, 255, 255, 0.7); text-decoration: none;">ადმინ პანელი</a>{% endif %}</p>
             </div>
         </div>
     </footer>
@@ -137,7 +137,7 @@
             </div>
             
             <!-- No photos message -->
-            <div class="no-photos" id="galleryNoPhotos" class="hidden">
+            <div class="no-photos hidden" id="galleryNoPhotos">
                 <h3>ფოტოები არ არის</h3>
                 <p>ამ ქარდისთვის ფოტოები ჯერ არ არის ატვირთული</p>
             </div>
@@ -147,198 +147,6 @@
     <!-- მთავარი JavaScript ფაილი (საჭიროა კარუსელისთვის) -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
-    <!-- Authentication and Gallery Modal JavaScript (custom for my-page) -->
-    <script>
-        // ===== CSRF Token-ის წამოღება =====
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        // ===== უსაფრთხო fetch ფუნქცია =====
-        const secureFetch = async (url, options = {}) => {
-            const headers = {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken,
-                ...options.headers,
-            };
-            return fetch(url, { ...options, headers });
-        };
-
-        function escapeHtml(s) {
-            return String(s).replace(/[&<>"'`=\/]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[c]));
-        }
-
-        // ===== ავტორიზაციის ფუნქციონალი (copied from main script.js) =====
-        let userAuthenticated = false;
-        let currentUser = null;
-        
-        async function checkAuthStatus() {
-            try {
-                const response = await fetch('/api/status');
-                const data = await response.json();
-                
-                if (data.logged_in) {
-                    userAuthenticated = true;
-                    currentUser = data.user;
-                    window.userAuthenticated = true;
-                    
-                    // მობილური მენიუში მომხმარებლის სახელის ჩვენება
-                    const mobileUserStatus = document.getElementById('mobileUserStatus');
-                    if (mobileUserStatus) {
-                        mobileUserStatus.textContent = escapeHtml(data.user.username);
-                    }
-                } else {
-                    userAuthenticated = false;
-                    currentUser = null;
-                    window.userAuthenticated = false;
-                }
-            } catch (error) {
-                console.error('Error checking auth status:', error);
-                userAuthenticated = false;
-                currentUser = null;
-                window.userAuthenticated = false;
-            }
-            return userAuthenticated;
-        }
-        
-        // ===== რეალ-ტაიმ განახლების ფუნქციონალი =====
-        // ლაიქების მოსმენა localStorage-იდან
-        function setupRealtimeUpdates() {
-            // მოსმენა localStorage ცვლილებების
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'projectLiked' || e.key === 'projectUnliked') {
-                    console.log('Project like status changed, reloading liked projects...');
-                    loadLikedProjects();
-                }
-            });
-            
-            // მოსმენა custom events-ების
-            window.addEventListener('projectLiked', function(e) {
-                console.log('Project liked event received:', e.detail);
-                loadLikedProjects();
-            });
-            
-            window.addEventListener('projectUnliked', function(e) {
-                console.log('Project unliked event received:', e.detail);
-                loadLikedProjects();
-            });
-        }
-        
-        // ===== გალერიის მოდალური ფანჯრის ფუნქციონალი (copied from main script.js) =====
-        let galleryCurrentSlide = 0;
-        let gallerySlides = [];
-        let galleryDots = [];
-        let galleryTotalSlides = 0;
-        
-        function initGalleryModal() {
-            const galleryModal = document.getElementById('galleryModal');
-            const galleryCloseBtn = document.getElementById('galleryCloseBtn');
-            const galleryPrevBtn = document.getElementById('galleryPrevBtn');
-            const galleryNextBtn = document.getElementById('galleryNextBtn');
-            
-            if (!galleryModal) return;
-            
-            // Event listeners
-            if (galleryCloseBtn) galleryCloseBtn.addEventListener('click', closeGalleryModal);
-            if (galleryPrevBtn) galleryPrevBtn.addEventListener('click', () => changeGallerySlide(-1));
-            if (galleryNextBtn) galleryNextBtn.addEventListener('click', () => changeGallerySlide(1));
-        
-            // Close modal when clicking outside
-            galleryModal.addEventListener('click', (e) => {
-                if (e.target === galleryModal) closeGalleryModal();
-            });
-            
-            // Keyboard navigation
-            document.addEventListener('keydown', (e) => {
-                if (galleryModal.classList.contains('active')) {
-                    if (e.key === 'ArrowLeft') {
-                        e.preventDefault();
-                        changeGallerySlide(-1);
-                    } else if (e.key === 'ArrowRight') {
-                        e.preventDefault();
-                        changeGallerySlide(1);
-                    } else if (e.key === 'Escape') {
-                        e.preventDefault();
-                        closeGalleryModal();
-                    }
-                }
-            });
-        }
-        
-        function closeGalleryModal() {
-            const galleryModal = document.getElementById('galleryModal');
-            if (!galleryModal) return;
-            
-            galleryModal.classList.remove('active');
-            document.body.style.overflow = '';
-            window.selectedCard = null;
-        }
-        
-        function changeGallerySlide(direction) {
-            if (galleryTotalSlides === 0) return;
-            
-            galleryCurrentSlide += direction;
-            if (galleryCurrentSlide >= galleryTotalSlides) {
-                galleryCurrentSlide = 0;
-            } else if (galleryCurrentSlide < 0) {
-                galleryCurrentSlide = galleryTotalSlides - 1;
-            }
-            showGallerySlide(galleryCurrentSlide);
-        }
-        
-        function showGallerySlide(index) {
-            if (!gallerySlides || gallerySlides.length === 0) return;
-            
-            gallerySlides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
-            });
-            
-            if (galleryDots && galleryDots.length > 0) {
-                galleryDots.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === index);
-                });
-            }
-            
-            galleryCurrentSlide = index;
-        }
-        
-        // ===== მობილური მენიუს გამოსვლის ღილაკი =====
-        // შენიშვნა: ბურგერ მენიუს ძირითადი ლოგიკა არის script.js-ში
-        // აქ მხოლოდ გამოსვლის ღილაკის ლოგიკაა
-        function initMobileLogout() {
-            const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-            
-            if (mobileLogoutBtn) {
-                mobileLogoutBtn.addEventListener('click', async function() {
-                    try {
-                        const response = await secureFetch('/api/logout', { method: 'POST' });
-                        const data = await response.json();
-                        if (data.success) {
-                            window.location.href = '/';
-                        }
-                    } catch (error) {
-                        console.error('Logout error:', error);
-                    }
-                });
-            }
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            initMobileLogout();
-            checkAuthStatus().then(() => {
-                if (!userAuthenticated) {
-                    // Redirect to main page if not authenticated
-                    alert('პირადი გვერდის ნახვისთვის აუცილებელია შესვლა');
-                    window.location.href = '/';
-                    return;
-                }
-                // Load liked projects only if authenticated (defer to ensure functions are defined)
-                setTimeout(() => { if (typeof window.loadLikedProjects === 'function') { window.loadLikedProjects(); } }, 0);
-            });
-            initGalleryModal();
-            setupRealtimeUpdates();
-        });
-    </script>
-    
     <!-- User profile page specific JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -347,6 +155,31 @@
             const projectsGrid = document.getElementById('likedProjectsGrid');
             const backToHomeBtn = document.getElementById('backToHomeBtn');
             const backToHomeHeaderLink = document.getElementById('backToHomeHeaderLink');
+            const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const secureFetch = async (url, options = {}) => {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                    ...options.headers,
+                };
+                return fetch(url, { ...options, headers });
+            };
+
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.addEventListener('click', async () => {
+                    try {
+                        const response = await secureFetch('/api/logout', { method: 'POST' });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            window.location.href = '/';
+                        }
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                    }
+                });
+            }
             
             // Load liked projects
             async function loadLikedProjects() {
@@ -370,43 +203,46 @@
             }
             // Expose for other scripts
             window.loadLikedProjects = loadLikedProjects;
+
+            const refreshLikedProjects = () => loadLikedProjects();
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'projectLiked' || event.key === 'projectUnliked') {
+                    refreshLikedProjects();
+                }
+            });
+            window.addEventListener('projectLiked', refreshLikedProjects);
+            window.addEventListener('projectUnliked', refreshLikedProjects);
             
             // Display projects in grid
             function displayProjects(projects) {
                 const grid = document.getElementById('likedProjectsGrid');
-                grid.innerHTML = '';
+                grid.replaceChildren();
                 
                 projects.forEach(project => {
                     const projectCard = document.createElement('div');
                     projectCard.className = 'project-card';
                     projectCard.setAttribute('data-project-id', project.id);
                     projectCard.onclick = () => openGallery(project);
-                    
-                    // Create like button HTML
-                    const likeButtonHtml = `
-                        <button class="like-btn liked" data-project-id="${project.id}">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="#ffffff" stroke-width="2">
-                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-                            </svg>
-                        </button>
-                    `;
-                    
-                    projectCard.innerHTML = `
-                        <img src="/${project.main_image_url}" alt="${escapeHtml(project.area)}" class="card-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTk5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5mYW1pbHkgYXIgYXJhIHN0</text+Cjwvc3ZnPg=='">
-                        <div class="card-info">
-                            <div class="card-area">${escapeHtml(project.area)}</div>
-                        </div>
-                        ${likeButtonHtml}
-                    `;
-                    
-                    // Add like button click event listener
-                    const likeBtn = projectCard.querySelector('.like-btn');
+
+                    const image = createUploadedImage(project.main_image_url, project.area, 'card-image');
+                    projectCard.appendChild(image || createImagePlaceholder());
+
+                    const cardInfo = document.createElement('div');
+                    cardInfo.className = 'card-info';
+                    const cardArea = document.createElement('div');
+                    cardArea.className = 'card-area';
+                    cardArea.textContent = String(project.area || '');
+                    cardInfo.appendChild(cardArea);
+                    projectCard.appendChild(cardInfo);
+
+                    const likeBtn = createLikeButton('like-btn', project.id, true);
                     if (likeBtn) {
                         likeBtn.addEventListener('click', (e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             handleUnlikeClick(project.id, projectCard);
                         });
+                        projectCard.appendChild(likeBtn);
                     }
                     
                     grid.appendChild(projectCard);
@@ -478,20 +314,22 @@
                 }
                 
                 // Clear previous content
-                galleryContainer.innerHTML = '';
-                dotsContainer.innerHTML = '';
+                galleryContainer.replaceChildren();
+                dotsContainer.replaceChildren();
                 
                 // Get all photos (main image + gallery photos)
                 const allPhotos = [];
                 if (project.main_image_url) {
                     allPhotos.push(project.main_image_url);
                 }
-                if (project.photos && project.photos.length > 0) {
+                if (Array.isArray(project.photos) && project.photos.length > 0) {
                     allPhotos.push(...project.photos);
                 }
                 
-                // Filter out empty photos
-                const validPhotos = allPhotos.filter(photo => photo && photo.trim() !== '');
+                // Only local uploaded images are allowed; duplicates are removed.
+                const validPhotos = Array.from(new Set(
+                    allPhotos.map(window.getSafeUploadedImageUrl).filter(Boolean)
+                ));
                 
                 if (validPhotos.length === 0) {
                     noPhotosDiv.classList.remove('hidden');
@@ -506,11 +344,14 @@
                 validPhotos.forEach((photoUrl, index) => {
                     const slide = document.createElement('div');
                     slide.className = `slide ${index === 0 ? 'active' : ''}`;
-                    slide.innerHTML = `<img src="/${photoUrl}" alt="Gallery image ${index + 1}">`;
+                    const image = createUploadedImage(photoUrl, `Gallery image ${index + 1}`, '', index === 0 ? 'eager' : 'lazy');
+                    if (!image) return;
+                    slide.appendChild(image);
                     galleryContainer.appendChild(slide);
                     
                     // Create dot
                     const dot = document.createElement('button');
+                    dot.type = 'button';
                     dot.className = `dot ${index === 0 ? 'active' : ''}`;
                     dot.onclick = () => goToSlide(index);
                     dotsContainer.appendChild(dot);
@@ -603,7 +444,7 @@
                 }
             });
             
-            // Liked projects are now loaded conditionally in the auth check above
+            loadLikedProjects();
         });
         
         // მცირე fallback, თუ მთავარი script.js არ არის ჩატვირთული

@@ -12,8 +12,9 @@ bind = f"{bind_host}:{bind_port}"
 # If you prefer a Unix socket, uncomment and adjust Nginx accordingly
 # bind = f"unix:{project_root / 'run' / 'gunicorn.sock'}"
 
-# Workers/threads
-workers = int(os.getenv("GUNICORN_WORKERS", "3"))
+# memory:// rate limits are process-local, so the safe default is one worker.
+# Configure a shared Flask-Limiter backend before increasing this value.
+workers = int(os.getenv("GUNICORN_WORKERS", "1"))
 threads = int(os.getenv("GUNICORN_THREADS", "2"))
 worker_class = os.getenv("GUNICORN_WORKER_CLASS", "gthread")
 

@@ -7,6 +7,10 @@ import os
 import sys
 from pathlib import Path
 
+# Passenger is a production-only entry point. Set the environment before
+# importing start.py (which imports the Flask application and its config).
+os.environ["FLASK_ENV"] = "production"
+
 # პროექტის root დირექტორია
 PROJECT_ROOT = Path(__file__).resolve().parent
 

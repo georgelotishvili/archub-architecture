@@ -5,10 +5,14 @@
 ## სწრაფი გაშვება
 
 ```bash
-# 1. დააყენეთ დამოკიდებულებები
-pip install -r requirements.txt
+# 1. შექმენით იზოლირებული გარემო და დააყენეთ დამოკიდებულებები
+python -m venv venv
+# Windows: venv\\Scripts\\activate
+# Linux/macOS: source venv/bin/activate
+python -m pip install -r requirements.txt
 
-# 2. გაუშვით აპლიკაცია
+# 2. განაახლეთ სქემა და გაუშვით აპლიკაცია
+python -m flask --app app db upgrade
 python start.py
 ```
 
@@ -56,15 +60,16 @@ archub/
 
 ```bash
 # Gunicorn-ით
-gunicorn "start:create_app()" -c hosting/gunicorn.conf.py
+gunicorn hosting.wsgi:application -c hosting/gunicorn.conf.py
 ```
 
 ### Environment ცვლადები (.env)
 
 ```env
 FLASK_ENV=production
-SECRET_KEY=your-secret-key-here
-DATABASE_URL=postgresql://user:pass@localhost/archub
+SECRET_KEY=replace-with-a-random-value-of-at-least-32-characters
+BASE_URL=https://archub.ge
+DATABASE_URL=sqlite:////absolute/path/to/database.db
 ```
 
 ## API Endpoints
@@ -92,8 +97,8 @@ python db_commands.py create
 # სტატისტიკა
 python db_commands.py stats
 
-# გასუფთავება
-python db_commands.py clear
+# პროექტების წაშლა — შეუქცევადი, მოითხოვს მკაფიო დადასტურებას
+python db_commands.py clear-projects --yes-i-understand
 ```
 
 ## მიგრაციები
@@ -101,5 +106,5 @@ python db_commands.py clear
 ```bash
 flask db migrate -m "Description"
 flask db upgrade
-flask db downgrade
+flask db check
 ```
