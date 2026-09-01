@@ -32,6 +32,7 @@ from html import escape as html_escape
 from limits.errors import StorageError
 from app.rate_limit_storage import SQLiteRateLimitStorage  # noqa: F401
 from pathlib import PurePosixPath
+from typing import Any, cast
 from urllib.parse import urlsplit
 
 # ===== LOGGING კონფიგურაცია =====
@@ -286,7 +287,7 @@ migrate = Migrate(app, db)
 # LoginManager-ის ინიციალიზაცია (მომხმარებლის ავტორიზაციისთვის)
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'home'
+setattr(login_manager, 'login_view', 'home')
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -299,6 +300,8 @@ def unauthorized():
 
 # მოდელების იმპორტი models.py ფაილიდან
 from app.models import Project, Photo, User, CarouselImage, project_likes, ContactSubmission
+
+PROJECT_PHOTOS_ATTRIBUTE = cast(Any, Project.photos)
 
 REQUIRED_DATABASE_TABLES = frozenset({
     'user',
@@ -615,7 +618,7 @@ def get_projects():
             likes_count_subquery.c.likes_count
         ).outerjoin(
             likes_count_subquery, Project.id == likes_count_subquery.c.project_id
-        ).options(selectinload(Project.photos))
+        ).options(selectinload(PROJECT_PHOTOS_ATTRIBUTE))
 
         projects_with_counts = query.all()
 
@@ -756,7 +759,7 @@ def create_empty_project():
 @admin_required
 def delete_project(project_id):
     try:
-        project = Project.query.options(selectinload(Project.photos)).filter_by(id=project_id).first()
+        project = Project.query.options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).filter_by(id=project_id).first()
         if not project:
             return jsonify({'success': False, 'error': f'Project with ID {project_id} not found'}), 404
 
@@ -796,7 +799,7 @@ def delete_project(project_id):
 @admin_required
 def update_project(project_id):
     try:
-        project = Project.query.options(selectinload(Project.photos)).filter_by(id=project_id).first()
+        project = Project.query.options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).filter_by(id=project_id).first()
         if not project:
             return jsonify({'success': False, 'error': f'Project with ID {project_id} not found'}), 404
 
@@ -892,7 +895,7 @@ def update_project(project_id):
 def add_project_photos(project_id):
     created_files = []
     try:
-        project = Project.query.options(selectinload(Project.photos)).filter_by(id=project_id).first()
+        project = Project.query.options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).filter_by(id=project_id).first()
         if not project:
             return jsonify({'success': False, 'error': f'Project with ID {project_id} not found'}), 404
 
@@ -939,7 +942,7 @@ def add_project_photos(project_id):
 def update_project_main_image(project_id):
     new_main_image_url = None
     try:
-        project = Project.query.options(selectinload(Project.photos)).filter_by(id=project_id).first()
+        project = Project.query.options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).filter_by(id=project_id).first()
         if not project:
             return jsonify({'success': False, 'error': f'Project with ID {project_id} not found'}), 404
         main_image = request.files.get('main_image')
@@ -979,7 +982,7 @@ def update_project_main_image(project_id):
 @admin_required
 def delete_project_main_image(project_id):
     try:
-        project = Project.query.options(selectinload(Project.photos)).filter_by(id=project_id).first()
+        project = Project.query.options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).filter_by(id=project_id).first()
         if not project:
             return jsonify({'success': False, 'error': f'Project with ID {project_id} not found'}), 404
         if not project.main_image_url:
@@ -1019,7 +1022,7 @@ def delete_project_main_image(project_id):
 @admin_required
 def delete_project_photo_by_url(project_id):
     try:
-        project = Project.query.options(selectinload(Project.photos)).filter_by(id=project_id).first()
+        project = Project.query.options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).filter_by(id=project_id).first()
         if not project:
             return jsonify({'success': False, 'error': f'Project with ID {project_id} not found'}), 404
         photo_url = normalize_upload_url(request.form.get('photo_url'))
@@ -1074,7 +1077,13 @@ def register():
     phone = clean_text(data.get('phone'), 50)
     email = normalize_email_address(data.get('email'))
     password = data.get('password')
-    if not all((first_name, last_name, phone, email)) or not isinstance(password, str):
+    if (
+        not first_name
+        or not last_name
+        or not phone
+        or not email
+        or not isinstance(password, str)
+    ):
         return jsonify({'success': False, 'error': 'ყველა ველის სწორად შევსება აუცილებელია'}), 400
     if not 8 <= len(password) <= 128:
         return jsonify({'success': False, 'error': 'პაროლი უნდა შეიცავდეს 8-დან 128-მდე სიმბოლოს'}), 400
@@ -1299,9 +1308,14 @@ def queue_reset_email(email):
         close_fds=True,
         start_new_session=True,
     )
+    process_input = process.stdin
+    if process_input is None:
+        process.kill()
+        process.wait(timeout=5)
+        raise RuntimeError('Password reset worker stdin is unavailable')
     try:
-        process.stdin.write(email)
-        process.stdin.close()
+        process_input.write(email)
+        process_input.close()
     except Exception:
         process.kill()
         process.wait(timeout=5)
@@ -1396,7 +1410,7 @@ def get_user_liked_projects():
             project_likes.c.user_id == current_user.id
         ).outerjoin(
             likes_count_subquery, Project.id == likes_count_subquery.c.project_id
-        ).options(selectinload(Project.photos)).all()
+        ).options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).all()
 
         # Create JSON response
         projects_data = []
@@ -1456,7 +1470,7 @@ def get_admin_user_liked_projects(user_id):
             project_likes.c.user_id == user_id
         ).outerjoin(
             likes_count_subquery, Project.id == likes_count_subquery.c.project_id
-        ).options(selectinload(Project.photos)).all()
+        ).options(selectinload(PROJECT_PHOTOS_ATTRIBUTE)).all()
         
         # Create JSON response
         projects_data = []
@@ -1644,7 +1658,8 @@ def add_carousel_image():
             return jsonify({'success': False, 'error': 'Invalid image file format'}), 400
 
         try:
-            order = int(request.form.get('order', 0))
+            raw_order = request.form.get('order')
+            order = int(raw_order if raw_order is not None else '0')
         except (TypeError, ValueError):
             delete_uploaded_file(image_url)
             return jsonify({'success': False, 'error': 'Order must be a valid integer'}), 400
@@ -1676,8 +1691,11 @@ def update_carousel_image_order(image_id):
     data = get_json_object()
     if data is None:
         return jsonify({'success': False, 'error': 'JSON object is required'}), 400
+    raw_order = data.get('order')
+    if isinstance(raw_order, bool) or not isinstance(raw_order, (str, int)):
+        return jsonify({'success': False, 'error': 'Order must be a valid integer'}), 400
     try:
-        new_order = int(data.get('order'))
+        new_order = int(raw_order)
     except (TypeError, ValueError):
         return jsonify({'success': False, 'error': 'Order must be a valid integer'}), 400
     if not 0 <= new_order <= 10000:

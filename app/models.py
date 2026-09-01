@@ -6,6 +6,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 from app.extensions import db
 import secrets
 
@@ -41,6 +42,18 @@ class User(UserMixin, db.Model):
     # კავშირი მოწონებულ პროექტებთან (მრავალ-მრავალ კავშირი)
     liked_projects = db.relationship('Project', secondary=project_likes, lazy='dynamic',
                                      backref=db.backref('liked_by_users', lazy='dynamic'))
+
+    if TYPE_CHECKING:
+        def __init__(
+            self,
+            username: str,
+            email: str,
+            password_hash: str = '',
+            is_admin: bool = False,
+            first_name: str | None = None,
+            last_name: str | None = None,
+            phone: str | None = None,
+        ) -> None: ...
 
     def set_password(self, password):
         """პაროლის დაშიფვრა და შენახვა"""
@@ -92,6 +105,9 @@ class Project(db.Model):
     
     # კავშირი Photo მოდელთან (ერთ-მრავალ კავშირი)
     photos = db.relationship('Photo', backref='project', lazy=True, cascade='all, delete-orphan')
+
+    if TYPE_CHECKING:
+        def __init__(self, area: str, main_image_url: str = '') -> None: ...
     
     def __repr__(self):
         return f'<Project {self.id}: {self.area}>'
@@ -103,6 +119,14 @@ class Photo(db.Model):
     url = db.Column(db.String(200), nullable=False)  # ფოტოს URL
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)  # პროექტის ID
     order = db.Column(db.Integer, default=0)  # ფოტოს რიგითობა პროექტში
+
+    if TYPE_CHECKING:
+        def __init__(
+            self,
+            url: str,
+            project_id: int | None = None,
+            order: int = 0,
+        ) -> None: ...
     
     def __repr__(self):
         return f'<Photo {self.id}: {self.url}>'
@@ -115,6 +139,14 @@ class CarouselImage(db.Model):
     order = db.Column(db.Integer, default=0)  # ფოტოს რიგითობა კარუსელში
     is_active = db.Column(db.Boolean, default=True)  # არის თუ არა ფოტო აქტიური
     created_at = db.Column(db.DateTime, default=datetime.utcnow)  # შექმნის თარიღი
+
+    if TYPE_CHECKING:
+        def __init__(
+            self,
+            url: str,
+            order: int = 0,
+            is_active: bool = True,
+        ) -> None: ...
     
     def __repr__(self):
         return f'<CarouselImage {self.id}: {self.url}>'
@@ -127,6 +159,14 @@ class ContactSubmission(db.Model):
     message = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     is_read = db.Column(db.Boolean, default=False)
+
+    if TYPE_CHECKING:
+        def __init__(
+            self,
+            sender_email: str,
+            message: str,
+            is_read: bool = False,
+        ) -> None: ...
 
     def __repr__(self):
         return f'<ContactSubmission {self.id} from {self.sender_email}>'
